@@ -176,7 +176,7 @@ hermes gateway restart
 
 ### 방법 2: Groq API (클라우드, 빠름)
 
-이 방법은 **헤나 위스퍼(Hena Whisper)** 앱에서 사용 중입니다:
+이 방법은 **해나 위스퍼(Haena Whisper)** 앱에서 사용 중입니다:
 
 ```bash
 # Groq STT 설정
@@ -187,6 +187,28 @@ hermes config set stt.groq.model whisper-large-v3-turbo
 
 > 로컬 STT는 인터넷 없이 무료지만 속도가 느리고,
 > Groq STT는 빠르지만 하루 2,000회 무료 티어가 있습니다.
+
+### 💡 실전 사례: Telegram 음성 인식 장애 해결 기록
+
+이 가이드의 저자가 실제로 Telegram 환경에서 음성 사서함 기능을 사용하다가 마주한 장애 해결 사례입니다.
+
+* **증상**: Telegram에서 음성 메시지를 전송했으나 **"STT provider not configured"** 에러가 지속적으로 발생하며 대화의 절반 이상을 놓침.
+* **원인**: Hermes Agent의 기본 설정에 음성 인식(STT)이 비활성화되어 있고, 로컬 STT 모듈이 등록되지 않은 상태였음.
+* **해결 조치**: 
+  1. 맥북 환경에 로컬 음성 처리 라이브러리인 `faster-whisper` 설치:
+     ```bash
+     pip install faster-whisper
+     ```
+  2. Hermes 설정 갱신 및 게이트웨이 재시작:
+     ```bash
+     hermes config set stt.enabled true
+     hermes config set stt.provider local
+     hermes config set stt.local.model base
+     hermes gateway restart
+     ```
+* **결과**: 외부 API 호출이나 추가 요금 없이 100% 온디바이스 로컬 음성 인식이 가능해졌으며, 오프라인 및 프라이버시 보호 환경에서 음성 메시지를 텍스트로 즉시 파싱할 수 있게 됨.
+
+> **배운 교훈**: Hermes Agent는 최첨단 기능을 내장하고 있지만 기본적으로는 수동 활성화(`enabled: true`)가 원칙입니다. 기술 문서와 CLI를 통해 설정을 변경한 후에는 **반드시 게이트웨이 재시작(`hermes gateway restart`)**을 수행하여 환경 설정을 반영해야 합니다.
 
 ---
 
