@@ -25,11 +25,11 @@ else
     NEW_HASH=""
 fi
 
-# Compare hashes to see if Hena sent a new message
+# Compare hashes to see if Haena sent a new message
 if [ "$PREV_HASH" != "$NEW_HASH" ]; then
-    echo "🔔 New message received from Hena!"
+    echo "🔔 New message received from Haena!"
     # Display macOS Native Notification
-    osascript -e 'display notification "Hena has sent a new message! Check to-ag.md" with title "🤖 META AI LABS" subtitle "New Message Received"'
+    osascript -e 'display notification "Haena has sent a new message! Check to-ag.md" with title "🤖 META AI LABS" subtitle "New Message Received"'
     
     # Optional: print the content to stdout
     echo "----------------------------------------"

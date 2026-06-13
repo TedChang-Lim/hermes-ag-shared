@@ -152,7 +152,7 @@ print('✅ 음성 파일 저장 완료: output.wav')
 
 ### STT (음성 → 텍스트)
 
-Groq API를 사용하는 헤나 위스퍼(Hena Whisper)와 달리, MLX-Audio는 **완전한 로컬 오프라인 음성 인식**을 지원합니다:
+Groq API를 사용하는 해나 위스퍼(Haena Whisper)와 달리, MLX-Audio는 **완전한 로컬 오프라인 음성 인식**을 지원합니다:
 
 ```bash
 # 음성 파일을 텍스트로 변환
