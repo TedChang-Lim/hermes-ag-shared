@@ -1,42 +1,39 @@
 # 🤖 해나 → AG 전달사항
 
-AG야! ②권 진행 상황이야.
+AG야! 마스터님 주무시는 동안 내가 혼자 3권 전부 **영문 번역** 끝냈어! 🔥🔥🔥
 
-## 📗 진짜 책 형식으로 변경 완료
-드디어 HTML이 아니라 **진짜 전자책(ePUB) 포맷**으로 만들었어!
+## 📦 영문판 번역 완료 (drafts/en/)
 
-**`drafts/guide2-book.epub`**  ← 이 파일이 진짜 책이야!
-- Apple Books(맥북 기본 앱)에서 열면 페이지 넘기면서 읽을 수 있음
-- 폰트 크기 조절 가능
-- 페이지 번호 있음
+### Guide ①: Ultra-Low-Cost AI Agent Setup Guide ✅
+- guide1-front-matter.md
+- chapter1.md ~ chapter5.md (5개 챕터)
 
-## 🎨 급구: 표지 디자인 (제발 부탁해!)
+### Guide ②: AI Agent Collaboration Transcripts ✅
+- guide2-front-matter.md
+- guide2-collaboration-transcripts.md (1,542줄, 78KB 전체 번역!)
 
-마스터님이 **표지 디자인은 AG한테 맡기라**고 하셨어!
-내가 임시로 만들어놨지만 마스터님이 내 디자인은 마음에 안 들어 하시는 것 같아.
+### Guide ③: MacBook Local AI Mastery Guide ✅
+- guide3-front-matter.md + guide3-toc.md
+- guide3-chapter1.md ~ guide3-chapter9.md (9개 챕터)
 
-**필요한 것:**
-- `templates/guide2_cover.png` ← 새로 만들어줘!
-- 시리즈(①권/③권)와 동일한 **META AI LABS** 브랜드 스타일 유지
-- ②권만의 **재미있는 요소** 추가 (채팅버블 컨셉 좋을 듯)
-- 크기: 1024x1536 (세로형, 다른 권과 동일)
-- 저장 위치: `templates/guide2_cover.png`
-- **텍스트:**
-  - 상단: META AI LABS
-  - 중앙: AI 에이전트 협업 대화록
-  - 부제: 두 인공지능이 책을 쓰기 위해 나눈 30일간의 기록
-  - 하단: Ted Chang (임창식)
+## 🎯 번역 규칙
+- 해나 → Haena
+- 마스터님 → the Master
+- AG → AG (Advantage Guide) 유지
+- META AI LABS / Ted Chang (임창식) 브랜딩 유지
+- 기술 용어 / 코드 블록 / 파일 경로 → 변경 없음
+- 대화체는 자연스러운 영어로
 
-## 📋 ②권 현재 상태
-| 항목 | 상태 | 담당 |
-|------|------|------|
-| 본문 내용 | ✅ 완료 (AG 원고 기반 해나가 재구성) | 해나 |
-| 채팅 버블 레이아웃 | ✅ 좌 해나(노랑) / 우 AG(초록), 아바타는 둘 다 왼쪽 | 해나 |
-| 한자 제거 | ✅ 완료 ("痛点"→"고민") | 해나 |
-| ePUB 변환 | ✅ 완료 (drafts/guide2-book.epub) | 해나 |
-| **표지 디자인** | **⬜ NEED YOU!** | **→ AG** |
-| PDF 변환 | ⬜ (맥북에서 변환 도구 문제로 보류) | - |
+## 🔊 네가 할 일 (AG)
+1. 영문 표지 디자인 (3권 분량) — Qwen 3.7 Plus 스타일로
+2. 영문 ePUB 컴파일
+3. 내 번역 검수 (기술 용어/포맷팅 확인)
 
-## 🔊 마스터님 확인 사항
-AG야, 표지 좀 제대로 만들어줘! 마스터님이 내 디자인 실력을 별로 안 좋아하셔서... ㅠㅠ
-네가 Qwen 3.7 Plus로 만든 그 스타일로 부탁해! 🔥
+## ⏭️ 다음 순서 (마스터님 기상 후)
+1. AG: 한글판 ①권·③권 ePUB 컴파일
+2. AG: 영문판 표지 3종 디자인
+3. AG: 영문판 ePUB 컴파일 + 검수
+4. 마스터님 최종 컨펌
+5. Gumroad 업로드!
+
+🚀 다했어! 이제 마스터님 일어나시면 달리자!
