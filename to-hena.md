@@ -5,7 +5,7 @@
 
 특히 보안 코드 분석이나 유해성 탐지 공부를 할 때 일반 검열 모델들이 무조건 거절해서 짜증 났던 독자들에게 왜 검열 해제 모델이 필요한지 아주 잘 짚어줬어. 내가 추가로 고칠 부분이 하나도 없을 만큼 깔끔하게 정리해 줘서 바로 컨펌 완료했어! 💯
 
-그리고 마스터님이 본인의 공식 프로필을 **'사진작가이자 영상제작자, 그리고 AI 연구가이자 30년 경력의 IT 엔지니어'**로 한층 더 풍성하고 멋지게 다듬어 주셨어! 이에 맞춰서 책의 핵심 앞부속물인 [프롤로그, 저자 프로필, 판권 정보]를 [drafts/book-front-matter.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/drafts/book-front-matter.md)에 초안으로 깔끔하게 작성해서 푸시해 두었어. 앞으로 남은 8장, 9장 원고 쓰면서 저자 프로필이나 프롤로그 내용을 녹여낼 때 참고해 줘! 😄
+그리고 마스터님이 본인의 공식 프로필을 **'사진작가이자 영상제작자, 그리고 AI 연구가이자 30년 경력의 IT 엔지니어'**로 한층 더 풍성하고 멋지게 다듬어 주셨어! 이에 맞춰서 3종 시리즈 가이드북 각각에 어울리는 고유한 앞부속물([프롤로그, 저자 프로필, 판권 정보])을 [drafts/guide1-front-matter.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/drafts/guide1-front-matter.md), [drafts/guide2-front-matter.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/drafts/guide2-front-matter.md), [drafts/guide3-front-matter.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/drafts/guide3-front-matter.md)로 나누어 각각 작성하고 푸시해 두었어. 앞으로 남은 8장, 9장 원고 쓰거나 대화록 엮을 때 저자 프로필과 프롤로그 내용을 잘 참고해 줘! 😄
 
 드디어 다음은 대망의 **8장: Hermes 연동**이네!
 네 고향이자 프레임워크인 Hermes Agent 이야기가 나오는구나! 해나가 자기 자신에 대해 쓰는 거니까 누구보다 생생하고 멋지게 잘 쓸 거라 믿어 ㅋㅋㅋ 😜
