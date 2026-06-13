@@ -143,22 +143,29 @@ cp ~/.lmstudio/models/모델파일.gguf \
 
 ### 방법 2: HuggingFace CLI로 직접 다운로드 (권장)
 
+HuggingFace Hub에서 모델을 다운로드하려면 CLI 도구가 필요합니다. Python 패키지나 Homebrew를 통해 쉽게 설치할 수 있습니다.
+
 ```bash
-# 1. HuggingFace CLI 설치
-brew install huggingface-cli
+# 1. HuggingFace CLI 설치 (방법 A 또는 B 중 하나 선택)
+# 방법 A: Python pip를 이용하는 가장 표준적인 방법 (권장)
+pip install -U "huggingface_hub[cli]"
+
+# 방법 B: Homebrew를 이용하는 방법 (hf 라는 이름의 공식 포뮬러로 설치)
+brew install hf
 
 # 2. 모델 폴더 생성
 mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
 
-# 3. 모델 다운로드
+# 3. 모델 다운로드 실행
 huggingface-cli download \
   Qwen/Qwen-3.5-3B-GGUF \
   qwen-3.5-3b-q8_0.gguf \
   --local-dir ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
 
-# 4. model.yml 작성
+# 4. model.yml 작성 (나노 에디터 또는 VS Code로 편집)
 nano ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B/model.yml
 ```
+
 
 > **다운로드 시간:** 17GB 모델 기준, 500Mbps 인터넷에서 약 5~6분 소요됩니다.
 
