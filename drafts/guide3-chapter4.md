@@ -86,24 +86,27 @@ pip install mlx-vlm
 
 ## 4.4 MLX로 모델 실행하기
 
-### 기본 채팅
+### 기본 채팅 (mlx-community 활용 권장)
+
+MLX로 모델을 로드할 때는 원래의 거대한 모델(Full Precision) 대신, Hugging Face의 **`mlx-community`** 채널에서 미리 최적화 및 양자화(Quantized)된 모델을 가져오는 것이 속도와 메모리 면에서 훨씬 유리합니다. 또한 대화용으로는 항상 `Instruct` 모델을 사용해야 합니다.
 
 ```bash
-# MLX-LM으로 Qwen 3.5 실행
+# mlx-community에서 4비트 양자화된 Qwen 2.5 3B Instruct 모델 실행
 mlx_lm.generate \
-  --model Qwen/Qwen3.5-3B \
+  --model mlx-community/Qwen2.5-3B-Instruct-4bit \
   --prompt "안녕하세요, 로컬 AI 테스트 중입니다." \
   --max-tokens 512
 
-# 또는 Python 스크립트로
+# 또는 Python 스크립트로 실행할 때:
 python -c "
 from mlx_lm import load, generate
 
-model, tokenizer = load('Qwen/Qwen3.5-3B')
+model, tokenizer = load('mlx-community/Qwen2.5-3B-Instruct-4bit')
 response = generate(model, tokenizer, '안녕하세요!', max_tokens=512)
 print(response)
 "
 ```
+
 
 ### GGUF 파일을 MLX로 변환
 
