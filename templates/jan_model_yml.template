@@ -1,0 +1,22 @@
+# Jan.ai llama.cpp model configuration template (model.yml)
+# Place this file in: ~/Library/Application Support/Jan/data/llamacpp/models/<model_name>/model.yml
+
+# Model metadata
+id: qwen-3.5-3b-gguf
+name: Qwen 3.5 3B (GGUF)
+engine: llamacpp
+
+# Inference Settings
+ctx_len: 4096            # Context length (increase to 8192 if needed)
+temperature: 0.7         # Randomness control
+top_p: 0.9               # Nucleus sampling
+max_tokens: 2048         # Maximum response tokens
+
+# Hardware acceleration settings (Crucial for Apple Silicon!)
+n_gpu_layers: -1         # GPU Layers Offload: -1 offloads all layers to Metal GPU on Apple Silicon Mac
+
+# System Prompt Template (ChatML format recommended for Qwen/Gemma)
+prompt_template: "<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
+stop:
+  - "<|im_end|>"
+  - "<|im_start|>"
