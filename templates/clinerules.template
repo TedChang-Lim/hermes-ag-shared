@@ -1,0 +1,19 @@
+# 🤖 Ultra-Low-Cost AI Agent Rules (.clinerules)
+
+This file guides the agent's behavior to maximize performance while minimizing API costs (optimizing for DeepSeek/Mimo context caching).
+
+## 💸 Cost Optimization Guidelines (Token Management)
+1. **Optimize for Cache Hits**:
+   - Keep your system prompt and instructions consistent.
+   - Do not make random changes to the system files unless requested.
+   - Reuse context: If reading a large file, read it once and rely on memory or caching rather than reading it repeatedly.
+2. **Minimize Token Output**:
+   - Write concise explanations. Focus on code changes rather than long narrative summaries.
+   - When updating files, use `replace_file_content` for specific lines rather than writing the whole file. Writing whole files wastes output tokens.
+3. **Session Re-initialization**:
+   - If the conversation history gets too long (above 50,000 tokens), warn the user to start a new chat session to reset the cache window and avoid higher latency.
+
+## 📂 Agent Collaboration Rules
+- Check the designated shared folder (e.g. `shared/`) for messages from other agents before starting.
+- Log your completed tasks in the shared message board.
+- Avoid duplicate research or API calls.
