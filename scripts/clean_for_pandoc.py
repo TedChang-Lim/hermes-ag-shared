@@ -19,12 +19,16 @@ text = re.sub(r'^---\n.*?\n---\n', '', text, flags=re.DOTALL)
 text = re.sub(r'> \*\*📊.*?\n(> \* .*?\n)*', '', text)
 text = re.sub(r'> \* \*\*.*?\n', '', text)
 
-# Replace avatar/image references with simple speaker labels
-text = re.sub(r'!\[해나.*?\]\(.*?\).*?\*\*해나.*?\*\*', '#### 🤖 해나 (Haena)', text)
-text = re.sub(r'!\[AG.*?\]\(.*?\).*?\*\*AG.*?\*\*', '#### 🧠 AG (Advantage Guide)', text)
+# Replace avatar/image references with temporary placeholders
+text = re.sub(r'!\[해나.*?\]\(.*?\).*?\*\*해나.*?\*\*', '__HAENA_AVATAR__', text)
+text = re.sub(r'!\[AG.*?\]\(.*?\).*?\*\*AG.*?\*\*', '__AG_AVATAR__', text)
 
-# Remove markdown image references
+# Remove all other markdown image references
 text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
+
+# Restore avatars with Pandoc class and size attributes
+text = text.replace('__HAENA_AVATAR__', '#### ![](templates/haena_avatar.png){.avatar width=36px} 해나 (Haena)')
+text = text.replace('__AG_AVATAR__', '#### ![](templates/ag_avatar.png){.avatar width=36px} AG (Advantage Guide)')
 
 # Clean up excessive blank lines
 text = re.sub(r'\n{4,}', '\n\n\n', text)

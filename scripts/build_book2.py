@@ -248,7 +248,8 @@ body {{
 .msg-bubble {{
     padding: 12px 16px; border-radius: 14px;
     font-size: 9.5pt; line-height: 1.7;
-    word-break: break-word;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }}
 .msg-bubble.haena {{
     background: #FFF3CD; color: #333;

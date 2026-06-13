@@ -1,0 +1,45 @@
+/* templates/epub_style.css */
+
+/* 대화 발화자 헤더 스타일 */
+h4 {
+    margin-top: 2.0em;
+    margin-bottom: 0.8em;
+    padding-bottom: 0.4em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 1.15em;
+    font-weight: bold;
+}
+
+/* 동그란 아바타 이미지 스타일링 */
+img.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px; /* 고정 크기 반값 */
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+/* 대화 내용(인용 블록 등) 스타일링 */
+blockquote {
+    border-left: 3px solid #4ecca3;
+    padding-left: 12px;
+    margin-left: 10px;
+    color: #666666;
+}
+
+/* 코드 블록 스타일링 */
+code {
+    font-family: monospace;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* 전반적인 한글 단어 줄바꿈 가독성 개선 */
+p, li, blockquote, dd, dt, th, td {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
