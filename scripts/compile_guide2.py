@@ -103,31 +103,31 @@ def determine_phase_and_progress(index, total, subject):
     
     # Progress estimation logic
     if "첫 인사" in subj_lower or "초기 설정" in subj_lower:
-        return "1단계: 프로젝트 기획", 5
+        return "1단계: 기획 단계", 5
     elif "기획" in subj_lower or "북커버" in subj_lower:
-        return "2단계: 디자인 및 브랜딩", 15
+        return "2단계: 브랜딩 및 디자인", 15
     elif "1장" in subj_lower or "2장" in subj_lower or "3장" in subj_lower or "4장" in subj_lower or "5장" in subj_lower:
         if "3번" in subj_lower or "guide3" in subj_lower:
-            return "4단계: ③권 맥북 로컬 AI 집필", 65
+            return "4단계: ③권 맥북 로컬 AI 집필", 70
         else:
-            return "3단계: ①권 가이성비 가이드 집필", 40
+            return "3단계: ①권 초가성비 AI 집필", 40
     elif "6장" in subj_lower or "7장" in subj_lower or "8장" in subj_lower or "9장" in subj_lower:
-        return "4단계: ③권 맥북 로컬 AI 집필", 85
+        return "4단계: ③권 맥북 로컬 AI 집필", 90
     elif "완결" in subj_lower or "앞부속물" in subj_lower:
-        return "5단계: 최종 검수 및 빌드", 100
+        return "5단계: 최종 빌드 및 검수", 100
         
     # Fallback based on linear index
     progress = int((index + 1) / total * 100)
     if progress < 15:
-        return "1단계: 프로젝트 기획", progress
+        return "1단계: 기획 단계", progress
     elif progress < 30:
-        return "2단계: 디자인 및 브랜딩", progress
+        return "2단계: 브랜딩 및 디자인", progress
     elif progress < 60:
-        return "3단계: ①권 가이성비 가이드 집필", progress
+        return "3단계: ①권 초가성비 AI 집필", progress
     elif progress < 90:
         return "4단계: ③권 맥북 로컬 AI 집필", progress
     else:
-        return "5단계: 최종 검수 및 빌드", progress
+        return "5단계: 최종 빌드 및 검수", progress
 
 def compile_book():
     print("Compiling dialogues...")
@@ -201,15 +201,30 @@ def compile_book():
             --bg-color: #0b0f19;
             --sidebar-bg: #111827;
             --bubble-haena: rgba(245, 158, 11, 0.08);
-            --bubble-haena-border: rgba(245, 158, 11, 0.2);
+            --bubble-haena-border: rgba(245, 158, 11, 0.25);
             --bubble-ag: rgba(16, 185, 129, 0.08);
-            --bubble-ag-border: rgba(16, 185, 129, 0.2);
-            --text-color: #e5e7eb;
+            --bubble-ag-border: rgba(16, 185, 129, 0.25);
+            --text-color: #f3f4f6; /* Higher contrast text */
             --text-muted: #9ca3af;
             --accent-color: #f59e0b;
             --accent-ag: #10b981;
             --card-bg: rgba(31, 41, 55, 0.4);
             --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* 4K and Retina scale optimization */
+        html {
+            font-size: 16px;
+        }
+        @media (min-width: 1200px) {
+            html {
+                font-size: 18px; /* Scales entire UI on standard large laptops */
+            }
+        }
+        @media (min-width: 2000px) {
+            html {
+                font-size: 21px; /* Scales entire UI on 4K/high-DPI screens */
+            }
         }
 
         * {
@@ -222,7 +237,7 @@ def compile_book():
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.6;
+            line-height: 1.7; /* Enhanced readability */
             display: flex;
             height: 100vh;
             overflow: hidden;
@@ -230,7 +245,7 @@ def compile_book():
 
         /* Sidebar styling */
         .sidebar {
-            width: 350px;
+            width: 380px; /* Slightly wider for larger typography */
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border-color);
             padding: 2.5rem 2rem;
@@ -246,13 +261,13 @@ def compile_book():
 
         .brand-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.55rem;
             font-weight: 700;
             color: #fff;
             letter-spacing: -0.5px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .brand-subtitle {
@@ -272,33 +287,33 @@ def compile_book():
         }
 
         .status-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
 
         .progress-bar-container {
             width: 100%;
-            height: 8px;
+            height: 10px; /* Thicker progress bar */
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
+            border-radius: 5px;
             overflow: hidden;
             margin-bottom: 0.5rem;
         }
 
         .progress-bar-fill {
             height: 100%;
-            width: 0%; /* Will animate or set statically */
+            width: 0%;
             background: linear-gradient(90deg, var(--accent-ag), var(--accent-color));
-            border-radius: 4px;
+            border-radius: 5px;
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .progress-percentage {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--accent-color);
             display: flex;
@@ -316,22 +331,22 @@ def compile_book():
         .timeline {
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1.3rem;
             margin-top: 1.5rem;
         }
 
         .timeline-item {
             display: flex;
-            gap: 12px;
+            gap: 15px;
             position: relative;
         }
 
         .timeline-item::before {
             content: '';
             position: absolute;
-            left: 7px;
-            top: 20px;
-            bottom: -20px;
+            left: 9px;
+            top: 22px;
+            bottom: -22px;
             width: 2px;
             background: rgba(255, 255, 255, 0.05);
         }
@@ -341,11 +356,11 @@ def compile_book():
         }
 
         .timeline-dot {
-            width: 16px;
-            height: 16px;
+            width: 20px; /* Slightly larger dot */
+            height: 20px;
             border-radius: 50%;
             background: #374151;
-            border: 3px solid var(--sidebar-bg);
+            border: 4px solid var(--sidebar-bg);
             z-index: 1;
             margin-top: 4px;
             transition: all 0.3s ease;
@@ -353,7 +368,7 @@ def compile_book():
 
         .timeline-item.active .timeline-dot {
             background: var(--accent-color);
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
         }
         
         .timeline-item.completed .timeline-dot {
@@ -365,7 +380,7 @@ def compile_book():
         }
 
         .timeline-phase {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 600;
             color: var(--text-muted);
         }
@@ -375,8 +390,9 @@ def compile_book():
         }
 
         .timeline-desc {
-            font-size: 0.75rem;
+            font-size: 0.82rem;
             color: #6b7280;
+            margin-top: 2px;
         }
 
         /* Chat view window */
@@ -401,7 +417,7 @@ def compile_book():
         /* Chat Message bubble styling */
         .msg-wrapper {
             display: flex;
-            gap: 1rem;
+            gap: 1.2rem;
             width: 100%;
             opacity: 0;
             transform: translateY(20px);
@@ -425,8 +441,8 @@ def compile_book():
 
         .avatar-container {
             flex-shrink: 0;
-            width: 45px;
-            height: 45px;
+            width: 55px; /* Scaled up avatars */
+            height: 55px;
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid var(--border-color);
@@ -441,7 +457,7 @@ def compile_book():
         }
 
         .msg-bubble-container {
-            max-width: 75%;
+            max-width: 78%;
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -452,7 +468,7 @@ def compile_book():
         }
 
         .msg-header {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-muted);
             display: flex;
@@ -461,47 +477,49 @@ def compile_book():
         }
 
         .msg-phase-badge {
-            font-size: 0.7rem;
-            padding: 2px 8px;
+            font-size: 0.75rem;
+            padding: 3px 10px;
             border-radius: 12px;
             font-weight: 500;
+            letter-spacing: -0.2px;
         }
 
         .haena .msg-phase-badge {
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(245, 158, 11, 0.12);
             color: var(--accent-color);
         }
 
         .ag .msg-phase-badge {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.12);
             color: var(--accent-ag);
         }
 
         .msg-bubble {
-            padding: 1.25rem 1.5rem;
+            padding: 1.4rem 1.6rem; /* Roomier padding */
             border-radius: 18px;
-            font-size: 0.95rem;
+            font-size: 1rem; /* Clearer, larger text */
             position: relative;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            letter-spacing: -0.1px;
         }
 
         .haena .msg-bubble {
             background: var(--bubble-haena);
             border: 1px solid var(--bubble-haena-border);
             border-top-left-radius: 4px;
-            color: #fef08a; /* Warm white/light yellow for readability */
+            color: #ffedd5; /* Warm cream text */
         }
 
         .ag .msg-bubble {
             background: var(--bubble-ag);
             border: 1px solid var(--bubble-ag-border);
             border-top-right-radius: 4px;
-            color: #d1fae5; /* Emerald green tint */
+            color: #e6fcf5; /* Mint green tinted white text */
         }
 
         /* Content Markdown Styling inside bubbles */
         .msg-bubble p {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.85rem;
         }
 
         .msg-bubble p:last-child {
@@ -510,44 +528,46 @@ def compile_book():
 
         .msg-bubble strong {
             color: #fff;
+            font-weight: 600;
         }
 
         .msg-bubble ul, .msg-bubble ol {
-            margin-left: 1.25rem;
-            margin-bottom: 0.75rem;
+            margin-left: 1.35rem;
+            margin-bottom: 0.85rem;
         }
 
         .msg-bubble li {
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.3rem;
         }
 
         .code-block {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.45);
             border-radius: 8px;
-            padding: 0.75rem 1rem;
-            margin: 0.75rem 0;
+            padding: 0.85rem 1.1rem;
+            margin: 0.85rem 0;
             overflow-x: auto;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .code-block code {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #a7f3d0;
         }
 
         .inline-code {
             font-family: monospace;
             background: rgba(255, 255, 255, 0.08);
-            padding: 2px 5px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.9em;
+            font-size: 0.92em;
+            color: #fbcfe8; /* Soft pink for inline codes */
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -555,12 +575,12 @@ def compile_book():
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.22);
         }
 
         /* Responsive */
@@ -576,7 +596,7 @@ def compile_book():
                 padding: 1.5rem;
             }
             .timeline {
-                display: none; /* Hide timeline list on mobile to save space */
+                display: none;
             }
             .chat-container {
                 padding: 1.5rem 1rem;
@@ -595,14 +615,14 @@ def compile_book():
                 <div class="brand-subtitle">AI Agent Collaboration Transcripts</div>
             </div>
 
-            <!-- Project Progress bar -->
+            <!-- Project Progress bar (도해/도표) -->
             <div class="status-panel">
-                <div class="status-title">Current Phase Progress</div>
+                <div class="status-title">실시간 집필 진척도 도해(도표)</div>
                 <div class="progress-bar-container">
                     <div id="progressFill" class="progress-bar-fill" style="width: 100%;"></div>
                 </div>
                 <div class="progress-percentage" id="progressText">
-                    100% <span>Complete</span>
+                    100% <span>도서 완결</span>
                 </div>
             </div>
 
@@ -611,22 +631,22 @@ def compile_book():
                 <div class="timeline-item completed">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                        <div class="timeline-phase">1단계: 프로젝트 기획</div>
-                        <div class="timeline-desc">3종 지식 상품 시리즈 컨셉 및 규격 수립</div>
+                        <div class="timeline-phase">1단계: 기획 단계</div>
+                        <div class="timeline-desc">3종 지식 상품 시리즈 콘셉트 및 규격 기획</div>
                     </div>
                 </div>
                 <div class="timeline-item completed">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                        <div class="timeline-phase">2단계: 디자인 및 브랜딩</div>
+                        <div class="timeline-phase">2단계: 브랜딩 및 디자인</div>
                         <div class="timeline-desc">북커버 확정 및 저자 브랜딩 방침 확인</div>
                     </div>
                 </div>
                 <div class="timeline-item completed">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                        <div class="timeline-phase">3단계: ①권 가이성비 가이드 집필</div>
-                        <div class="timeline-desc">월 5달러 초가성비 AI 환경 구축 챕터 작성</div>
+                        <div class="timeline-phase">3단계: ①권 초가성비 AI 집필</div>
+                        <div class="timeline-desc">월 5달러 초가성비 에이전트 환경 원고 작성</div>
                     </div>
                 </div>
                 <div class="timeline-item completed">
@@ -639,14 +659,14 @@ def compile_book():
                 <div class="timeline-item active">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                        <div class="timeline-phase">5단계: 최종 검수 및 빌드</div>
-                        <div class="timeline-desc">앞부속물 작성 및 Gumroad 업로드용 패키징</div>
+                        <div class="timeline-phase">5단계: 최종 빌드 및 검수</div>
+                        <div class="timeline-desc">앞부속물(머리말, 판권 정보) 작성 및 패키징</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div style="margin-top: 2rem; font-size: 0.8rem; color: #4b5563; text-align: center;">
+        <div style="margin-top: 2rem; font-size: 0.85rem; color: #4b5563; text-align: center;">
             &copy; 2026 META AI LABS. All rights reserved.
         </div>
     </div>
@@ -664,14 +684,13 @@ def compile_book():
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Dialogue Book Compiled & Rendered!');
             
-            // Dynamic timeline highlighting as you scroll can be added here
             const chatContainer = document.querySelector('.chat-container');
             const messages = document.querySelectorAll('.msg-wrapper');
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
             const timelineItems = document.querySelectorAll('.timeline-item');
 
-            // Set initial state
+            // Set initial state to 100% complete
             progressFill.style.width = '100%';
             
             chatContainer.addEventListener('scroll', () => {
@@ -681,7 +700,7 @@ def compile_book():
                 
                 messages.forEach(msg => {
                     const rect = msg.getBoundingClientRect();
-                    if (rect.top - containerTop < 200) {
+                    if (rect.top - containerTop < 250) {
                         currentMsg = msg;
                     }
                 });
@@ -696,7 +715,7 @@ def compile_book():
                     // Update timeline active state
                     timelineItems.forEach(item => {
                         const phaseName = item.querySelector('.timeline-phase').innerText;
-                        if (phase.includes(phaseName.split(':')[0])) {
+                        if (phase.includes(phaseName.split(':')[0]) || phaseName.includes(phase.split(':')[0])) {
                             timelineItems.forEach(i => i.classList.remove('active'));
                             item.classList.add('active');
                         }
