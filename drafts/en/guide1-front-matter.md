@@ -30,7 +30,7 @@ However, as I subscribed to multiple well-known AI services and increased my API
 This book was born from that very question.
 And in May 2026, when DeepSeek declared a permanent 75% discount on API pricing, the answer finally arrived.
 
-This book is a practical guide for setting up and leveraging your own powerful AI agents (Cline, Hermes, etc.) on your own computer — at an ultra-low cost of around $5/month — even without complex IT expertise or expensive paid subscription services.
+This book is a practical guide for setting up and leveraging your own powerful AI agents (Cline, Hermes, etc.) on your own computer — at an ultra-low cost of around $4/month — even without complex IT expertise or expensive paid subscription services.
 
 To all creators, solo entrepreneurs, and researcher colleagues who have hesitated to embrace the power of AI collaboration due to cost barriers, I hope this book becomes a sturdy pair of wings.
 
@@ -40,7 +40,7 @@ To all creators, solo entrepreneurs, and researcher colleagues who have hesitate
 
 ## 3. Copyright & Colophon
 
-### Ultra-Low-Cost AI Agent Setup Guide: Run 24/7 for $5 a Month
+### Ultra-Low-Cost AI Agent Setup Guide: Run 24/7 for $4 a Month
 * **First Edition, First Printing**: June 15, 2026
 * **Author**: Ted Chang (임창식)
 * **Planning / Publisher**: META AI LABS & TedChang Studio

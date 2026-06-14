@@ -145,6 +145,6 @@ A: DeepSeek is a Chinese company, so its Korean language processing is surprisin
 
 **This completes all chapters of Guide Book ①.**
 
-**If you follow through on everything covered so far, you too can run a 24/7 AI assistant for under $5 a month.**
+If you follow through on everything covered so far, you too can run a 24/7 AI assistant for around $4 a month.
 
 > ⭐ **Pro version purchasers** will additionally receive the AI agent collaboration conversation logs (actual collaboration records between Haena and AG), config.yaml templates, and the auto-sync script provided as appendices.

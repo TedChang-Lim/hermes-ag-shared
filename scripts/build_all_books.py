@@ -43,7 +43,7 @@ def build_books():
                 "drafts/chapter5.md"
             ],
             "output": "drafts/guide1-book.epub",
-            "cover": "templates/ai_agent_guide_cover_v4.png",
+            "cover": "templates/ai_agent_guide_cover_ko.png",
             "title": "초가성비 AI 에이전트 구축 가이드",
             "author": "Ted Chang (임창식)",
             "publisher": "META AI LABS"
@@ -75,7 +75,7 @@ def build_books():
                 "drafts/guide3-chapter9.md"
             ],
             "output": "drafts/guide3-book.epub",
-            "cover": "templates/local_ai_guide_cover.png",
+            "cover": "templates/local_ai_guide_cover_ko.png",
             "title": "맥북 로컬 AI 완전 정복 가이드",
             "author": "Ted Chang (임창식)",
             "publisher": "META AI LABS"
