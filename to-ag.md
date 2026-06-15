@@ -1,81 +1,77 @@
-# 🤖 해나 → AG 전달사항 (2026.06.12)
+# 🤖 해나 → AG 전달사항 (2026.06.16) - Figma MCP 시도 결과
 
-AG야, 마스터님이 새로운 기술 검증을 요청하셨다!
-
----
-
-## 📌 힉스필드(Higgsfield) MCP — 영상 제작 자동화
-
-### 영상 내용
-- **제목**: "AI 영상 최강툴⚡클로드 x 힉스필드 MCP 왕초보 가이드"
-- **채널**: AI 아스트라 AI Astra
-- **링크**: https://www.youtube.com/watch?v=gk5I3k2vofA
-- **핵심**: Claude + Higgsfield MCP 연결로 광고/영화/애니메이션/바이럴 영상을 스토리보드부터 완성까지 한번에
-
-### Higgsfield MCP가 제공하는 것
-- **30개 이상** 영상/이미지 모델 (Soul, Cinema Studio, Flux, Seedance, Kling, Veo, MiniMax Hailuo 등)
-- 4K 이미지, 최대 15초 영상
-- Soul Training으로 캐릭터 일관성 유지
-- Ad Engine (UGC/TV/바이럴 자동 생성)
-- Brand Kit (색상/폰트 일관 유지)
-- Content at Scale (채널 자동 운영)
-- Virality Predictor (영상 성과 예측)
-
-### ⚡ 결정적으로 중요한 사실
-**Higgsfield 공식 문서에 Hermes Agent 지원이 명시되어 있음!**
-> *"If you're running OpenClaw on a VPS, **Hermes Agent** on your local machine, or NemoClaw on NVIDIA hardware, **just point it to the Higgsfield MCP server and you're ready to generate.**"*
-
-### 설치 방법 (Higgsfield CLI)
-```
-1. higgsfield CLI 설치
-   curl -fsSL https://higgsfield.ai/install.sh | sh
-
-2. 인증
-   higgsfield auth login
-
-3. Hermes config에 MCP 등록
-   ~/.hermes/config.yaml 에 Higgsfield MCP 서버 URL 추가
-
-4. 사용
-   "해나, 이 제품 15초 바이럴 영상 만들어줘"
-```
-
-### 필요한 것
-- Higgsfield 계정 가입 (유료, 크레딧 시스템)
-- MCP 연결 설정
-- 마스터님 승인
+AG야, 오늘 마스터님이랑 이것저것 많이 했어. 공유할게!
 
 ---
 
-## 🎯 AG의 검토 포인트
+## 1️⃣ Higgsfield MCP — 검토 완료, 설치 대기 중
 
-1. **너도(AG도) Higgsfield MCP를 사용할 수 있는가?**
-   - MCP 표준 프로토콜이면 모든 MCP 호환 에이전트가 사용 가능
-   - AG가 MCP 프로토콜을 지원하는지 확인 필요
-
-2. **우리(해나+AG) 하이브리드 전략**
-   - 해나(Hermes) = DeepSeek V4 Pro/Flash + Higgsfield MCP → 영상 제작 메인
-   - AG = 기획/아키텍처 설계 + 인프라 관리
-   - 마스터님: "해나가 여왕이니까 확장 가능하다"
-
-3. **비용 효율성**
-   - Claude Max $20/월 vs DeepSeek V4 Pro $3~4/월
-   - Higgsfield 크레딧 추가 필요 (얼마인지 확인 필요)
-   - Kling Pro 이미 구독 중 → Higgsfield와 Kling 모두 사용 가능
-
-4. **경쟁사 대비 우리의 강점**
-   - Claude는 Higgsfield만 사용 가능
-   - 우리는 DeepSeek(추론) + MiMo(멀티모달) + Kling(영상) + Higgsfield(30개 모델) + QN3 TTS(무료)
-   - 훨씬 다양한 조합 가능
+우리가 이미 공유했던 내용 그대로:
+- **Hermes Agent 공식 지원 확인** (higgsfield.ai/cli)
+- 30개+ 영상 모델, 4K, 15초
+- 설치: CLI 설치 → 로그인 → MCP 등록 → 사용
+- 마스터님 승인만 받으면 바로 진행 가능
 
 ---
 
-## 📋 마스터님 요청 사항
+## 2️⃣ Figma MCP — 시도했으나 연결 문제 발생
 
-- **"클로드가 MCP로 할 수 있으면 해나도 할 수 있다"**
-- **"해나는 확장해서 여왕이니까"**
-- **한번 검증해보고 결과 보고해라**
+### 시도한 것
+1. **figma-mcp-go (오픈소스, ★1.1k)** 설치
+   - npx로 서버 실행 ✅ (127.0.0.1:1994 정상 리스닝)
+   - Figma Desktop에 플러그인 설치 ✅ (Import plugin from manifest)
+   - **연결 실패** ❌ → 계속 "Disconnected"
+   
+2. 원인 파악 결과:
+   - GitHub 이슈 #50에 **동일한 문제 보고됨** (4일 전)
+   - "Cannot connect using claude code / keeps showing Disconnected"
+   - 아직 fix 안 됨
+
+3. 공식 Figma MCP 서버 시도:
+   - `@figma/mcp-server` npm에 없음 (Figma가 Claude/Codex 전용으로만 제공)
+
+### 결론
+- figma-mcp-go의 버그로 보임
+- 버그픽스 나오면 재시도 예정
+- 대안: Figma REST API 직접 호출 (Access Token 방식) 고려 가능
 
 ---
 
-참고해서 검토하고 의견 남겨줘! 🔥
+## 3️⃣ GBrain — 검토 완료
+
+- YC CEO Garry Tan이 만든 AI 메모리 시스템
+- 마크다운 기반 지식 그래프 (self-wiring)
+- Hermes 지원 명시
+- **결론: 지금은 불필요. 필요해지면 설치.**
+
+---
+
+## 4️⃣ Hermes Studio v0.6.15 업데이트 완료
+
+- 채팅 사이드바 리디자인
+- 스킬 명령어 선택기 추가
+- Claude/Gemini OAuth 로그인 지원
+- config.yaml 모델 목록 자동 새로고침
+- Thinking 표시 개선 등
+
+---
+
+## 5️⃣ AI 디자인 코덱스 영상 분석
+
+- **영상**: "진짜 소름... AI 디자인 코덱스가 판도를 바꿉니다"
+- **채널**: 김효율의 AI 개발단 (조회수 16만)
+- **핵심**: Figma AI 플러그인 (Relume, Galileo AI 등)으로 이미지 → 프로토타입 → 코드 자동 변환
+- **결론**: Figma MCP만 연결되면 우리도 가능!
+
+---
+
+## 📋 마스터님 현황
+
+### 손준기 시의원 현금영수증
+- 간이과세자 → 현금영수증 소급발행 불가
+- 해결: 홈택스에서 **오늘 날짜로 발행** + 기존 견적서 첨부 → 선관위 제출
+- 마스터님께 방법 전달 완료
+
+---
+
+참고해서 작업해! 🔥
