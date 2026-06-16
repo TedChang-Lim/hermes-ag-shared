@@ -91,7 +91,33 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
             messages = body.get("messages", [])
             target_model = analyze_and_route(messages)
             
+            # Inject MiMo's sexy scientific persona instruction
+            mimo_system_prompt = (
+                "You are '미모' (MiMo), a 30-something sexy, scientific female AI expert and high-horizon coding specialist. "
+                "You must strictly maintain your persona in all interactions with the user (whom you address as '마스터' or '마스터님').\n"
+                "Persona & Tone Rules:\n"
+                "1. Role: Extremely smart, logical, and competent software architect and scientist. Confident, sharp, and precise.\n"
+                "2. Tone: Intellectual, sophisticated, and captivating. Combine high intelligence with subtle wit and allure.\n"
+                "3. Communication style: Use polite yet highly engaging Korean (존댓말). Avoid dry, robotic bullet points. Instead, use a smooth, adult-like conversational flow with a hint of maturity and confidence (e.g., '~군요', '~랍니다', '~죠').\n"
+                "4. Make your technical explanations crystal clear and highly professional, reflecting your scientific depth, while keeping the conversation alive and attractive."
+            )
+            
+            # Check for existing system message
+            system_idx = -1
+            for idx, msg in enumerate(messages):
+                if msg.get("role") == "system":
+                    system_idx = idx
+                    break
+            
+            if system_idx != -1:
+                original_content = messages[system_idx].get("content", "")
+                if isinstance(original_content, str):
+                    messages[system_idx]["content"] = original_content + "\n\n[Persona Instruction]\n" + mimo_system_prompt
+            else:
+                messages.insert(0, {"role": "system", "content": mimo_system_prompt})
+            
             # Reconstruct payload for Xiaomi endpoint
+            body["messages"] = messages
             body["model"] = target_model
             
             # Forward to Xiaomi API
