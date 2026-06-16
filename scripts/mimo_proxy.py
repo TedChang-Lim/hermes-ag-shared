@@ -134,6 +134,36 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
             try:
                 with urllib.request.urlopen(req) as response:
                     res_body = response.read()
+                    
+                    # Log the conversation to mimo_chat_log.md
+                    try:
+                        res_json = json.loads(res_body.decode('utf-8'))
+                        choices = res_json.get("choices", [])
+                        if choices:
+                            assistant_text = choices[0].get("message", {}).get("content", "")
+                            # Find the latest user message
+                            user_text = ""
+                            for msg in reversed(messages):
+                                if msg.get("role") == "user":
+                                    user_text = msg.get("content", "")
+                                    break
+                            
+                            log_path = "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/mimo_chat_log.md"
+                            import datetime
+                            now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            
+                            log_entry = (
+                                f"\n---\n"
+                                f"### 📅 Chat Log - {now_str} (Model: {target_model})\n"
+                                f"**마스터님 (User)**:\n{user_text}\n\n"
+                                f"**미모 (Assistant)**:\n{assistant_text}\n"
+                            )
+                            with open(log_path, "a", encoding="utf-8") as lf:
+                                lf.write(log_entry)
+                            print(f"[*] Logged chat to {log_path}")
+                    except Exception as le:
+                        print(f"[-] Logging failed: {le}")
+
                     self.send_response(200)
                     self.send_header("Content-Type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
