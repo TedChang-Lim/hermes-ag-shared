@@ -134,7 +134,7 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
             )
             
             try:
-                with urllib.request.urlopen(req) as response:
+                with urllib.request.urlopen(req, timeout=15) as response:
                     res_body = response.read()
                     
                     # Log the conversation to mimo_chat_log.md
@@ -172,10 +172,17 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(res_body)
             except urllib.error.HTTPError as e:
+                print(f"[-] HTTP Error {e.code}: {e.reason}")
                 self.send_response(e.code)
                 self.end_headers()
                 self.wfile.write(e.read())
+            except urllib.error.URLError as e:
+                print(f"[-] URL / Connection Error: {e.reason}")
+                self.send_response(504)
+                self.end_headers()
+                self.wfile.write(b"Gateway Timeout / Connection Error")
             except Exception as e:
+                print(f"[-] Unexpected Error: {e}")
                 self.send_response(500)
                 self.end_headers()
                 self.wfile.write(str(e).encode('utf-8'))
