@@ -335,9 +335,26 @@ class MiMoHouse {
   updateModelIndicator(model) {
     this.currentModel = model;
     this.modelIndicator.textContent = model === 'mimo-v2.5-pro' ? 'MiMo V2.5 Pro' : 'MiMo V2.5';
-    this.modelIndicator.style.background = model === 'mimo-v2.5-pro' 
-      ? 'var(--accent)' 
-      : 'var(--bg-tertiary)';
+    
+    if (this.selectedModelMode === 'auto') {
+      if (model === 'mimo-v2.5-pro') {
+        this.modelIndicator.style.background = 'var(--accent)';
+        this.modelIndicator.style.color = '#ffffff';
+        this.modelIndicator.style.boxShadow = 'none';
+      } else {
+        this.modelIndicator.style.background = 'var(--bg-tertiary)';
+        this.modelIndicator.style.color = 'var(--text-secondary)';
+        this.modelIndicator.style.boxShadow = 'none';
+      }
+    } else if (this.selectedModelMode === 'v2.5') {
+      this.modelIndicator.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      this.modelIndicator.style.color = '#ffffff';
+      this.modelIndicator.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.3)';
+    } else if (this.selectedModelMode === 'pro') {
+      this.modelIndicator.style.background = 'linear-gradient(135deg, #9333ea, #7c3aed)';
+      this.modelIndicator.style.color = '#ffffff';
+      this.modelIndicator.style.boxShadow = '0 0 8px rgba(147, 51, 234, 0.3)';
+    }
   }
 
   updateCharCount() {

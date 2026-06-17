@@ -613,10 +613,11 @@ body {
 
 .model-indicator {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   background: var(--bg-tertiary);
   padding: 2px 8px;
   border-radius: 10px;
+  transition: var(--transition);
 }
 
 .char-count {
