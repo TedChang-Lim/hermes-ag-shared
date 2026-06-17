@@ -42,8 +42,12 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
 
     let mimo_path = "/Users/tedchanglimchangsik/.mimocode/bin/mimo";
     
-    let mut child = Command::new(mimo_path)
-        .arg("acp")
+    // Execute via zsh login shell with 'exec' to inherit env variables (.zshrc) 
+    // and replace shell process with mimo so that kill() works directly on mimo.
+    let mut child = Command::new("zsh")
+        .arg("-l")
+        .arg("-c")
+        .arg(format!("exec {} acp", mimo_path))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
