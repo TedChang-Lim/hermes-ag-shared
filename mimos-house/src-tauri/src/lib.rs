@@ -293,12 +293,11 @@ async fn send_message(
             };
 
             prompt_items.push(serde_json::json!({
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": media_type,
-                    "data": base64_data
-                }
+                "type": "resource",
+                "uri": "inline://image.png",
+                "name": "image.png",
+                "mimeType": media_type,
+                "data": base64_data
             }));
         }
     }
