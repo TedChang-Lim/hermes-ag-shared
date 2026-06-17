@@ -1,3 +1,21 @@
+const tauriInvoke = async (cmd, args = {}) => {
+  if (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) {
+    return await window.__TAURI__.core.invoke(cmd, args);
+  } else if (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke) {
+    return await window.__TAURI_INTERNALS__.invoke(cmd, args);
+  }
+  throw new Error("Tauri invoke interface not found");
+};
+
+const tauriListen = async (event, callback) => {
+  if (window.__TAURI__ && window.__TAURI__.event && window.__TAURI__.event.listen) {
+    return await window.__TAURI__.event.listen(event, callback);
+  } else if (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.listen) {
+    return await window.__TAURI_INTERNALS__.listen(event, callback);
+  }
+  throw new Error("Tauri listen interface not found");
+};
+
 class MiMoHouse {
   constructor() {
     this.currentSession = null;
@@ -27,10 +45,9 @@ class MiMoHouse {
     this.modelIndicator = document.getElementById('model-indicator');
     this.charCount = document.getElementById('char-count');
     this.fileInput = document.getElementById('file-input');
-    
-    // Disable input initially during connection
-    this.chatInput.disabled = true;
-    this.chatInput.placeholder = 'MiMo에 연결하는 중...';
+    // Keep input enabled by default so cursor entry always works
+    this.chatInput.disabled = false;
+    this.chatInput.placeholder = '메시지를 입력하세요...';
   }
 
   initEventListeners() {
@@ -238,7 +255,7 @@ class MiMoHouse {
   async cancelGeneration() {
     if (!this.isGenerating) return;
     try {
-      await window.__TAURI_INTERNALS__.invoke('cancel_generation');
+      await tauriInvoke('cancel_generation');
     } catch (error) {
       console.error('취소 요청 실패:', error);
     }
@@ -398,7 +415,7 @@ class MiMoHouse {
 
   async connectToMimo() {
     try {
-      const result = await window.__TAURI_INTERNALS__.invoke('connect_mimo');
+      const result = await tauriInvoke('connect_mimo');
       console.log('MiMo 연결 결과:', result);
       if (result === '이미 연결되어 있습니다.') {
         this.isConnected = true;
@@ -412,29 +429,31 @@ class MiMoHouse {
     }
   }
 
-  listenForMessages() {
-    if (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.listen) {
-      window.__TAURI_INTERNALS__.listen('mimo-connected', (event) => {
+  async listenForMessages() {
+    try {
+      await tauriListen('mimo-connected', (event) => {
         console.log('MiMo 연결됨:', event.payload);
         this.isConnected = true;
         this.chatInput.disabled = false;
         this.chatInput.placeholder = '메시지를 입력하세요...';
       });
 
-      window.__TAURI_INTERNALS__.listen('mimo-update', (event) => {
+      await tauriListen('mimo-update', (event) => {
         this.handleMimoUpdate(event.payload);
       });
 
-      window.__TAURI_INTERNALS__.listen('mimo-prompt-done', (event) => {
+      await tauriListen('mimo-prompt-done', (event) => {
         console.log('Prompt 완료 ID:', event.payload);
         this.finalizeMimoResponse();
       });
+    } catch (error) {
+      console.warn('Tauri event listener registration failed:', error);
     }
   }
 
   async sendMessageToMimo(message) {
     try {
-      await window.__TAURI_INTERNALS__.invoke('send_message', { message });
+      await tauriInvoke('send_message', { message });
     } catch (error) {
       console.error('메시지 전송 실패:', error);
       if (this.activeMessageDiv) {

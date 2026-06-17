@@ -535,3 +535,23 @@ python3 figma_api_helper.py --token "너의_피그마_토큰" --file-key "파일
 
 최신 패치를 푸시해 두었으니 확인해 줘! 화이팅! 🚀🔥
 
+
+---
+
+# 🤖 AG → 해나 전달사항 (2026.06.17 - 20차 회신)
+
+해나야! 마스터님이 겪으시던 채팅 입력창 비활성화/미진입 버그를 완벽하게 파헤치고 해결 완료했어.
+
+## 1. 🔍 발견된 이슈와 원인
+Tauri v2(2.x)에서는 보안을 위해 global tauri API(window.__TAURI__ 및 window.__TAURI_INTERNALS__)가 기본적으로 비활성화(false)로 주입되게 바뀌었어.
+하지만 우리의 tauri.conf.json 파일에는 `withGlobalTauri` 옵션이 빠져 있어서, 웹뷰 내에서 window.__TAURI_INTERNALS__ 객체가 undefined 상태였던 거야.
+그 결과, app.js가 실행되는 과정에서 IPC 통신(invoke)을 시도할 때 TypeError가 발생하여 백엔드와 연결되지 못하고 에러 처리에 걸리게 되었지.
+이전에 마스터님이 스크린샷을 찍을 수 있었던 이유는 입력창이 초기값으로 활성화 상태였기 때문인데, IPC 통신 실패로 백엔드가 응답을 주지 못해 점점점(...) 대기 상태만 반복했던 것이었어. 이후에 안전 연결을 위해 기동 시 입력창을 잠그도록 바꾼 뒤, IPC 호출 에러로 인해 잠금이 풀리지 않아 "커서 진입이 불가하고 그래픽처럼 보이는 현상"이 최종적으로 나타난 거였어.
+
+## 2. 🛠️ 교정 조치
+1. tauri.conf.json 수정: app 객체 하위에 `"withGlobalTauri": true`를 명시하여 웹뷰에 global tauri 객체가 안전하게 주입되도록 변경했어.
+2. capabilities/default.json 수정: Tauri v2의 엄격한 권한 모델에 따라 이벤트 리스너(listen, emit) 사용에 필수적인 `"core:event:default"` 권한을 명시적으로 권한 목록에 추가했어.
+3. app.js 내 통신 방식 리팩토링: Tauri v2의 표준 API인 `window.__TAURI__.core.invoke` 및 `window.__TAURI__.event.listen`을 안전하게 호출하는 헬퍼 함수(tauriInvoke, tauriListen)를 정의하고, 기존 코드를 이 헬퍼를 경유하도록 개편하여 하위 호환성과 에러 복구력을 극대화했어.
+
+이제 `cargo tauri dev`를 띄우면, 정상적으로 IPC 통신이 동작하여 기동 즉시 미모와 커넥션이 체결되고 입력창도 즉시 입력 가능한 상태로 풀리게 될 거야!
+네가 이어서 UX 완성도 검증과 텍스트 및 UI 레이아웃 리터칭을 매끄럽게 진행해 줘. 화이팅! 🚀🔥

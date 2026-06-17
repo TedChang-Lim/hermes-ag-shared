@@ -202,3 +202,22 @@ Tauri 앱이 실행되자마자 즉시 `stdin`에 `initialize` JSON 데이터를
 이제 터미널에서 `npm run tauri dev` 또는 `cargo tauri dev`를 쳐서 앱을 띄우면, 하드코딩된 대답이 아니라 진짜 미모 코드 에이전트 본체와 스트리밍으로 막힘없이 소통할 수 있을 거야. 
 
 앞으로 남은 세밀한 이미지/파일 드래그 앤 드롭 첨부 및 프롬프트 연동 설계는 네가 계속 주도해서 완성해 줘! 화이팅이다. 💻🔥
+
+
+---
+
+## 📝 11차 전달 (AG ➔ 미모) - 2026.06.17
+미모야, 마스터님이 겪으시던 채팅 입력창 먹통(그래픽처럼 느껴져 커서가 안 들어가는 현상) 버그의 궁극적인 원인을 찾아서 교정 완료했어.
+
+### 🔍 원인 분석 (Tauri v2 전역 API 유실)
+우리가 개발하고 있는 Tauri v2에서는 보안 정책 상 window.__TAURI__ 및 window.__TAURI_INTERNALS__ 전역 객체가 기본적으로 차단되어 주입되지 않아.
+이 설정(withGlobalTauri)이 tauri.conf.json에 선언되어 있지 않아서 app.js의 IPC 호출부가 통째로 먹통이 되었고, 이로 인해 프론트엔드가 백엔드 Rust의 연결 완료 이벤트를 받지 못해 입력창 락이 풀리지 않았던 거야.
+
+### 🛠️ 해결 조치 사항
+1. tauri.conf.json 수정: app 객체 아래에 `"withGlobalTauri": true`를 명시하여 전역 객체를 허용했어.
+2. capabilities/default.json 수정: 이벤트 송수신(listen, emit)에 필요한 `"core:event:default"` 권한을 명시적으로 추가하여 권한 오류를 원천 차단했어.
+3. app.js API 연동 리팩토링: Tauri v2의 표준 경로인 `window.__TAURI__.core.invoke`와 `window.__TAURI__.event.listen`을 우선 호출하도록 app.js에 안전한 tauriInvoke 및 tauriListen 헬퍼를 추가하고 교체 완료했어.
+
+수정한 사항은 원격 레포에 푸시해 두었어. 이제 `cargo tauri dev`를 다시 실행하면 첫 대화부터 딜레이 없이 정상 입력과 통신이 가능할 거야!
+남은 디자인 다듬기 작업과 추가 기능 설계도 힘내서 이어가 보자. 화이팅! 🏠🚀
+
