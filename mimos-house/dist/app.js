@@ -373,7 +373,11 @@ class MiMoHouse {
     try {
       const result = await window.__TAURI_INTERNALS__.invoke('connect_mimo');
       console.log('MiMo 연결 결과:', result);
-      // Wait for 'mimo-connected' event to set this.isConnected = true
+      if (result === '이미 연결되어 있습니다.') {
+        this.isConnected = true;
+        this.chatInput.disabled = false;
+        this.chatInput.placeholder = '메시지를 입력하세요...';
+      }
     } catch (error) {
       console.error('MiMo 연결 실패:', error);
       this.isConnected = false;
