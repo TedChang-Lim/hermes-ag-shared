@@ -94,7 +94,14 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
         let reader = BufReader::new(stdout);
         let mut lines = reader.lines();
 
+        let log_path = "/Users/tedchanglimchangsik/.gemini/antigravity/scratch/mimo_debug_log.txt";
+        let _ = tokio::fs::write(log_path, b"=== MIMO STDOUT/STDERR LOG START ===\n").await;
+
         while let Ok(Some(line)) = lines.next_line().await {
+            if let Ok(mut f) = tokio::fs::OpenOptions::new().append(true).open(log_path).await {
+                use tokio::io::AsyncWriteExt;
+                let _ = f.write_all(format!("[Stdout] {}\n", line).as_bytes()).await;
+            }
             if let Ok(response) = serde_json::from_str::<serde_json::Value>(&line) {
                 // Handle JSON-RPC response by ID
                 if let Some(id) = response.get("id").and_then(|i| i.as_u64()) {
@@ -161,7 +168,12 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
     tokio::spawn(async move {
         let reader = BufReader::new(stderr);
         let mut lines = reader.lines();
+        let log_path = "/Users/tedchanglimchangsik/.gemini/antigravity/scratch/mimo_debug_log.txt";
         while let Ok(Some(line)) = lines.next_line().await {
+            if let Ok(mut f) = tokio::fs::OpenOptions::new().append(true).open(log_path).await {
+                use tokio::io::AsyncWriteExt;
+                let _ = f.write_all(format!("[Stderr] {}\n", line).as_bytes()).await;
+            }
             eprintln!("mimo stderr: {}", line);
         }
     });
