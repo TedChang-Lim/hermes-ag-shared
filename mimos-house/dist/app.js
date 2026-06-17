@@ -24,6 +24,10 @@ class MiMoHouse {
     this.currentModel = 'mimo-v2.5';
     this.isConnected = false;
     
+    // Silence detection and tool tracking for multi-turn prompts
+    this.activeTools = new Set();
+    this.mimoCompletionTimer = null;
+    
     this.initElements();
     this.initEventListeners();
     this.initAutoResize();
@@ -254,6 +258,11 @@ class MiMoHouse {
 
   async cancelGeneration() {
     if (!this.isGenerating) return;
+    if (this.mimoCompletionTimer) {
+      clearTimeout(this.mimoCompletionTimer);
+      this.mimoCompletionTimer = null;
+    }
+    this.activeTools.clear();
     try {
       await tauriInvoke('cancel_generation');
     } catch (error) {
@@ -444,7 +453,10 @@ class MiMoHouse {
 
       await tauriListen('mimo-prompt-done', (event) => {
         console.log('Prompt 완료 ID:', event.payload);
-        this.finalizeMimoResponse();
+        // We do not finalize here because in multi-turn runs (with tools), 
+        // the response is returned at the end of the turn, but the agent 
+        // automatically continues generating notifications in subsequent turns.
+        // Finalization is handled by the silence timer or turn_end events.
       });
     } catch (error) {
       console.warn('Tauri event listener registration failed:', error);
@@ -503,6 +515,12 @@ class MiMoHouse {
 
   handleMimoUpdate(update) {
     if (!update) return;
+
+    // Reset completion timer on any new update
+    if (this.mimoCompletionTimer) {
+      clearTimeout(this.mimoCompletionTimer);
+      this.mimoCompletionTimer = null;
+    }
     
     const { sessionUpdate, content } = update;
     
@@ -525,8 +543,12 @@ class MiMoHouse {
         this.scrollToBottom();
       }
     } else if (sessionUpdate === 'ToolCall' || sessionUpdate === 'tool_call') {
+      const toolCallId = update.toolCallId || '';
+      if (toolCallId) {
+        this.activeTools.add(toolCallId);
+      }
+
       if (this.activeToolsNode) {
-        const toolCallId = update.toolCallId || '';
         const toolName = update.title || 'tool';
         const toolArgs = update.rawInput ? JSON.stringify(update.rawInput) : '';
         
@@ -548,9 +570,13 @@ class MiMoHouse {
         this.scrollToBottom();
       }
     } else if (sessionUpdate === 'ToolCallUpdate' || sessionUpdate === 'tool_call_update') {
+      const toolCallId = update.toolCallId || '';
+      const status = update.status || '';
+      if (toolCallId && (status === 'completed' || status === 'success' || status === 'failed' || status === 'error')) {
+        this.activeTools.delete(toolCallId);
+      }
+
       if (this.activeToolsNode) {
-        const toolCallId = update.toolCallId || '';
-        const status = update.status || '';
         const toolDiv = this.activeToolsNode.querySelector(`[data-tool-id="${toolCallId}"]`);
         
         if (toolDiv) {
@@ -575,10 +601,25 @@ class MiMoHouse {
       }
     } else if (sessionUpdate === 'TurnEnd' || sessionUpdate === 'turn_end') {
       this.finalizeMimoResponse();
+      return;
+    }
+
+    // Silence detection: finalize the response if no new updates are received for 1.5 seconds and no tools are active
+    if (this.activeTools.size === 0 && this.isGenerating) {
+      this.mimoCompletionTimer = setTimeout(() => {
+        console.log('MiMo response completed due to silence');
+        this.finalizeMimoResponse();
+      }, 1500);
     }
   }
 
   finalizeMimoResponse() {
+    if (this.mimoCompletionTimer) {
+      clearTimeout(this.mimoCompletionTimer);
+      this.mimoCompletionTimer = null;
+    }
+    this.activeTools.clear();
+
     if (this.activeResponseNode) {
       const rawText = this.activeResponseNode.textContent;
       if (rawText && rawText.length > 0) {
