@@ -23,6 +23,7 @@ class MiMoHouse {
     this.isGenerating = false;
     this.currentModel = 'mimo-v2.5';
     this.isConnected = false;
+    this.selectedModelMode = 'auto'; // 'auto', 'v2.5', 'pro'
     
     // Silence detection and tool tracking for multi-turn prompts
     this.activeTools = new Set();
@@ -82,6 +83,28 @@ class MiMoHouse {
     });
     
     this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+
+    // Event listeners for model toggle buttons
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const mode = e.target.getAttribute('data-mode');
+        this.selectedModelMode = mode;
+        
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        this.setModelOverride(mode);
+        
+        if (mode === 'auto') {
+          const text = this.chatInput.value.trim();
+          this.updateModelIndicator(this.detectModel(text));
+        } else if (mode === 'v2.5') {
+          this.updateModelIndicator('mimo-v2.5');
+        } else if (mode === 'pro') {
+          this.updateModelIndicator('mimo-v2.5-pro');
+        }
+      });
+    });
   }
 
   initAutoResize() {
@@ -142,7 +165,14 @@ class MiMoHouse {
 
     this.setGenerating(true);
     
-    const model = this.detectModel(text);
+    let model = 'mimo-v2.5';
+    if (this.selectedModelMode === 'auto') {
+      model = this.detectModel(text);
+    } else if (this.selectedModelMode === 'v2.5') {
+      model = 'mimo-v2.5';
+    } else if (this.selectedModelMode === 'pro') {
+      model = 'mimo-v2.5-pro';
+    }
     this.updateModelIndicator(model);
     
     if (this.isConnected) {
@@ -150,6 +180,22 @@ class MiMoHouse {
       await this.sendMessageToMimo(text, image);
     } else {
       await this.simulateResponse(text, model);
+    }
+  }
+
+  async setModelOverride(mode) {
+    try {
+      const response = await fetch('http://127.0.0.1:1984/override_model', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ mode })
+      });
+      const data = await response.json();
+      console.log('Model override success:', data);
+    } catch (error) {
+      console.error('Failed to set model override on proxy:', error);
     }
   }
 

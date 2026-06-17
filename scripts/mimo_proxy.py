@@ -14,6 +14,8 @@ CODING_KEYWORDS = [
     "script", "develop", "refactor"
 ]
 
+MODEL_OVERRIDE = "auto"
+
 def analyze_and_route(messages):
     # Check if any user message contains an image type block (multimodal vision request)
     has_image = False
@@ -32,6 +34,18 @@ def analyze_and_route(messages):
                     has_image = True
             if has_image:
                 break
+
+    # If an override is active, respect it (but still protect against Pro vision crash)
+    global MODEL_OVERRIDE
+    if MODEL_OVERRIDE == "v2.5":
+        print("[*] Model override active: forcing BASE model (xiaomi/mimo-v2.5)")
+        return "xiaomi/mimo-v2.5"
+    elif MODEL_OVERRIDE == "pro":
+        if has_image:
+            print("[*] Model override active: forcing BASE model (xiaomi/mimo-v2.5) for vision support (override was Pro).")
+            return "xiaomi/mimo-v2.5"
+        print("[*] Model override active: forcing PRO model (xiaomi/mimo-v2.5-pro)")
+        return "xiaomi/mimo-v2.5-pro"
 
     if has_image:
         print("[*] Vision prompt detected (contains image). Unconditionally routing to BASE model (xiaomi/mimo-v2.5) for vision support.")
@@ -98,6 +112,33 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_POST(self):
+        if self.path == "/override_model" or self.path == "/v1/override_model":
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                body = json.loads(post_data.decode('utf-8'))
+                mode = body.get("mode", "auto")
+                global MODEL_OVERRIDE
+                if mode in ("auto", "v2.5", "pro"):
+                    MODEL_OVERRIDE = mode
+                    print(f"[*] Model override updated to: {MODEL_OVERRIDE}")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"status": "success", "mode": MODEL_OVERRIDE}).encode('utf-8'))
+                else:
+                    self.send_response(400)
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(b"Invalid mode")
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(str(e).encode('utf-8'))
+            return
+
         if self.path == "/v1/chat/completions" or self.path == "/chat/completions":
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)

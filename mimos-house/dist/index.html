@@ -32,7 +32,12 @@
           </div>
         </div>
       </div>
-      <div class="header-right">
+      <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+        <div class="model-toggle-group">
+          <button class="toggle-btn active" data-mode="auto" id="toggle-auto" title="자동 라우팅">Auto</button>
+          <button class="toggle-btn" data-mode="v2.5" id="toggle-v25" title="미모 2.5 강제">2.5</button>
+          <button class="toggle-btn" data-mode="pro" id="toggle-pro" title="미모 2.5 프로 강제">Pro</button>
+        </div>
         <button class="icon-btn" id="btn-settings" title="설정">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
