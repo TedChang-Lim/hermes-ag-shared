@@ -44,31 +44,34 @@ body {
   display: none !important;
 }
 
+/* ===== 헤더 영역 ===== */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
-  background: var(--bg-secondary);
+  padding: 10px 20px;
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, rgba(22, 33, 62, 0.98) 100%);
   border-bottom: 1px solid var(--border);
   -webkit-app-region: drag;
   z-index: 100;
+  backdrop-filter: blur(12px);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   -webkit-app-region: no-drag;
 }
 
 .app-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  background: linear-gradient(135deg, #a78bfa, #7c3aed, #c084fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.3px;
 }
 
 .header-center {
@@ -78,88 +81,143 @@ body {
 .avatar-group {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 .avatar-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .avatar-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+
+.avatar-item:active {
+  transform: translateY(-1px);
+}
+
+/* 툴팁 */
+.avatar-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border);
+}
+
+.avatar-item:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 2px solid transparent;
   object-fit: cover;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+  background: var(--bg-tertiary);
+}
+
+.avatar-item[data-tooltip="마스터"] .avatar {
+  border-color: #f59e0b;
+}
+.avatar-item[data-tooltip="미모"] .avatar {
+  border-color: #ec4899;
+}
+.avatar-item[data-tooltip="해나"] .avatar {
+  border-color: #06b6d4;
+}
+.avatar-item[data-tooltip="에이지"] .avatar {
+  border-color: #8b5cf6;
 }
 
 .avatar-item:hover .avatar {
   border-color: var(--accent);
-  box-shadow: 0 0 12px var(--accent-light);
+  box-shadow: 0 0 16px var(--accent-light);
+  transform: scale(1.08);
 }
 
 .avatar-name {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: var(--transition);
 }
 
+.avatar-item:hover .avatar-name {
+  color: var(--text-secondary);
+}
+
+/* ===== 모델 토글 버튼 ===== */
 .header-right {
   -webkit-app-region: no-drag;
 }
 
 .model-toggle-group {
   display: flex;
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 3px;
   gap: 2px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 0 1px rgba(124, 58, 237, 0.1);
 }
 
 .toggle-btn {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-size: 11px;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 5px 12px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.3px;
+  position: relative;
 }
 
 .toggle-btn:hover {
   color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .toggle-btn.active[data-mode="auto"] {
-  background: var(--accent);
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
   color: white;
-  box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 
 .toggle-btn.active[data-mode="v2.5"] {
-  background: var(--bg-tertiary);
+  background: linear-gradient(135deg, #0f3460, #1a4a7a);
   color: white;
-  box-shadow: 0 0 8px rgba(15, 52, 96, 0.4);
+  box-shadow: 0 0 10px rgba(15, 52, 96, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
 .toggle-btn.active[data-mode="pro"] {
-  background: #9333ea;
+  background: linear-gradient(135deg, #9333ea, #7c3aed);
   color: white;
-  box-shadow: 0 0 8px rgba(147, 51, 234, 0.4);
+  box-shadow: 0 0 14px rgba(147, 51, 234, 0.4), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 
 .icon-btn {
