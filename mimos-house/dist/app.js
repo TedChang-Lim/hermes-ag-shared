@@ -314,10 +314,37 @@ class MiMoHouse {
           <span class="session-name">${session.name}</span>
           <span class="session-preview">${session.preview}</span>
         </div>
+        <button class="delete-session-btn" title="대화 삭제">×</button>
       `;
       sessionDiv.addEventListener('click', () => this.loadSession(session));
+      
+      const deleteBtn = sessionDiv.querySelector('.delete-session-btn');
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.deleteSession(session.id);
+      });
+
       this.sessionList.appendChild(sessionDiv);
     });
+  }
+
+  deleteSession(sessionId) {
+    if (this.sessions.length <= 1) {
+      alert('최소 하나의 세션은 유지되어야 합니다.');
+      return;
+    }
+    
+    const index = this.sessions.findIndex(s => s.id === sessionId);
+    if (index === -1) return;
+    
+    this.sessions.splice(index, 1);
+    
+    if (this.currentSession?.id === sessionId) {
+      this.currentSession = this.sessions[0];
+    }
+    
+    this.renderSessions();
+    this.loadSession(this.currentSession);
   }
 
   loadSession(session) {

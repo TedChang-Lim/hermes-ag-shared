@@ -110,7 +110,7 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
                             "id": 2,
                             "method": "session/new",
                             "params": {
-                                "cwd": "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared",
+                                "cwd": "/Users/tedchanglimchangsik/.gemini/antigravity/scratch",
                                 "mcpServers": []
                             }
                         });
@@ -276,7 +276,7 @@ async fn create_new_conversation(
         "id": current_id,
         "method": "session/new",
         "params": {
-            "cwd": "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared",
+            "cwd": "/Users/tedchanglimchangsik/.gemini/antigravity/scratch",
             "mcpServers": []
         }
     });
