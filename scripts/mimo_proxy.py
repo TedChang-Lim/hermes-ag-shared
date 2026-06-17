@@ -15,6 +15,28 @@ CODING_KEYWORDS = [
 ]
 
 def analyze_and_route(messages):
+    # Check if any user message contains an image type block (multimodal vision request)
+    has_image = False
+    for msg in messages:
+        if msg.get("role") == "user":
+            content = msg.get("content", "")
+            if isinstance(content, list):
+                for part in content:
+                    if isinstance(part, dict):
+                        part_type = part.get("type")
+                        if part_type in ("image", "image_url"):
+                            has_image = True
+                            break
+            elif isinstance(content, dict):
+                if content.get("type") in ("image", "image_url"):
+                    has_image = True
+            if has_image:
+                break
+
+    if has_image:
+        print("[*] Vision prompt detected (contains image). Unconditionally routing to BASE model (xiaomi/mimo-v2.5) for vision support.")
+        return "xiaomi/mimo-v2.5"
+
     # Check the latest user message
     user_msgs = [m for m in messages if m.get("role") == "user"]
     if not user_msgs:
@@ -157,8 +179,8 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
                             log_entry = (
                                 f"\n---\n"
                                 f"### 📅 Chat Log - {now_str} (Model: {target_model})\n"
-                                f"**마스터님 (User)**:\n{user_text}\n\n"
-                                f"**미모 (Assistant)**:\n{assistant_text}\n"
+                                f"*마스터님 (User)*:\n{user_text}\n\n"
+                                f"*미모 (Assistant)*:\n{assistant_text}\n"
                             )
                             with open(log_path, "a", encoding="utf-8") as lf:
                                 lf.write(log_entry)
