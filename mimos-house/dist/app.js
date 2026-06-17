@@ -34,8 +34,14 @@ class MiMoHouse {
     this.initAutoResize();
     this.initDragDrop();
     this.loadSessions();
-    this.connectToMimo();
-    this.listenForMessages();
+    this.initConnection();
+  }
+
+  async initConnection() {
+    // 1. Register event listeners first to prevent race conditions
+    await this.listenForMessages();
+    // 2. Start connection sequence
+    await this.connectToMimo();
   }
 
   initElements() {
@@ -512,7 +518,9 @@ class MiMoHouse {
     try {
       const result = await tauriInvoke('connect_mimo');
       console.log('MiMo 연결 결과:', result);
-      if (result === '이미 연결되어 있습니다.') {
+      
+      const isConnected = await tauriInvoke('get_connection_status');
+      if (result === '이미 연결되어 있습니다.' || isConnected) {
         this.isConnected = true;
         this.chatInput.disabled = false;
         this.chatInput.placeholder = '메시지를 입력하세요...';
