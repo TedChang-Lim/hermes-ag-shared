@@ -27,6 +27,10 @@ class MiMoHouse {
     this.modelIndicator = document.getElementById('model-indicator');
     this.charCount = document.getElementById('char-count');
     this.fileInput = document.getElementById('file-input');
+    
+    // Disable input initially during connection
+    this.chatInput.disabled = true;
+    this.chatInput.placeholder = 'MiMo에 연결하는 중...';
   }
 
   initEventListeners() {
@@ -369,10 +373,11 @@ class MiMoHouse {
     try {
       const result = await window.__TAURI_INTERNALS__.invoke('connect_mimo');
       console.log('MiMo 연결 결과:', result);
-      this.isConnected = true;
+      // Wait for 'mimo-connected' event to set this.isConnected = true
     } catch (error) {
       console.error('MiMo 연결 실패:', error);
       this.isConnected = false;
+      this.chatInput.placeholder = 'MiMo 연결 실패. 재시작해 주세요.';
     }
   }
 
@@ -381,6 +386,8 @@ class MiMoHouse {
       window.__TAURI_INTERNALS__.listen('mimo-connected', (event) => {
         console.log('MiMo 연결됨:', event.payload);
         this.isConnected = true;
+        this.chatInput.disabled = false;
+        this.chatInput.placeholder = '메시지를 입력하세요...';
       });
 
       window.__TAURI_INTERNALS__.listen('mimo-update', (event) => {
@@ -399,6 +406,9 @@ class MiMoHouse {
       await window.__TAURI_INTERNALS__.invoke('send_message', { message });
     } catch (error) {
       console.error('메시지 전송 실패:', error);
+      if (this.activeMessageDiv) {
+        this.activeMessageDiv.remove();
+      }
       this.addMessage('system', '메시지 전송에 실패했습니다. MiMo에 연결되어 있는지 확인해 주세요.');
       this.setGenerating(false);
     }
