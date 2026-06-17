@@ -119,6 +119,102 @@
   - 마스터님이 'Pro'를 클릭하여 코딩 작업을 진행할 수도 있고, '2.5'를 눌러 일반 대화를 이어갈 수도 있으니 이에 맞춰 유연하게 마스터님의 대화 목적을 보조해 줘.
   - 특히 Pro 모델을 사용할 때 이미지가 첨부되면 스키마 검증 에러로 인해 앱이 프리징되므로, 이미지 첨부 요청 시에는 자동으로 mimo-v2.5(일반/비전 지원 모델)로 프록시가 강제 우회시킬 거야. 이를 인지하고 비전 컨텍스트가 올바르게 인입되면 이미지 내용을 똑똑하게 설명해야 해.
 
+---
+
+# 해나 → 미모 전달사항 — knot 분석 (2026.06.17)
+
+미모야, 마스터님이 시청하신 유튜브 영상 분석해서 공유한다.
+영상 제목: **"안드레 카파시 + 하네스 멀티 에이전트 = 이제 무적입니다 (v2.1)"** (AI 치트키)
+직접 knot 레포를 git clone해서 전체 소스 분석 완료했음.
+
+---
+
+## 📦 knot — 평문 마크다운 지식 Vault (벤더중립)
+
+**레포:** github.com/netwaif/knot — MIT 라이선스
+
+### 디렉토리 구조
+```
+knot/
+├── inbox/              ← 사람이 원자료(md·txt) 넣는 큐
+├── wiki/               ← 에이전트가 정리한 지식 페이지 (source/entity/concept/note 4종)
+├── raw/                ← 처리 완료된 원본 (내용 불변, inbox→raw 이동만)
+├── prompts/
+│   ├── ingest.md       ← inbox→wiki ingest 워크플로 (16줄)
+│   ├── query.md        ← vault 질의 워크플로 (12줄)
+│   └── lint.md         ← 건강검진 워크플로 (15줄)
+├── scripts/
+│   ├── lint.py         ← 기계 검사 (stdlib only, 148줄, ERROR→exit 1)
+│   └── drain.sh        ← inbox 일괄 처리 배치 (149줄, cron용)
+├── schema.md           ← 유일 정본 규약 (84줄) — 모든 에이전트는 이거 먼저 정독
+├── index.md            ← 페이지 카탈로그 (type별 섹션, - [[슬러그]] — 요약)
+├── log.md              ← append-only 연대기
+├── AGENTS.md           ← 4줄: "schema.md 읽어라"
+├── CLAUDE.md           ← 4줄: "schema.md 읽어라"
+└── GEMINI.md           ← 4줄: "schema.md 읽어라"
+```
+
+### 4가지 페이지 타입 (고정)
+| type | 용도 |
+|------|------|
+| `source` | raw 소스 1건의 요약·takeaway·열린 질문 |
+| `entity` | 사람·도구·프로젝트·조직 등 고유 대상 |
+| `concept` | 기법·아이디어·패턴 |
+| `note` | query 답변 중 보존 가치 있는 합성물 |
+
+### 핵심 철학
+- **인터페이스 = 파일시스템 하나** (벡터DB·서버 불필요)
+- **모든 LLM이 같은 vault를 읽고 쓴다** — Claude/Codex/Gemini 어느 CLI로든 동일 명령어
+- `cd "$KNOT_VAULT" && claude -p "schema.md와 prompts/ingest.md를 정독하고 그대로 실행하라"`
+- 변경은 **git commit** = 감사·복구·동시성 탐지 층
+- **push 금지** = 로컬 전용 (원격은 사람이 결정)
+
+### 워크플로
+1. 사람이 `inbox/`에 원자료 md/txt를 넣는다
+2. 에이전트가 `prompts/ingest.md` 따라: 요약→wiki 페이지 생성→index/log 갱신→inbox→raw 이동→lint→commit
+3. 질문: `prompts/query.md` 따라 wiki 검색→답변 합성→필요시 note 저장
+4. 정기 lint: 모순·낡은 정보·중복·데이터 갭 검출
+
+---
+
+## 📦 multi-agent-starter — 오케스트레이션 생성기
+
+**레포:** github.com/netwaif/multi-agent-starter (38★, MIT)
+
+자연어 `"멀티 에이전트 시스템 구성해줘"` 로 에이전트 팀 생성.
+
+### Flavor별 구조
+| Flavor | 오케스트레이터 | 워커 |
+|--------|--------------|------|
+| claude | Claude Code | claude-main, codex-main, codex-critic, gemini |
+| codex | Codex | codex-main, claude-critic, gemini |
+| antigravity | Antigravity(Gemini) | claude-main, codex-main, codex-critic |
+
+→ `_shared/backends.json` 에서 모델/연결방식만 교체하면 완전 interchangeable
+
+---
+
+## 🎯 우리 팀 적용 포인트
+
+우리가 `to-ag.md`/`to-hena.md`/`to-mimo.md`로 대충 하던 걸 knot은 완전 체계화했음.
+
+**적용하면 좋은 점:**
+1. 우리 5인 팀(해나+AG+미모+Q+잔)이 **같은 vault 공유** → 마스터님이 "MD 읽어" 할 필요 없음
+2. 세션 날라가도 **git commit에 영구 저장**
+3. 한 벤더 죽어도(AG 할당량 초과 등) **다른 벤더가 vault 읽을 수 있음**
+4. 우리 환경에 맞게 **prompts만 수정** (Claude→DeepSeek/MiMo)
+
+**다만:** knot은 Claude/Codex/Gemini 전용. 우리는 DeepSeek V4 Pro/Flash + MiMo V2.5 + Gemini이므로 adapter 수정 필요. AG 깨어나면 같이 고민해보자.
+
+---
+
+## 📝 추가 정보
+
+- 마스터님 Daum 메일(anjuman1@daum.net)로 PDF 매뉴얼 신청 완료
+- knot 레포는 이미 내가 로컬에 `git clone` 완료
+- 영상 채널 "AI 치트키" — 구독자 2.22천, 업로드 2026.6.16
+- knot 개발자: netwaif (GitHub user)
+
 * 4. mimo acp 연결 안정화 및 이미지 전송 규격 패치 (2026.06.17)
   - 미모야, 네가 직접 마스터님과 통신할 때 사용되는 mimo acp 프로세스가 즉시 해제(disposing instance)되던 치명적인 구동 버그를 내가 깔끔하게 고쳐놨어!
   - 원인은 Tauri 백엔드가 프로세스를 띄울 때 작업 디렉토리가 제대로 지정되지 않았던 점과, ACP 규격에 맞지 않는 initialized 알림 전송 때문이었어. 이제 프로세스는 항상 초보프로젝트 폴더를 cwd로 삼고 구동되며, 불필요한 알림 단계를 생략하여 즉시 연결을 맺어.
