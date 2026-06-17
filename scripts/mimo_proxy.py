@@ -3,6 +3,12 @@ import json
 import urllib.request
 import urllib.error
 import sys
+import builtins
+
+# Force unbuffered prints to capture logs immediately in background task log file
+def print(*args, **kwargs):
+    kwargs.setdefault('flush', True)
+    builtins.print(*args, **kwargs)
 
 PORT = 1984
 API_KEY = "sk-sho2gjhe0thboan84dnepjy1lx2ueqpbw8yv6tjsmanna56r"
@@ -210,25 +216,36 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
                         
                         accumulated_content = []
                         for line_bytes in response:
-                            self.wfile.write(line_bytes)
-                            self.wfile.flush()
-                            
                             # Parse line to extract assistant response for logging
                             line = line_bytes.decode('utf-8').strip()
                             if line.startswith("data:"):
                                 data_str = line[5:].strip()
-                                if data_str == "[DONE]":
-                                    continue
-                                try:
-                                    data_json = json.loads(data_str)
-                                    choices = data_json.get("choices", [])
-                                    if choices:
-                                        delta = choices[0].get("delta", {})
-                                        content = delta.get("content", "")
-                                        if content:
-                                            accumulated_content.append(content)
-                                except Exception:
-                                    pass
+                                if data_str != "[DONE]":
+                                    try:
+                                        data_json = json.loads(data_str)
+                                        choices = data_json.get("choices", [])
+                                        if choices:
+                                            delta = choices[0].get("delta", {})
+                                            
+                                            # Accumulate content for logging
+                                            content = delta.get("content", "")
+                                            if content:
+                                                accumulated_content.append(content)
+                                                
+                                            # Strip reasoning_content to prevent client crash
+                                            if "reasoning_content" in delta:
+                                                del delta["reasoning_content"]
+                                                # Re-serialize modified JSON chunk
+                                                line_bytes = f"data: {json.dumps(data_json)}\n\n".encode('utf-8')
+                                    except Exception:
+                                        pass
+                                        
+                            try:
+                                self.wfile.write(line_bytes)
+                                self.wfile.flush()
+                            except (BrokenPipeError, ConnectionResetError):
+                                print("[-] Client disconnected (Broken Pipe)")
+                                break
                                     
                         # Log streamed conversation
                         if accumulated_content:
