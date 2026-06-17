@@ -72,6 +72,10 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
     // and bypass shell initialization delays (which caused stdin race conditions).
     let mut child = Command::new(mimo_path)
         .arg("acp")
+        .arg("--print-logs")
+        .arg("--cwd")
+        .arg("/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared")
+        .current_dir("/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared")
         .env("MIMO_API_KEY", "sk-sho2gjhe0thboan84dnepjy1lx2ueqpbw8yv6tjsmanna56r")
         .env("MIMO_BASE_URL", "http://127.0.0.1:1984/v1")
         .env("XIAOMI_API_KEY", "sk-sho2gjhe0thboan84dnepjy1lx2ueqpbw8yv6tjsmanna56r")
@@ -145,18 +149,13 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
                 // Handle JSON-RPC response by ID
                 if let Some(id) = response.get("id").and_then(|i| i.as_u64()) {
                     if id == 1 {
-                        // Response to initialize. Send initialized notification and then session/new!
-                        let initialized_notification = serde_json::json!({
-                            "jsonrpc": "2.0",
-                            "method": "initialized",
-                            "params": {}
-                        });
+                        // Response to initialize. Send session/new!
                         let session_new_req = serde_json::json!({
                             "jsonrpc": "2.0",
                             "id": 2,
                             "method": "session/new",
                             "params": {
-                                "cwd": "/Users/tedchanglimchangsik/.gemini/antigravity/scratch",
+                                "cwd": "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared",
                                 "mcpServers": []
                             }
                         });
@@ -169,18 +168,16 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
                         tokio::spawn(async move {
                             let mut stdin_guard = mimo_stdin_init.lock().await;
                             if let Some(ref mut stdin_handle) = *stdin_guard {
-                                let notification_str = format!("{}\n", serde_json::to_string(&initialized_notification).unwrap());
                                 let session_new_str = format!("{}\n", serde_json::to_string(&session_new_req).unwrap());
                                 
                                 let write_res = timeout(Duration::from_secs(5), async {
-                                    stdin_handle.write_all(notification_str.as_bytes()).await?;
                                     stdin_handle.write_all(session_new_str.as_bytes()).await?;
                                     stdin_handle.flush().await?;
                                     Ok::<(), std::io::Error>(())
                                 }).await;
                                 
                                 if write_res.is_err() || write_res.unwrap().is_err() {
-                                    eprintln!("initialized/session/new 송신 실패");
+                                    eprintln!("session/new 송신 실패");
                                     drop(stdin_guard);
                                     clean_up_arcs(
                                         mimo_process_init,
@@ -292,7 +289,7 @@ async fn send_message(
             };
 
             prompt_items.push(serde_json::json!({
-                "type": "image",
+                "type": "resource",
                 "uri": img_str,
                 "mimeType": media_type
             }));
@@ -407,7 +404,7 @@ async fn create_new_conversation(
         "id": current_id,
         "method": "session/new",
         "params": {
-            "cwd": "/Users/tedchanglimchangsik/.gemini/antigravity/scratch",
+            "cwd": "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared",
             "mcpServers": []
         }
     });
