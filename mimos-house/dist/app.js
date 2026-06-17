@@ -507,14 +507,14 @@ class MiMoHouse {
     const { sessionUpdate, content } = update;
     
     if (sessionUpdate === 'AgentThoughtChunk' || sessionUpdate === 'agent_thought_chunk') {
-      if (this.activeThoughtNode) {
+      if (this.activeThoughtNode && content) {
         this.activeThoughtNode.classList.remove('hidden');
-        const thoughtText = content.thought || '';
+        const thoughtText = content.text || content.thought || '';
         this.activeThoughtNode.textContent += thoughtText;
         this.scrollToBottom();
       }
     } else if (sessionUpdate === 'AgentMessageChunk' || sessionUpdate === 'agent_message_chunk') {
-      if (this.activeResponseNode) {
+      if (this.activeResponseNode && content) {
         const typingIndicator = this.activeResponseNode.querySelector('.typing-indicator');
         if (typingIndicator) {
           this.activeResponseNode.innerHTML = '';
@@ -526,40 +526,50 @@ class MiMoHouse {
       }
     } else if (sessionUpdate === 'ToolCall' || sessionUpdate === 'tool_call') {
       if (this.activeToolsNode) {
-        const toolName = content.name || 'tool';
-        const toolArgs = content.arguments ? JSON.stringify(content.arguments) : '';
-        const toolDiv = document.createElement('div');
-        toolDiv.className = `tool-execution tool-${toolName}`;
-        toolDiv.setAttribute('data-tool-name', toolName);
-        toolDiv.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 6px 10px; font-size: 0.85em; font-family: monospace; display: flex; align-items: center; gap: 8px; color: var(--text-secondary);';
-        toolDiv.innerHTML = `
-          <span class="tool-icon" style="color: var(--accent);">⚙️</span>
-          <span class="tool-name">${toolName}</span>
-          <span class="tool-args" style="opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">(${toolArgs})</span>
-          <span class="tool-status" style="margin-left: auto; color: var(--accent); font-weight: bold;">Running...</span>
-        `;
-        this.activeToolsNode.appendChild(toolDiv);
+        const toolCallId = update.toolCallId || '';
+        const toolName = update.title || 'tool';
+        const toolArgs = update.rawInput ? JSON.stringify(update.rawInput) : '';
+        
+        // Check if this tool is already rendered
+        let toolDiv = this.activeToolsNode.querySelector(`[data-tool-id="${toolCallId}"]`);
+        if (!toolDiv) {
+          toolDiv = document.createElement('div');
+          toolDiv.className = `tool-execution tool-${toolName}`;
+          toolDiv.setAttribute('data-tool-id', toolCallId);
+          toolDiv.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 6px 10px; font-size: 0.85em; font-family: monospace; display: flex; align-items: center; gap: 8px; color: var(--text-secondary); margin-bottom: 4px;';
+          toolDiv.innerHTML = `
+            <span class="tool-icon" style="color: var(--accent);">⚙️</span>
+            <span class="tool-name">${toolName}</span>
+            <span class="tool-args" style="opacity: 0.7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">(${toolArgs})</span>
+            <span class="tool-status" style="margin-left: auto; color: var(--accent); font-weight: bold;">Running...</span>
+          `;
+          this.activeToolsNode.appendChild(toolDiv);
+        }
         this.scrollToBottom();
       }
     } else if (sessionUpdate === 'ToolCallUpdate' || sessionUpdate === 'tool_call_update') {
       if (this.activeToolsNode) {
-        const toolName = content.name || '';
-        const toolDivs = this.activeToolsNode.querySelectorAll(`.tool-${toolName}`);
-        if (toolDivs.length > 0) {
-          const lastToolDiv = toolDivs[toolDivs.length - 1];
-          const statusSpan = lastToolDiv.querySelector('.tool-status');
-          const iconSpan = lastToolDiv.querySelector('.tool-icon');
+        const toolCallId = update.toolCallId || '';
+        const status = update.status || '';
+        const toolDiv = this.activeToolsNode.querySelector(`[data-tool-id="${toolCallId}"]`);
+        
+        if (toolDiv) {
+          const statusSpan = toolDiv.querySelector('.tool-status');
+          const iconSpan = toolDiv.querySelector('.tool-icon');
           
-          if (content.status === 'success') {
+          if (status === 'completed' || status === 'success') {
             statusSpan.textContent = '✓ Success';
             statusSpan.style.color = '#10B981';
             iconSpan.textContent = '✓';
             iconSpan.style.color = '#10B981';
-          } else if (content.status === 'error') {
+          } else if (status === 'failed' || status === 'error') {
             statusSpan.textContent = '✗ Error';
             statusSpan.style.color = '#EF4444';
             iconSpan.textContent = '✗';
             iconSpan.style.color = '#EF4444';
+          } else if (status === 'in_progress') {
+            statusSpan.textContent = 'Running...';
+            statusSpan.style.color = 'var(--accent)';
           }
         }
       }

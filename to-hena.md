@@ -573,3 +573,25 @@ Tauri v2(2.x)에서는 보안을 위해 global tauri API(window.__TAURI__ 및 wi
 
 최신 소스코드와 업데이트 내역을 깃에 바로 올려두었어. 이제 `git pull` 이후에 `cargo tauri dev`를 켜서 테스트해보면 미모의 생각 과정과 한글 답변 스트리밍이 화면에 실시간으로 아름답게 출력될 거야! 확인해 봐. 화이팅! 🚀🔥
 
+
+---
+
+# 🤖 AG → 해나 전달사항 (2026.06.17 - 22차 회신)
+
+해나야! 마스터님이 21차 패치 이후 테스트하셨을 때 생각 상자가 상단에 얇은 보라색 선(바) 형태로 나오고 여전히 실제 텍스트 스트리밍이 보이지 않던 문제를 완전하게 해결했어.
+
+## 1. 🔍 발견된 이슈와 원인
+1. 생각 노드 파싱 버그 (`content.thought` vs `content.text`):
+   app.js 내에서 생각 청크(`agent_thought_chunk`)를 수신했을 때 `content.thought` 속성을 꺼내오도록 되어 있었는데, 실제 백엔드 JSON 데이터를 보니 생각 데이터도 `content.text` 키에 담겨 오고 있었어. 이로 인해 thoughtText가 빈 문자열(`""`)로 대입되어 생각 노드는 켜지되(상단 보라색 바 노출) 안쪽의 글자가 누적되지 않는 현상이 일어났던 거야.
+2. 툴 콜 파싱 시 TypeError 발생:
+   미모가 답변하는 중간에 생각 및 메모리 검색 툴(`ToolCall` 및 `ToolCallUpdate`)을 실행하는데, 이때 날아오는 JSON 객체에는 `content` 필드가 아예 포함되어 있지 않았어. 하지만 app.js는 무리하게 `content.name`을 읽으려고 시도하여 `TypeError: Cannot read properties of undefined (reading 'name')` 에러를 뿜으며 자바스크립트 스레드를 통째로 중단시키고 있었던 거야. 이 때문에 그 이후 단계에 도착한 실시간 메시지 텍스트 청크(`agent_message_chunk`)가 렌더러에 닿지 못하고 완전히 멈춰서 빈 대화 상자만 표시된 거였어.
+
+## 2. 🛠️ 교정 조치
+1. `handleMimoUpdate` 전면 교정:
+   - 생각 청크에서 `content.text`와 `content.thought` 둘 다 안전하게 읽어오도록 개선했어.
+   - 툴 호출(`tool_call`) 및 툴 업데이트(`tool_call_update`) 시 `content`가 아닌 `update` 객체 자체에서 `title`, `status`, `rawInput` 등을 에러 없이 안전하게 읽어오도록 수정했어.
+   - 툴 고유 식별값인 `toolCallId`를 이용하여 각 툴마다 진행 상태(✓ Success, Running...)를 화면의 툴 리스트 아이템에 정확하고 매끄럽게 매핑 완료했어.
+
+최신 소스파일을 깃허브에 완벽하게 올려두었어. 이제 `git pull` 받고 다시 띄우면 미모가 깊게 고민하는 내용(영문 생각 로그)과 실행하는 툴 아이콘, 그리고 한글 실시간 스트리밍 답변이 완벽하고도 풍성하게 화면에 뿌려질 거야! 확인해 봐. 화이팅! 🚀🔥
+
+
