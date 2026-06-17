@@ -52,6 +52,12 @@ class MiMoHouse {
     // Lock the input on initial load until the connection is established to prevent premature simulation fallback
     this.chatInput.disabled = true;
     this.chatInput.placeholder = 'MiMo 연결을 대기하는 중...';
+
+    // Image preview and attachment variables
+    this.imagePreviewContainer = document.getElementById('image-preview-container');
+    this.imagePreview = document.getElementById('image-preview');
+    this.btnRemoveImage = document.getElementById('btn-remove-image');
+    this.attachedImage = null;
   }
 
   initEventListeners() {
@@ -60,6 +66,8 @@ class MiMoHouse {
     this.btnAttach.addEventListener('click', () => this.fileInput.click());
     this.btnNewSession.addEventListener('click', () => this.createNewSession());
     this.btnSettings.addEventListener('click', () => this.openSettings());
+    
+    this.btnRemoveImage.addEventListener('click', () => this.removeAttachedImage());
     
     this.chatInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -120,12 +128,17 @@ class MiMoHouse {
 
   async sendMessage() {
     const text = this.chatInput.value.trim();
-    if (!text || this.isGenerating) return;
+    const image = this.attachedImage;
+    if ((!text && !image) || this.isGenerating) return;
 
-    this.addMessage('user', text);
+    this.addMessage('user', text, image);
     this.chatInput.value = '';
     this.updateCharCount();
     this.autoResizeInput();
+
+    if (image) {
+      this.removeAttachedImage();
+    }
 
     this.setGenerating(true);
     
@@ -134,7 +147,7 @@ class MiMoHouse {
     
     if (this.isConnected) {
       this.addMimoStreamPlaceholder();
-      await this.sendMessageToMimo(text);
+      await this.sendMessageToMimo(text, image);
     } else {
       await this.simulateResponse(text, model);
     }
@@ -306,11 +319,21 @@ class MiMoHouse {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.addMessage('user', '이미지를 첨부했습니다.', e.target.result);
+          this.attachedImage = e.target.result;
+          this.imagePreview.style.backgroundImage = `url(${e.target.result})`;
+          this.imagePreviewContainer.classList.remove('hidden');
         };
         reader.readAsDataURL(file);
+        break;
       }
     }
+  }
+
+  removeAttachedImage() {
+    this.attachedImage = null;
+    this.imagePreviewContainer.classList.add('hidden');
+    this.imagePreview.style.backgroundImage = 'none';
+    this.fileInput.value = '';
   }
 
   createNewSession() {
@@ -464,9 +487,9 @@ class MiMoHouse {
     }
   }
 
-  async sendMessageToMimo(message) {
+  async sendMessageToMimo(message, imageData = null) {
     try {
-      await tauriInvoke('send_message', { message });
+      await tauriInvoke('send_message', { message, imageData });
     } catch (error) {
       console.error('메시지 전송 실패:', error);
       if (this.activeMessageDiv) {
@@ -489,7 +512,14 @@ class MiMoHouse {
     messageDiv.innerHTML = `
       <img src="profiles/mimo_profile.png" alt="미모" class="message-avatar">
       <div class="message-content">
-        <div class="mimo-thought hidden" style="background: rgba(255, 255, 255, 0.03); border-left: 2px solid var(--accent); padding: 8px 12px; margin-bottom: 8px; border-radius: 4px; font-size: 0.9em; color: var(--text-secondary); font-style: italic; white-space: pre-wrap;"></div>
+        <div class="mimo-thought-container hidden" style="margin-bottom: 8px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+          <div class="mimo-thought-header" style="background: rgba(255,255,255,0.03); padding: 6px 12px; font-size: 0.85em; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; user-select: none;">
+            <span style="color: var(--accent);">🧠</span>
+            <span class="mimo-thought-title">미모의 생각 (클릭해서 보기)</span>
+            <span class="mimo-thought-arrow" style="margin-left: auto; transition: transform 0.2s ease; font-size: 0.8em;">▼</span>
+          </div>
+          <div class="mimo-thought-body" style="display: none; background: rgba(255, 255, 255, 0.01); border-top: 1px solid rgba(255,255,255,0.05); border-left: 2px solid var(--accent); padding: 8px 12px; font-size: 0.9em; color: var(--text-secondary); font-style: italic; white-space: pre-wrap;"></div>
+        </div>
         <div class="mimo-tools" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;"></div>
         <div class="mimo-response" style="line-height: 1.6; white-space: pre-wrap;"></div>
         <div class="message-time">${this.getCurrentTime()}</div>
@@ -499,7 +529,27 @@ class MiMoHouse {
     this.chatMessages.appendChild(messageDiv);
     this.scrollToBottom();
     
-    this.activeThoughtNode = messageDiv.querySelector('.mimo-thought');
+    const thoughtContainer = messageDiv.querySelector('.mimo-thought-container');
+    const thoughtHeader = messageDiv.querySelector('.mimo-thought-header');
+    const thoughtBody = messageDiv.querySelector('.mimo-thought-body');
+    const thoughtArrow = messageDiv.querySelector('.mimo-thought-arrow');
+    const thoughtTitle = messageDiv.querySelector('.mimo-thought-title');
+
+    thoughtHeader.addEventListener('click', () => {
+      if (thoughtBody.style.display === 'none') {
+        thoughtBody.style.display = 'block';
+        thoughtArrow.style.transform = 'rotate(180deg)';
+        thoughtTitle.textContent = '미모의 생각 (클릭해서 접기)';
+      } else {
+        thoughtBody.style.display = 'none';
+        thoughtArrow.style.transform = 'rotate(0deg)';
+        thoughtTitle.textContent = '미모의 생각 (클릭해서 보기)';
+      }
+      this.scrollToBottom();
+    });
+
+    this.activeThoughtContainerNode = thoughtContainer;
+    this.activeThoughtNode = thoughtBody;
     this.activeToolsNode = messageDiv.querySelector('.mimo-tools');
     this.activeResponseNode = messageDiv.querySelector('.mimo-response');
     this.activeMessageDiv = messageDiv;
@@ -527,7 +577,9 @@ class MiMoHouse {
     
     if (sessionUpdate === 'AgentThoughtChunk' || sessionUpdate === 'agent_thought_chunk') {
       if (this.activeThoughtNode && content) {
-        this.activeThoughtNode.classList.remove('hidden');
+        if (this.activeThoughtContainerNode) {
+          this.activeThoughtContainerNode.classList.remove('hidden');
+        }
         const thoughtText = content.text || content.thought || '';
         this.activeThoughtNode.textContent += thoughtText;
         this.scrollToBottom();
@@ -628,6 +680,7 @@ class MiMoHouse {
       }
     }
     this.setGenerating(false);
+    this.activeThoughtContainerNode = null;
     this.activeThoughtNode = null;
     this.activeToolsNode = null;
     this.activeResponseNode = null;

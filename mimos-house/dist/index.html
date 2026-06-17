@@ -87,6 +87,11 @@
         </div>
         
         <div class="chat-input-area">
+          <div id="image-preview-container" class="hidden" style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+            <div id="image-preview" style="position: relative; width: 60px; height: 60px; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; background-size: cover; background-position: center;">
+              <button id="btn-remove-image" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); border: none; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">×</button>
+            </div>
+          </div>
           <div class="input-container">
             <button class="icon-btn attach-btn" id="btn-attach" title="파일 첨부">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -254,6 +254,7 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
 async fn send_message(
     state: State<'_, AppState>,
     message: String,
+    image_data: Option<String>,
 ) -> Result<String, String> {
     let session_id = {
         let conversation_id = state.conversation_id.lock().await;
@@ -267,18 +268,48 @@ async fn send_message(
     *id += 1;
     let current_id = *id;
     
+    let mut prompt_items = vec![
+        serde_json::json!({
+            "type": "text",
+            "text": message
+        })
+    ];
+
+    if let Some(ref img_str) = image_data {
+        if let Some(comma_pos) = img_str.find(',') {
+            let prefix = &img_str[..comma_pos];
+            let base64_data = &img_str[comma_pos + 1..];
+            
+            let media_type = if prefix.contains("image/png") {
+                "image/png"
+            } else if prefix.contains("image/jpeg") || prefix.contains("image/jpg") {
+                "image/jpeg"
+            } else if prefix.contains("image/gif") {
+                "image/gif"
+            } else if prefix.contains("image/webp") {
+                "image/webp"
+            } else {
+                "image/png"
+            };
+
+            prompt_items.push(serde_json::json!({
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": media_type,
+                    "data": base64_data
+                }
+            }));
+        }
+    }
+
     let request = serde_json::json!({
         "jsonrpc": "2.0",
         "id": current_id,
         "method": "session/prompt",
         "params": {
             "sessionId": session_id,
-            "prompt": [
-                {
-                    "type": "text",
-                    "text": message
-                }
-            ]
+            "prompt": prompt_items
         }
     });
 
