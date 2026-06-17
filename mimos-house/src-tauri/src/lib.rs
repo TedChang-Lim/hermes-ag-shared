@@ -278,7 +278,6 @@ async fn send_message(
     if let Some(ref img_str) = image_data {
         if let Some(comma_pos) = img_str.find(',') {
             let prefix = &img_str[..comma_pos];
-            let base64_data = &img_str[comma_pos + 1..];
             
             let media_type = if prefix.contains("image/png") {
                 "image/png"
@@ -293,11 +292,9 @@ async fn send_message(
             };
 
             prompt_items.push(serde_json::json!({
-                "type": "resource",
-                "uri": "inline://image.png",
-                "name": "image.png",
-                "mimeType": media_type,
-                "data": base64_data
+                "type": "image",
+                "uri": img_str,
+                "mimeType": media_type
             }));
         }
     }
