@@ -1,39 +1,22 @@
 :root {
-  --bg-primary: #0f0f1a;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #25253e;
-  --bg-input: #1e1e35;
-  --text-primary: #f0f0f0;
-  --text-secondary: #a8a8c0;
-  --text-muted: #6b6b85;
-  --accent: #8b5cf6;
-  --accent-hover: #7c3aed;
-  --accent-light: rgba(139, 92, 246, 0.15);
-  --border: #2e2e4a;
-  --shadow: rgba(0, 0, 0, 0.4);
-  --shadow-lg: rgba(0, 0, 0, 0.5);
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #0f3460;
+  --bg-input: #1e2a4a;
+  --text-primary: #e6e6e6;
+  --text-secondary: #a0a0b0;
+  --text-muted: #6c6c80;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-light: rgba(124, 58, 237, 0.2);
+  --border: #2a2a4a;
+  --shadow: rgba(0, 0, 0, 0.3);
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
-  --radius: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ====== Scrollbar ====== */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --transition: all 0.2s ease;
 }
 
 * {
@@ -65,29 +48,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
+  padding: 12px 20px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   -webkit-app-region: drag;
   z-index: 100;
-  box-shadow: 0 1px 8px var(--shadow);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   -webkit-app-region: no-drag;
 }
 
 .app-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), #a78bfa, #c4b5fd);
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: -0.3px;
 }
 
 .header-center {
@@ -97,17 +78,16 @@ body {
 .avatar-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .avatar-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   cursor: pointer;
   transition: var(--transition);
-  position: relative;
 }
 
 .avatar-item:hover {
@@ -115,30 +95,12 @@ body {
 }
 
 .avatar {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 2px solid var(--border);
   object-fit: cover;
   transition: var(--transition);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
-#avatar-master {
-  border-color: #f59e0b;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
-}
-#avatar-mimo {
-  border-color: #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
-}
-#avatar-haena {
-  border-color: #f59e0b;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
-}
-#avatar-ag {
-  border-color: #10b981;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
 .avatar-item:hover .avatar {
@@ -396,7 +358,7 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -406,12 +368,11 @@ body {
 }
 
 .message-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .message-content {
@@ -419,13 +380,11 @@ body {
   padding: 12px 16px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  box-shadow: 0 2px 12px var(--shadow);
 }
 
 .message.user .message-content {
-  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  background: var(--accent);
   border-color: var(--accent);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
 }
 
 .message-text {
@@ -462,7 +421,7 @@ body {
 }
 
 .chat-input-area {
-  padding: 12px 20px 16px;
+  padding: 16px 24px 24px;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border);
 }
@@ -472,8 +431,8 @@ body {
   align-items: flex-end;
   gap: 8px;
   background: var(--bg-input);
-  border-radius: var(--radius-xl);
-  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
   border: 1px solid var(--border);
   transition: var(--transition);
 }

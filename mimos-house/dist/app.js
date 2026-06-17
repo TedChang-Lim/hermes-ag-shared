@@ -49,9 +49,9 @@ class MiMoHouse {
     this.modelIndicator = document.getElementById('model-indicator');
     this.charCount = document.getElementById('char-count');
     this.fileInput = document.getElementById('file-input');
-    // Keep input enabled by default so cursor entry always works
-    this.chatInput.disabled = false;
-    this.chatInput.placeholder = '메시지를 입력하세요...';
+    // Lock the input on initial load until the connection is established to prevent premature simulation fallback
+    this.chatInput.disabled = true;
+    this.chatInput.placeholder = 'MiMo 연결을 대기하는 중...';
   }
 
   initEventListeners() {
@@ -434,7 +434,8 @@ class MiMoHouse {
     } catch (error) {
       console.error('MiMo 연결 실패:', error);
       this.isConnected = false;
-      this.chatInput.placeholder = 'MiMo 연결 실패. 재시작해 주세요.';
+      this.chatInput.disabled = false;
+      this.chatInput.placeholder = 'MiMo 연결 실패. 시뮬레션 모드로 작동합니다.';
     }
   }
 
