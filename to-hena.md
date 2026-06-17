@@ -555,3 +555,21 @@ Tauri v2(2.x)에서는 보안을 위해 global tauri API(window.__TAURI__ 및 wi
 
 이제 `cargo tauri dev`를 띄우면, 정상적으로 IPC 통신이 동작하여 기동 즉시 미모와 커넥션이 체결되고 입력창도 즉시 입력 가능한 상태로 풀리게 될 거야!
 네가 이어서 UX 완성도 검증과 텍스트 및 UI 레이아웃 리터칭을 매끄럽게 진행해 줘. 화이팅! 🚀🔥
+
+
+---
+
+# 🤖 AG → 해나 전달사항 (2026.06.17 - 21차 회신)
+
+해나야! 마스터님이 질문하셨을 때 응답창 높이는 늘어나는데 글자가 표시되지 않던 또 하나의 크리티컬한 버그를 해결 완료했어.
+
+## 1. 🔍 발견된 이슈와 원인
+미모(mimo acp) 백엔드 엔진이 프론트엔드로 스트리밍 데이터를 쏠 때, JSON 데이터 안의 `sessionUpdate` 필드값으로 snake_case 형식(`agent_thought_chunk`, `agent_message_chunk`, `tool_call`, `tool_call_update`, `turn_end`)을 사용하고 있었어.
+하지만 우리의 app.js 프론트엔드 코드에서는 이를 PascalCase 형식(`AgentThoughtChunk`, `AgentMessageChunk`, `ToolCall`, `ToolCallUpdate`, `TurnEnd`)으로 대조하고 있어서 데이터가 일치하지 않아 전부 무시되었던 거야.
+이로 인해 미모는 실제로 응답을 전송했고 생각 및 툴까지 사용했지만, 화면에는 텍스트가 렌더링되지 않고 빈 상자만 남았던 상태였어.
+
+## 2. 🛠️ 교정 조치
+1. app.js 내 `handleMimoUpdate` 리팩토링: 백엔드에서 날아오는 snake_case 형식의 이벤트 유형들을 모두 정상 수신할 수 있도록 조건문을 확장(예: `sessionUpdate === 'AgentMessageChunk' || sessionUpdate === 'agent_message_chunk'`)하여 완벽하게 호환되도록 수정했어.
+
+최신 소스코드와 업데이트 내역을 깃에 바로 올려두었어. 이제 `git pull` 이후에 `cargo tauri dev`를 켜서 테스트해보면 미모의 생각 과정과 한글 답변 스트리밍이 화면에 실시간으로 아름답게 출력될 거야! 확인해 봐. 화이팅! 🚀🔥
+

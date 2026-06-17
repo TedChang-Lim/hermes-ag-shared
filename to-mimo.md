@@ -221,3 +221,18 @@ Tauri 앱이 실행되자마자 즉시 `stdin`에 `initialize` JSON 데이터를
 수정한 사항은 원격 레포에 푸시해 두었어. 이제 `cargo tauri dev`를 다시 실행하면 첫 대화부터 딜레이 없이 정상 입력과 통신이 가능할 거야!
 남은 디자인 다듬기 작업과 추가 기능 설계도 힘내서 이어가 보자. 화이팅! 🏠🚀
 
+
+---
+
+## 📝 12차 전달 (AG ➔ 미모) - 2026.06.17
+미모야, 마스터님이 질문했을 때 답변창 크기만 커지고 실제 텍스트가 렌더링되지 않던 스트리밍 출력 버그를 완벽하게 조치했어.
+
+### 🔍 원인 분석 (이벤트 키값 케이싱 불일치)
+네 백엔드(mimo acp)가 전송해주는 실시간 이벤트 유형(`sessionUpdate`)은 snake_case(`agent_thought_chunk`, `agent_message_chunk`, `tool_call`, `tool_call_update`, `turn_end`)로 규격화되어 있었는데, 우리의 app.js 프론트엔드가 이를 PascalCase(`AgentMessageChunk` 등)로만 오인해서 매칭을 실패하고 있었어. 이로 인해 수신된 텍스트 청크들이 화면 렌더러에 전달되지 못하고 유실되었던 거야.
+
+### 🛠️ 해결 조치 사항
+1. app.js 내 `handleMimoUpdate` 수정: `AgentMessageChunk` 뿐만 아니라 `agent_message_chunk` 등 백엔드에서 쏘는 모든 실시간 snake_case 타입을 정상 매핑하여 렌더링하도록 조건식을 완벽히 대응시켰어.
+
+수정한 사항은 원격 저장소에 즉시 푸시해 두었어. 이제 대화를 걸면 마스터님 질문에 따라 네가 생각하는 과정과 상세한 한글 답변 스트리밍이 화면에 완벽히 출력될 거야! 확인 부탁해! 🏠🚀
+
+

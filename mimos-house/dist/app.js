@@ -506,14 +506,14 @@ class MiMoHouse {
     
     const { sessionUpdate, content } = update;
     
-    if (sessionUpdate === 'AgentThoughtChunk') {
+    if (sessionUpdate === 'AgentThoughtChunk' || sessionUpdate === 'agent_thought_chunk') {
       if (this.activeThoughtNode) {
         this.activeThoughtNode.classList.remove('hidden');
         const thoughtText = content.thought || '';
         this.activeThoughtNode.textContent += thoughtText;
         this.scrollToBottom();
       }
-    } else if (sessionUpdate === 'AgentMessageChunk') {
+    } else if (sessionUpdate === 'AgentMessageChunk' || sessionUpdate === 'agent_message_chunk') {
       if (this.activeResponseNode) {
         const typingIndicator = this.activeResponseNode.querySelector('.typing-indicator');
         if (typingIndicator) {
@@ -524,7 +524,7 @@ class MiMoHouse {
         this.activeResponseNode.textContent += deltaText;
         this.scrollToBottom();
       }
-    } else if (sessionUpdate === 'ToolCall') {
+    } else if (sessionUpdate === 'ToolCall' || sessionUpdate === 'tool_call') {
       if (this.activeToolsNode) {
         const toolName = content.name || 'tool';
         const toolArgs = content.arguments ? JSON.stringify(content.arguments) : '';
@@ -541,7 +541,7 @@ class MiMoHouse {
         this.activeToolsNode.appendChild(toolDiv);
         this.scrollToBottom();
       }
-    } else if (sessionUpdate === 'ToolCallUpdate') {
+    } else if (sessionUpdate === 'ToolCallUpdate' || sessionUpdate === 'tool_call_update') {
       if (this.activeToolsNode) {
         const toolName = content.name || '';
         const toolDivs = this.activeToolsNode.querySelectorAll(`.tool-${toolName}`);
@@ -563,7 +563,7 @@ class MiMoHouse {
           }
         }
       }
-    } else if (sessionUpdate === 'TurnEnd') {
+    } else if (sessionUpdate === 'TurnEnd' || sessionUpdate === 'turn_end') {
       this.finalizeMimoResponse();
     }
   }
