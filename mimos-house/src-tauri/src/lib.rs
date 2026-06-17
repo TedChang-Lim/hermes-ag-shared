@@ -5,6 +5,7 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 use tokio::sync::Mutex;
+use tokio::time::{timeout, Duration};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatMessage {
@@ -33,12 +34,37 @@ impl AppState {
     }
 }
 
+async fn clean_up_arcs(
+    mimo_process: Arc<Mutex<Option<tokio::process::Child>>>,
+    mimo_stdin: Arc<Mutex<Option<tokio::process::ChildStdin>>>,
+    is_connected: Arc<Mutex<bool>>,
+    conversation_id: Arc<Mutex<Option<String>>>,
+) {
+    let mut process_guard = mimo_process.lock().await;
+    if let Some(mut child) = process_guard.take() {
+        let _ = child.kill().await;
+        println!("mimo acp 자식 프로세스 안전 종료됨");
+    }
+    
+    let mut stdin_guard = mimo_stdin.lock().await;
+    *stdin_guard = None;
+    
+    let mut connected = is_connected.lock().await;
+    *connected = false;
+    
+    let mut conv_id = conversation_id.lock().await;
+    *conv_id = None;
+}
+
 #[tauri::command]
 async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<String, String> {
-    let is_connected_lock = state.is_connected.lock().await;
-    if *is_connected_lock {
-        return Ok("이미 연결되어 있습니다.".to_string());
-    }
+    // Always clean up any existing process/connection to avoid orphaned processes across reloads
+    clean_up_arcs(
+        state.mimo_process.clone(),
+        state.mimo_stdin.clone(),
+        state.is_connected.clone(),
+        state.conversation_id.clone(),
+    ).await;
 
     let mimo_path = "/Users/tedchanglimchangsik/.mimocode/bin/mimo";
     
@@ -72,10 +98,17 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
     
     use tokio::io::AsyncWriteExt;
     let req_str = format!("{}\n", serde_json::to_string(&initialize_req).unwrap());
-    stdin.write_all(req_str.as_bytes()).await
-        .map_err(|e| format!("initialize 송신 실패: {}", e))?;
-    stdin.flush().await
-        .map_err(|e| format!("initialize flush 실패: {}", e))?;
+    
+    let write_res = timeout(Duration::from_secs(5), async {
+        stdin.write_all(req_str.as_bytes()).await?;
+        stdin.flush().await?;
+        Ok::<(), std::io::Error>(())
+    }).await;
+
+    if write_res.is_err() || write_res.unwrap().is_err() {
+        let _ = child.kill().await;
+        return Err("initialize 송신 실패 (시간 초과 또는 파이프 오류)".to_string());
+    }
 
     // Store stdin and child in AppState
     let mut stdin_lock = state.mimo_stdin.lock().await;
@@ -89,6 +122,12 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
     let is_connected_clone = state.is_connected.clone();
     let conversation_id_clone = state.conversation_id.clone();
     let mimo_stdin_clone = state.mimo_stdin.clone();
+    let mimo_process_clone = state.mimo_process.clone();
+
+    let mimo_process_reader = mimo_process_clone.clone();
+    let mimo_stdin_reader = mimo_stdin_clone.clone();
+    let is_connected_reader = is_connected_clone.clone();
+    let conversation_id_reader = conversation_id_clone.clone();
 
     tokio::spawn(async move {
         let reader = BufReader::new(stdout);
@@ -122,15 +161,36 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
                             }
                         });
 
-                        let mut stdin_guard = mimo_stdin_clone.lock().await;
-                        if let Some(ref mut stdin_handle) = *stdin_guard {
-                            let notification_str = format!("{}\n", serde_json::to_string(&initialized_notification).unwrap());
-                            let session_new_str = format!("{}\n", serde_json::to_string(&session_new_req).unwrap());
-                            
-                            let _ = stdin_handle.write_all(notification_str.as_bytes()).await;
-                            let _ = stdin_handle.write_all(session_new_str.as_bytes()).await;
-                            let _ = stdin_handle.flush().await;
-                        }
+                        let mimo_process_init = mimo_process_reader.clone();
+                        let mimo_stdin_init = mimo_stdin_reader.clone();
+                        let is_connected_init = is_connected_reader.clone();
+                        let conversation_id_init = conversation_id_reader.clone();
+
+                        tokio::spawn(async move {
+                            let mut stdin_guard = mimo_stdin_init.lock().await;
+                            if let Some(ref mut stdin_handle) = *stdin_guard {
+                                let notification_str = format!("{}\n", serde_json::to_string(&initialized_notification).unwrap());
+                                let session_new_str = format!("{}\n", serde_json::to_string(&session_new_req).unwrap());
+                                
+                                let write_res = timeout(Duration::from_secs(5), async {
+                                    stdin_handle.write_all(notification_str.as_bytes()).await?;
+                                    stdin_handle.write_all(session_new_str.as_bytes()).await?;
+                                    stdin_handle.flush().await?;
+                                    Ok::<(), std::io::Error>(())
+                                }).await;
+                                
+                                if write_res.is_err() || write_res.unwrap().is_err() {
+                                    eprintln!("initialized/session/new 송신 실패");
+                                    drop(stdin_guard);
+                                    clean_up_arcs(
+                                        mimo_process_init,
+                                        mimo_stdin_init,
+                                        is_connected_init,
+                                        conversation_id_init,
+                                    ).await;
+                                }
+                            }
+                        });
                     } else if id == 2 {
                         // Response to session/new. Extract sessionId!
                         if let Some(result) = response.get("result") {
@@ -163,6 +223,15 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
                 }
             }
         }
+
+        // Reader loop exited - the process has terminated or stdout is closed
+        clean_up_arcs(
+            mimo_process_reader,
+            mimo_stdin_reader,
+            is_connected_reader,
+            conversation_id_reader,
+        ).await;
+        let _ = app_clone.emit("mimo-disconnected", "process exited");
     });
 
     tokio::spawn(async move {
@@ -186,15 +255,17 @@ async fn send_message(
     state: State<'_, AppState>,
     message: String,
 ) -> Result<String, String> {
+    let session_id = {
+        let conversation_id = state.conversation_id.lock().await;
+        conversation_id.as_ref().ok_or("대화 세션이 존재하지 않습니다")?.clone()
+    };
+
     let mut stdin_guard = state.mimo_stdin.lock().await;
     let stdin = stdin_guard.as_mut().ok_or("MiMo에 연결되지 않았습니다")?;
     
     let mut id = state.request_id.lock().await;
     *id += 1;
     let current_id = *id;
-
-    let conversation_id = state.conversation_id.lock().await;
-    let session_id = conversation_id.as_ref().ok_or("대화 세션이 존재하지 않습니다")?;
     
     let request = serde_json::json!({
         "jsonrpc": "2.0",
@@ -213,21 +284,36 @@ async fn send_message(
 
     use tokio::io::AsyncWriteExt;
     let request_str = format!("{}\n", serde_json::to_string(&request).unwrap());
-    stdin.write_all(request_str.as_bytes()).await
-        .map_err(|e| format!("메시지 전송 실패: {}", e))?;
-    stdin.flush().await
-        .map_err(|e| format!("flush 실패: {}", e))?;
+    
+    let write_res = timeout(Duration::from_secs(5), async {
+        stdin.write_all(request_str.as_bytes()).await?;
+        stdin.flush().await?;
+        Ok::<(), std::io::Error>(())
+    }).await;
+
+    if write_res.is_err() || write_res.unwrap().is_err() {
+        drop(stdin_guard);
+        clean_up_arcs(
+            state.mimo_process.clone(),
+            state.mimo_stdin.clone(),
+            state.is_connected.clone(),
+            state.conversation_id.clone(),
+        ).await;
+        return Err("메시지 전송 실패 (시간 초과 또는 파이프 오류)".to_string());
+    }
 
     Ok(current_id.to_string())
 }
 
 #[tauri::command]
 async fn cancel_generation(state: State<'_, AppState>) -> Result<String, String> {
+    let session_id = {
+        let conversation_id = state.conversation_id.lock().await;
+        conversation_id.as_ref().ok_or("대화 세션이 존재하지 않습니다")?.clone()
+    };
+
     let mut stdin_guard = state.mimo_stdin.lock().await;
     let stdin = stdin_guard.as_mut().ok_or("MiMo에 연결되지 않았습니다")?;
-    
-    let conversation_id = state.conversation_id.lock().await;
-    let session_id = conversation_id.as_ref().ok_or("대화 세션이 존재하지 않습니다")?;
     
     let request = serde_json::json!({
         "jsonrpc": "2.0",
@@ -239,29 +325,35 @@ async fn cancel_generation(state: State<'_, AppState>) -> Result<String, String>
 
     use tokio::io::AsyncWriteExt;
     let request_str = format!("{}\n", serde_json::to_string(&request).unwrap());
-    stdin.write_all(request_str.as_bytes()).await
-        .map_err(|e| format!("취소 요청 전송 실패: {}", e))?;
-    stdin.flush().await
-        .map_err(|e| format!("flush 실패: {}", e))?;
+    
+    let write_res = timeout(Duration::from_secs(5), async {
+        stdin.write_all(request_str.as_bytes()).await?;
+        stdin.flush().await?;
+        Ok::<(), std::io::Error>(())
+    }).await;
+
+    if write_res.is_err() || write_res.unwrap().is_err() {
+        drop(stdin_guard);
+        clean_up_arcs(
+            state.mimo_process.clone(),
+            state.mimo_stdin.clone(),
+            state.is_connected.clone(),
+            state.conversation_id.clone(),
+        ).await;
+        return Err("취소 요청 전송 실패 (시간 초과 또는 파이프 오류)".to_string());
+    }
 
     Ok("취소 요청됨".to_string())
 }
 
 #[tauri::command]
 async fn disconnect_mimo(state: State<'_, AppState>) -> Result<String, String> {
-    let mut process_guard = state.mimo_process.lock().await;
-    if let Some(mut child) = process_guard.take() {
-        let _ = child.kill().await;
-    }
-    
-    let mut stdin_guard = state.mimo_stdin.lock().await;
-    *stdin_guard = None;
-    
-    let mut is_connected = state.is_connected.lock().await;
-    *is_connected = false;
-    
-    let mut conv_id = state.conversation_id.lock().await;
-    *conv_id = None;
+    clean_up_arcs(
+        state.mimo_process.clone(),
+        state.mimo_stdin.clone(),
+        state.is_connected.clone(),
+        state.conversation_id.clone(),
+    ).await;
 
     Ok("MiMo 연결 해제됨".to_string())
 }
@@ -295,10 +387,23 @@ async fn create_new_conversation(
 
     use tokio::io::AsyncWriteExt;
     let request_str = format!("{}\n", serde_json::to_string(&request).unwrap());
-    stdin.write_all(request_str.as_bytes()).await
-        .map_err(|e| format!("요청 전송 실패: {}", e))?;
-    stdin.flush().await
-        .map_err(|e| format!("flush 실패: {}", e))?;
+    
+    let write_res = timeout(Duration::from_secs(5), async {
+        stdin.write_all(request_str.as_bytes()).await?;
+        stdin.flush().await?;
+        Ok::<(), std::io::Error>(())
+    }).await;
+
+    if write_res.is_err() || write_res.unwrap().is_err() {
+        drop(stdin_guard);
+        clean_up_arcs(
+            state.mimo_process.clone(),
+            state.mimo_stdin.clone(),
+            state.is_connected.clone(),
+            state.conversation_id.clone(),
+        ).await;
+        return Err("새 대화 생성 요청 실패 (시간 초과 또는 파이프 오류)".to_string());
+    }
 
     Ok("새 대화 생성 요청됨".to_string())
 }
