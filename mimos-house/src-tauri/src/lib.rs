@@ -42,12 +42,14 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
 
     let mimo_path = "/Users/tedchanglimchangsik/.mimocode/bin/mimo";
     
-    // Execute via zsh login shell with 'exec' to inherit env variables (.zshrc) 
-    // and replace shell process with mimo so that kill() works directly on mimo.
-    let mut child = Command::new("zsh")
-        .arg("-l")
-        .arg("-c")
-        .arg(format!("exec {} acp", mimo_path))
+    // Inject environment variables directly to avoid GUI startup inheritance issues
+    // and bypass shell initialization delays (which caused stdin race conditions).
+    let mut child = Command::new(mimo_path)
+        .arg("acp")
+        .env("MIMO_API_KEY", "sk-sho2gjhe0thboan84dnepjy1lx2ueqpbw8yv6tjsmanna56r")
+        .env("MIMO_BASE_URL", "https://api.xiaomimimo.com/v1")
+        .env("XIAOMI_API_KEY", "sk-sho2gjhe0thboan84dnepjy1lx2ueqpbw8yv6tjsmanna56r")
+        .env("XIAOMI_BASE_URL", "https://api.xiaomimimo.com/v1")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
