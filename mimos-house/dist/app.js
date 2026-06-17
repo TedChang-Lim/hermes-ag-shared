@@ -180,7 +180,7 @@ class MiMoHouse {
     
     let imageHtml = '';
     if (image) {
-      imageHtml = `<img src="${image}" class="message-image" style="max-width: 300px; border-radius: 8px; margin-top: 8px;">`;
+      imageHtml = `<img src="${image}" class="message-image" style="max-width: 100px; border-radius: 6px; margin-top: 4px;">`;
     }
     
     messageDiv.innerHTML = `
