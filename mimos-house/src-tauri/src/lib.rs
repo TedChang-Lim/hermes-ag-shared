@@ -40,20 +40,29 @@ async fn clean_up_arcs(
     is_connected: Arc<Mutex<bool>>,
     conversation_id: Arc<Mutex<Option<String>>>,
 ) {
-    let mut process_guard = mimo_process.lock().await;
-    if let Some(mut child) = process_guard.take() {
-        let _ = child.kill().await;
-        println!("mimo acp 자식 프로세스 안전 종료됨");
+    {
+        let mut process_guard = mimo_process.lock().await;
+        if let Some(mut child) = process_guard.take() {
+            let _ = child.kill().await;
+            let _ = child.wait().await;
+            println!("mimo acp 자식 프로세스 안전 종료됨");
+        }
     }
     
-    let mut stdin_guard = mimo_stdin.lock().await;
-    *stdin_guard = None;
+    {
+        let mut stdin_guard = mimo_stdin.lock().await;
+        *stdin_guard = None;
+    }
     
-    let mut connected = is_connected.lock().await;
-    *connected = false;
+    {
+        let mut connected = is_connected.lock().await;
+        *connected = false;
+    }
     
-    let mut conv_id = conversation_id.lock().await;
-    *conv_id = None;
+    {
+        let mut conv_id = conversation_id.lock().await;
+        *conv_id = None;
+    }
 }
 
 #[tauri::command]
@@ -115,11 +124,15 @@ async fn connect_mimo(state: State<'_, AppState>, app: AppHandle) -> Result<Stri
     }
 
     // Store stdin and child in AppState
-    let mut stdin_lock = state.mimo_stdin.lock().await;
-    *stdin_lock = Some(stdin);
+    {
+        let mut stdin_lock = state.mimo_stdin.lock().await;
+        *stdin_lock = Some(stdin);
+    }
     
-    let mut process_lock = state.mimo_process.lock().await;
-    *process_lock = Some(child);
+    {
+        let mut process_lock = state.mimo_process.lock().await;
+        *process_lock = Some(child);
+    }
 
     // Spawn reader task
     let app_clone = app.clone();
@@ -273,9 +286,8 @@ async fn send_message(
     ];
 
     if let Some(ref img_str) = image_data {
-        if let Some(comma_pos) = img_str.find(',') {
+        let (media_type, base64_data) = if let Some(comma_pos) = img_str.find(',') {
             let prefix = &img_str[..comma_pos];
-            
             let media_type = if prefix.contains("image/png") {
                 "image/png"
             } else if prefix.contains("image/jpeg") || prefix.contains("image/jpg") {
@@ -287,13 +299,16 @@ async fn send_message(
             } else {
                 "image/png"
             };
+            (media_type, &img_str[comma_pos + 1..])
+        } else {
+            ("image/png", img_str.as_str())
+        };
 
-            prompt_items.push(serde_json::json!({
-                "type": "resource",
-                "uri": img_str,
-                "mimeType": media_type
-            }));
-        }
+        prompt_items.push(serde_json::json!({
+            "type": "image",
+            "data": base64_data,
+            "mimeType": media_type
+        }));
     }
 
     let request = serde_json::json!({

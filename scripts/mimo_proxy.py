@@ -153,6 +153,7 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
 
             messages = body.get("messages", [])
             target_model = analyze_and_route(messages)
+            is_stream = body.get("stream", False)
             
             # Inject MiMo's sexy scientific persona instruction
             mimo_system_prompt = (
@@ -197,43 +198,116 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
             )
             
             try:
-                with urllib.request.urlopen(req, timeout=15) as response:
-                    res_body = response.read()
-                    
-                    # Log the conversation to mimo_chat_log.md
-                    try:
-                        res_json = json.loads(res_body.decode('utf-8'))
-                        choices = res_json.get("choices", [])
-                        if choices:
-                            assistant_text = choices[0].get("message", {}).get("content", "")
-                            # Find the latest user message
-                            user_text = ""
-                            for msg in reversed(messages):
-                                if msg.get("role") == "user":
-                                    user_text = msg.get("content", "")
-                                    break
+                # Use a larger timeout (60s) for stream / reasoning initialization
+                with urllib.request.urlopen(req, timeout=60) as response:
+                    if is_stream:
+                        self.send_response(200)
+                        self.send_header("Content-Type", "text/event-stream")
+                        self.send_header("Cache-Control", "no-cache")
+                        self.send_header("Connection", "keep-alive")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        
+                        accumulated_content = []
+                        for line_bytes in response:
+                            self.wfile.write(line_bytes)
+                            self.wfile.flush()
                             
-                            log_path = "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/mimo_chat_log.md"
-                            import datetime
-                            now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            
-                            log_entry = (
-                                f"\n---\n"
-                                f"### 📅 Chat Log - {now_str} (Model: {target_model})\n"
-                                f"*마스터님 (User)*:\n{user_text}\n\n"
-                                f"*미모 (Assistant)*:\n{assistant_text}\n"
-                            )
-                            with open(log_path, "a", encoding="utf-8") as lf:
-                                lf.write(log_entry)
-                            print(f"[*] Logged chat to {log_path}")
-                    except Exception as le:
-                        print(f"[-] Logging failed: {le}")
+                            # Parse line to extract assistant response for logging
+                            line = line_bytes.decode('utf-8').strip()
+                            if line.startswith("data:"):
+                                data_str = line[5:].strip()
+                                if data_str == "[DONE]":
+                                    continue
+                                try:
+                                    data_json = json.loads(data_str)
+                                    choices = data_json.get("choices", [])
+                                    if choices:
+                                        delta = choices[0].get("delta", {})
+                                        content = delta.get("content", "")
+                                        if content:
+                                            accumulated_content.append(content)
+                                except Exception:
+                                    pass
+                                    
+                        # Log streamed conversation
+                        if accumulated_content:
+                            assistant_text = "".join(accumulated_content)
+                            try:
+                                user_text = ""
+                                for msg in reversed(messages):
+                                    if msg.get("role") == "user":
+                                        user_content = msg.get("content", "")
+                                        if isinstance(user_content, list):
+                                            text_parts = []
+                                            for part in user_content:
+                                                if isinstance(part, dict) and part.get("type") == "text":
+                                                    text_parts.append(part.get("text", ""))
+                                            user_text = "".join(text_parts)
+                                        else:
+                                            user_text = str(user_content)
+                                        break
+                                
+                                log_path = "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/mimo_chat_log.md"
+                                import datetime
+                                now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                
+                                log_entry = (
+                                    f"\n---\n"
+                                    f"### 📅 Chat Log - {now_str} (Model: {target_model})\n"
+                                    f"*마스터님 (User)*:\n{user_text}\n\n"
+                                    f"*미모 (Assistant)*:\n{assistant_text}\n"
+                                )
+                                with open(log_path, "a", encoding="utf-8") as lf:
+                                    lf.write(log_entry)
+                                print(f"[*] Logged streamed chat to {log_path}")
+                            except Exception as le:
+                                print(f"[-] Logging streamed chat failed: {le}")
+                    else:
+                        res_body = response.read()
+                        
+                        # Log the conversation to mimo_chat_log.md
+                        try:
+                            res_json = json.loads(res_body.decode('utf-8'))
+                            choices = res_json.get("choices", [])
+                            if choices:
+                                assistant_text = choices[0].get("message", {}).get("content", "")
+                                # Find the latest user message
+                                user_text = ""
+                                for msg in reversed(messages):
+                                    if msg.get("role") == "user":
+                                        user_content = msg.get("content", "")
+                                        if isinstance(user_content, list):
+                                            text_parts = []
+                                            for part in user_content:
+                                                if isinstance(part, dict) and part.get("type") == "text":
+                                                    text_parts.append(part.get("text", ""))
+                                            user_text = "".join(text_parts)
+                                        else:
+                                            user_text = str(user_content)
+                                        break
+                                
+                                log_path = "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/mimo_chat_log.md"
+                                import datetime
+                                now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                
+                                log_entry = (
+                                    f"\n---\n"
+                                    f"### 📅 Chat Log - {now_str} (Model: {target_model})\n"
+                                    f"*마스터님 (User)*:\n{user_text}\n\n"
+                                    f"*미모 (Assistant)*:\n{assistant_text}\n"
+                                )
+                                with open(log_path, "a", encoding="utf-8") as lf:
+                                    lf.write(log_entry)
+                                print(f"[*] Logged chat to {log_path}")
+                        except Exception as le:
+                            print(f"[-] Logging failed: {le}")
 
-                    self.send_response(200)
-                    self.send_header("Content-Type", "application/json")
-                    self.send_header("Access-Control-Allow-Origin", "*")
-                    self.end_headers()
-                    self.wfile.write(res_body)
+                        self.send_response(200)
+                        self.send_header("Content-Type", "application/json")
+                        self.send_header("Access-Control-Allow-Origin", "*")
+                        self.end_headers()
+                        self.wfile.write(res_body)
             except urllib.error.HTTPError as e:
                 print(f"[-] HTTP Error {e.code}: {e.reason}")
                 self.send_response(e.code)
