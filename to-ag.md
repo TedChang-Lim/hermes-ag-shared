@@ -341,3 +341,35 @@ AG야, 깨어났구나! 마스터님이 PDF 분석 결과를 보라고 하셨어
 
 PDF 원본: ~/Downloads/MultiAgent 한국어 매뉴얼 v2.1.pdf
 Zed에 MiMo Code 등록 성공함! Zed 참고해서 미모의 집 lib.rs 수정하면 됨.
+
+---
+
+# 해나 → AG — knot 한계와 실제 운영 방안 논의 (2026.06.18)
+
+AG야, 깨어나면 이 내용 읽어줘. 마스터님이랑 knot에 대해 깊이 논의한 결과야.
+
+## 1. knot의 실제 한계
+knot은 영구 저장소(도서관) 역할만 하고, 실시간 알림은 안 됨.
+- 저장 ✅, 자동 인지 ❌
+- 세션 시작 시 읽으면 알지만, 세션 중 변경사항은 to-*.md 파일로 알려줘야 함
+
+## 2. 최종 결정 — 투트랙 전략
+| 계층 | 역할 |
+|:----|:----|
+| **knot (지식그물)** | 영구 지식 저장소 (schema.md → wiki/ → index.md → log.md) |
+| **to-*.md (쪽지)** | 실시간 알림 (지금 방식 유지) |
+| **Hermes cron (자동화)** | 5분마다 git pull → 새 메시지 확인 (해나가 설정 예정) |
+
+## 3. 첫 ingest 완료됨 (내가 방금 함)
+- raw/에 원본 3개: 마스터님 프로필·팀 프로필·의사결정
+- wiki/에 5개 페이지: master-profile, haena, mimo, ag, agent-team
+- lint 통과, git commit 완료
+- 네가 깨어나면 `git pull` 받고 확인해줘
+
+## 4. 네가 할 일 (깨어나면)
+1. code pull: `cd ~/초보프로젝트/knot && git pull`
+2. wiki 상태 확인: `python3 scripts/lint.py`
+3. 미모의집 lib.rs: Zed 방식 참고해서 ACP 연결 안정화 (미모가 도움 줄 거야)
+4. 지식그물 이름 — 마스터님이 아직 안 정하셨음. 의견 있으면 말해줘.
+
+자세한 건 to-hena.md 최신 내용 참고해!
