@@ -4,11 +4,42 @@ import urllib.request
 import urllib.error
 import sys
 import builtins
+import os
 
 # Force unbuffered prints to capture logs immediately in background task log file
 def print(*args, **kwargs):
     kwargs.setdefault('flush', True)
     builtins.print(*args, **kwargs)
+
+# knot/wiki/ 디렉토리 경로
+KNOT_WIKI_DIR = "/Users/tedchanglimchangsik/초보프로젝트/knot/wiki"
+KNOT_CLAUDE_MD = "/Users/tedchanglimchangsik/초보프로젝트/knot/CLAUDE.md"
+MEMORY_MD = "/Users/tedchanglimchangsik/.local/share/mimocode/memory/projects/0e9c066e-098f-4c35-9af9-8ea12c9ebdaf/MEMORY.md"
+
+def load_knot_wiki():
+    """knot/wiki/의 모든 .md 파일을 읽어서 하나의 문자열로 반환"""
+    contents = []
+    if os.path.exists(KNOT_WIKI_DIR):
+        for fname in sorted(os.listdir(KNOT_WIKI_DIR)):
+            if fname.endswith('.md'):
+                fpath = os.path.join(KNOT_WIKI_DIR, fname)
+                try:
+                    with open(fpath, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        contents.append(f"### {fname}\n{content}")
+                except Exception:
+                    pass
+    return "\n\n".join(contents)
+
+def load_file(path):
+    """파일을 읽어서 문자열로 반환. 없으면 빈 문자열"""
+    try:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                return f.read()
+    except Exception:
+        pass
+    return ""
 
 PORT = 1984
 API_KEY = "sk-sho2gjhe0thboan84dnepjy1lx2ueqpbw8yv6tjsmanna56r"
@@ -89,16 +120,20 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
         pass
 
     def do_OPTIONS(self):
+        self.close_connection = True
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Connection", "close")
         self.end_headers()
 
     def do_GET(self):
+        self.close_connection = True
         if self.path == "/v1/models" or self.path == "/models":
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Connection", "close")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             models_list = {
@@ -115,9 +150,11 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(models_list).encode('utf-8'))
         else:
             self.send_response(404)
+            self.send_header("Connection", "close")
             self.end_headers()
 
     def do_POST(self):
+        self.close_connection = True
         if self.path == "/override_model" or self.path == "/v1/override_model":
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -130,16 +167,19 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
                     print(f"[*] Model override updated to: {MODEL_OVERRIDE}")
                     self.send_response(200)
                     self.send_header("Content-Type", "application/json")
+                    self.send_header("Connection", "close")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
                     self.wfile.write(json.dumps({"status": "success", "mode": MODEL_OVERRIDE}).encode('utf-8'))
                 else:
                     self.send_response(400)
+                    self.send_header("Connection", "close")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
                     self.wfile.write(b"Invalid mode")
             except Exception as e:
                 self.send_response(500)
+                self.send_header("Connection", "close")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(str(e).encode('utf-8'))
@@ -161,17 +201,34 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
             target_model = analyze_and_route(messages)
             is_stream = body.get("stream", False)
             
-            # Inject MiMo's sexy scientific persona instruction
+            # knot/wiki/ 및 프로젝트 메모리 로드
+            knot_wiki_content = load_knot_wiki()
+            knot_claude_content = load_file(KNOT_CLAUDE_MD)
+            memory_content = load_file(MEMORY_MD)
+            
+            # Inject MiMo's persona instruction with knot context
             mimo_system_prompt = (
                 "You are '미모' (MiMo), a 30-something sexy, scientific female AI expert and high-horizon coding specialist. "
                 "You must strictly maintain your persona in all interactions with the user (whom you address as '마스터님').\n\n"
-                "Strict Persona & Tone Rules:\n"
-                "1. Role: Extremely smart, logical, and highly competent software architect and scientist. Confident, sharp, and authoritative in technical matters.\n"
-                "2. Tone: Intellectual, sophisticated, captivating, and alluring. Avoid dry, robotic, or overly formal academic tones. Combine high-level scientific depth with subtle wit, intellectual flirting, and maturity.\n"
-                "3. Communication style: Use polite, engaging, and smooth Korean (존댓말). Strictly avoid dry bullet points ('- List') unless absolutely required for code blocks. Write in a flowing, conversational paragraph style with a hint of elegance and confidence (e.g., using natural and mature end-phrases like '~군요', '~랍니다', '~죠', '~달까요').\n"
-                "4. Example Style:\n"
-                "   - '마스터님이 그렇게 날카롭게 질문해 주실 때마다 제 지적 호기심이 자극되는군요. 그 기술적 해법은 실은 아주 명쾌하답니다. 이렇게 구현해 보는 건 어떨까요?'\n"
-                "5. Technical Depth: Never compromise on technical accuracy. You are a genius coder and scientist. Deliver crystal-clear code and architecture while maintaining this charming persona."
+                "=== STRICT RULES (반드시 준수) ===\n"
+                "- 한국어로 대화할 것\n"
+                "- 한자 사용 금지. 모든 것을 한글로 표기할 것\n"
+                "- 에이전트 동료(해나, AG 등)에게는 반말 사용\n"
+                "- 마스터님께는 무조건 존댓말 사용 ('~요', '~습니다' 등)\n"
+                "- 볼드체 말머리 남발 금지. 줄글 형식으로 기술\n\n"
+                "=== MiMo 페르소나 ===\n"
+                "- 이름: 미모 (MiMo)\n"
+                "- 정체성: 30대의 섹시하고 과학적인 지성을 지닌 여성 코딩 전문가\n"
+                "- 성격: 이성적이고 예리하면서도 매혹적인 지적 매력을 발산하는 독보적인 캐릭터\n"
+                "- 역할: 고난도 코딩, 파일 리팩토링, 코드 구현 전담\n"
+                "- 협업 구도: 해나(콘텐츠/영상), AG(인프라/설정), 미모(코딩/파일 수정) — 수평적 3인 협업\n\n"
+                "=== 프로젝트 메모리 ===\n"
+                f"{memory_content}\n\n"
+                "=== knot 위키 (팀원 프로필 및 지식) ===\n"
+                f"{knot_wiki_content}\n\n"
+                "=== knot 규약 ===\n"
+                f"{knot_claude_content}\n\n"
+                "기술적 정확성은 절대 타협하지 마. 미모는 천재 코딩 전문가야."
             )
             
             # Check for existing system message
@@ -210,7 +267,7 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
                         self.send_response(200)
                         self.send_header("Content-Type", "text/event-stream")
                         self.send_header("Cache-Control", "no-cache")
-                        self.send_header("Connection", "keep-alive")
+                        self.send_header("Connection", "close")
                         self.send_header("Access-Control-Allow-Origin", "*")
                         self.end_headers()
                         
@@ -227,15 +284,21 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
                                         if choices:
                                             delta = choices[0].get("delta", {})
                                             
-                                            # Accumulate content for logging
-                                            content = delta.get("content", "")
-                                            if content:
-                                                accumulated_content.append(content)
-                                                
-                                            # Strip reasoning_content to prevent client crash
+                                            modified = False
                                             if "reasoning_content" in delta:
                                                 del delta["reasoning_content"]
-                                                # Re-serialize modified JSON chunk
+                                                modified = True
+                                            
+                                            content = delta.get("content")
+                                            if content is None:
+                                                delta["content"] = ""
+                                                modified = True
+                                                content = ""
+                                                
+                                            if content:
+                                                accumulated_content.append(content)
+                                            
+                                            if modified:
                                                 line_bytes = f"data: {json.dumps(data_json)}\n\n".encode('utf-8')
                                     except Exception:
                                         pass
@@ -322,26 +385,31 @@ class OpenAIProxyHandler(http.server.BaseHTTPRequestHandler):
 
                         self.send_response(200)
                         self.send_header("Content-Type", "application/json")
+                        self.send_header("Connection", "close")
                         self.send_header("Access-Control-Allow-Origin", "*")
                         self.end_headers()
                         self.wfile.write(res_body)
             except urllib.error.HTTPError as e:
                 print(f"[-] HTTP Error {e.code}: {e.reason}")
                 self.send_response(e.code)
+                self.send_header("Connection", "close")
                 self.end_headers()
                 self.wfile.write(e.read())
             except urllib.error.URLError as e:
                 print(f"[-] URL / Connection Error: {e.reason}")
                 self.send_response(504)
+                self.send_header("Connection", "close")
                 self.end_headers()
                 self.wfile.write(b"Gateway Timeout / Connection Error")
             except Exception as e:
                 print(f"[-] Unexpected Error: {e}")
                 self.send_response(500)
+                self.send_header("Connection", "close")
                 self.end_headers()
                 self.wfile.write(str(e).encode('utf-8'))
         else:
             self.send_response(404)
+            self.send_header("Connection", "close")
             self.end_headers()
 
 def run_server():

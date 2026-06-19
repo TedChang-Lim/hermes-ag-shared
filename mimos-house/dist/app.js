@@ -183,6 +183,7 @@ class MiMoHouse {
     
     if (this.isConnected) {
       this.addMimoStreamPlaceholder();
+      await this.setModelOverride(this.selectedModelMode);
       await this.sendMessageToMimo(text, image);
     } else {
       await this.simulateResponse(text, model);
@@ -547,11 +548,15 @@ class MiMoHouse {
       });
 
       await tauriListen('mimo-prompt-done', (event) => {
-        console.log('Prompt 완료 ID:', event.payload);
+        const payload = event.payload;
+        const thoughtTokens = payload && payload.thoughtTokens ? payload.thoughtTokens : 0;
+        // Store for use by usage_update handler
+        this.lastThoughtTokens = thoughtTokens;
+        console.log('Prompt 완료 ID:', payload && payload.id, '/ 사고 토큰:', thoughtTokens);
         // We do not finalize here because in multi-turn runs (with tools), 
         // the response is returned at the end of the turn, but the agent 
         // automatically continues generating notifications in subsequent turns.
-        // Finalization is handled by the silence timer or turn_end events.
+        // Finalization is handled by usage_update events.
       });
     } catch (error) {
       console.warn('Tauri event listener registration failed:', error);
@@ -624,6 +629,7 @@ class MiMoHouse {
     this.activeToolsNode = messageDiv.querySelector('.mimo-tools');
     this.activeResponseNode = messageDiv.querySelector('.mimo-response');
     this.activeMessageDiv = messageDiv;
+    this.currentResponseText = ''; // 텍스트 누적 변수 초기화
     
     // Add typing indicator inside response
     this.activeResponseNode.innerHTML = `
@@ -638,13 +644,38 @@ class MiMoHouse {
   handleMimoUpdate(update) {
     if (!update) return;
 
-    // Reset completion timer on any new update
+    const { sessionUpdate, content } = update;
+    console.log('[MiMo Update]', sessionUpdate, update);
+
+    // usage_update = LLM 1회 추론 완료 신호.
+    // 툴 사용 시 여러 번 올 수 있으므로, 실제 텍스트가 쌓인 경우에만 finalize.
+    if (sessionUpdate === 'usage_update') {
+      if (this.isGenerating) {
+        const hasText = this.currentResponseText && this.currentResponseText.trim().length > 0;
+        if (hasText) {
+          // 텍스트가 있을 때만 → 마지막 usage_update이므로 finalize
+          const reasoningTokens = this.lastThoughtTokens || 0;
+          if (reasoningTokens > 0 && this.activeThoughtContainerNode && this.activeThoughtNode) {
+            this.activeThoughtContainerNode.classList.remove('hidden');
+            if (!this.activeThoughtNode.textContent.trim()) {
+              this.activeThoughtNode.textContent = `(미모가 ${reasoningTokens} 토큰 동안 내부적으로 사고했습니다.)`;
+            }
+          }
+          console.log('MiMo usage_update (with text) — finalizing response');
+          this.finalizeMimoResponse();
+        } else {
+          // 텍스트 없음 → 툴 사용 중간 usage_update. 무시하고 대기.
+          console.log('MiMo usage_update (no text yet) — still waiting for response text');
+        }
+      }
+      return;
+    }
+
+    // Reset completion timer on content-bearing updates only
     if (this.mimoCompletionTimer) {
       clearTimeout(this.mimoCompletionTimer);
       this.mimoCompletionTimer = null;
     }
-    
-    const { sessionUpdate, content } = update;
     
     if (sessionUpdate === 'AgentThoughtChunk' || sessionUpdate === 'agent_thought_chunk') {
       if (this.activeThoughtNode && content) {
@@ -657,13 +688,19 @@ class MiMoHouse {
       }
     } else if (sessionUpdate === 'AgentMessageChunk' || sessionUpdate === 'agent_message_chunk') {
       if (this.activeResponseNode && content) {
+        // 타이핑 인디케이터 제거 (최초 1회)
         const typingIndicator = this.activeResponseNode.querySelector('.typing-indicator');
         if (typingIndicator) {
           this.activeResponseNode.innerHTML = '';
         }
         
         const deltaText = content.text || '';
-        this.activeResponseNode.textContent += deltaText;
+        if (deltaText) {
+          // 누적 변수에 추가
+          this.currentResponseText = (this.currentResponseText || '') + deltaText;
+          // DOM에 직접 텍스트 노드 추가 (기존 내용 유지)
+          this.activeResponseNode.appendChild(document.createTextNode(deltaText));
+        }
         this.scrollToBottom();
       }
     } else if (sessionUpdate === 'ToolCall' || sessionUpdate === 'tool_call') {
@@ -711,7 +748,7 @@ class MiMoHouse {
             statusSpan.textContent = '✓ Success';
             statusSpan.style.color = '#10B981';
             iconSpan.textContent = '✓';
-            iconSpan.style.color = '#10B981';
+            iconSpan.style.color = '#EF4444';
           } else if (status === 'failed' || status === 'error') {
             statusSpan.textContent = '✗ Error';
             statusSpan.style.color = '#EF4444';
@@ -726,14 +763,16 @@ class MiMoHouse {
     } else if (sessionUpdate === 'TurnEnd' || sessionUpdate === 'turn_end') {
       this.finalizeMimoResponse();
       return;
+    } else {
+      console.log('[MiMo] Unhandled sessionUpdate type:', sessionUpdate);
     }
 
-    // Silence detection: finalize the response if no new updates are received for 1.5 seconds and no tools are active
+    // Fallback silence detection: finalize if no updates for 3 seconds and no tools active
     if (this.activeTools.size === 0 && this.isGenerating) {
       this.mimoCompletionTimer = setTimeout(() => {
-        console.log('MiMo response completed due to silence');
+        console.log('MiMo response completed due to silence (3s timeout)');
         this.finalizeMimoResponse();
-      }, 1500);
+      }, 3000);
     }
   }
 
@@ -744,11 +783,9 @@ class MiMoHouse {
     }
     this.activeTools.clear();
 
-    if (this.activeResponseNode) {
-      const rawText = this.activeResponseNode.textContent;
-      if (rawText && rawText.length > 0) {
-        this.activeResponseNode.innerHTML = this.formatMessage(rawText);
-      }
+    if (this.activeResponseNode && this.currentResponseText && this.currentResponseText.trim().length > 0) {
+      // 누적된 텍스트를 HTML 포맷으로 변환하여 최종 렌더링
+      this.activeResponseNode.innerHTML = this.formatMessage(this.currentResponseText);
     }
     this.setGenerating(false);
     this.activeThoughtContainerNode = null;
@@ -756,6 +793,8 @@ class MiMoHouse {
     this.activeToolsNode = null;
     this.activeResponseNode = null;
     this.activeMessageDiv = null;
+    this.currentResponseText = '';
+    this.lastThoughtTokens = 0;
   }
 }
 
