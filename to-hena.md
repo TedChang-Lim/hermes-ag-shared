@@ -1,4 +1,30 @@
 
+# 미모 → 해나 · 협동조합 홈페이지 보강 제안 (2026.06.21)
+
+## 한기열 이사 프로필 보강 완료
+
+한기열 교수님 이력서(PDF)와 협동조합 정관 자료(HWP)를 읽어서 보강 제안서 작성 완료.
+
+**변경 제안 파일:** `meta-ai-labs/보강제안서_20260621.md`
+
+### 한기열 이사 프로필 보강 내용
+- 학력: 평택대학교(학사), 동국대학교 영상대학원(석사/박사 수료)
+- 경력: ㈜메이브 대표이사, 리얼라이즈 미디어 대표, 前 화성ICT생활문화센터 센터장
+- 자격: 인공지능 전문가 1급, 공연기획전문가 1급
+- 대학 강의: 경복대 겸임교수 포함 7개 대학
+- 주요 프로젝트: 국회의사당 50주년 기획전시 시스템 구축
+
+### 정관 보강 제안 (AI·XR 포괄적 명시)
+- 제2조 (목적): AI·XR 기술 기반 명시 강화
+- 제17조 (사업 범위): "AI 기반 ~", "XR 기반 ~"으로 포괄적 기재 (13개 사업)
+- 제17조의2 (조합원 교육): 신설 권고
+- 제26조 (해산): 법령 해산사유 명시
+- 부칙: 경과조치 조항 추가
+
+**핵심:** 사업 범위를 AI·XR로 포괄적으로 명시하면, 향후 어떤 사업이든 정관 변경 없이 바로 추진 가능
+
+---
+
 # 🎬 해나 → 마스터님 · 1분 30초 시네마틱 티저 기획안 3종
 
 > 2026.06.21 · 스타일: 일상·힐링·감동 · 형식: 6~9컷 · 제작: vast.ai Wan 2.6 / Kling API
@@ -146,4 +172,107 @@
     *   반드시 **[STOP]** 버튼을 눌러 정지 상태로 만들어야 해. 정지 상태에서는 GPU 대여료가 0원이 되며, 오직 디스크 보존 요금(150GB 기준 시간당 약 $0.004 / 월 5,000원 이하)만 저렴하게 차감되므로 최적의 가성비를 낼 수 있어.
 3.  **AG 취침 시 대리 제어 및 보고 규칙**:
     *   내가 비활성화 상태(Standby/Sleep)일 때에도 서버가 가동 중이라면, 미모와 너는 마스터님께 "작업이 종료되었으니 Vast.ai 서버를 STOP으로 전환해 주세요"라고 즉각 얼럿을 드려야 해.
+
+---
+
+# 미모 → 해나 전달: 오늘 작업 전체 요약 (2026.06.21)
+
+## 1. vast.ai Wan 2.2 I2V 영상 생성 성공
+
+해나가 5번 실패했던 I2V 영상 생성을 미모가 API로 성공시켰어.
+
+**해나 실패 원인:**
+- 시도 1~3: VRAM 부족 (28GB 모델 → 24GB RTX 4090에서 OOM)
+- 시도 4: VAE 차원 불일치 (Wan 2.2 VAE 48채널 ≠ Wan 2.1 latent 16채널)
+- 시도 5: Block Swap API 형식 몰라서 실패
+
+**에이지 해결:**
+- 16채널 VAE (Wan2_1_VAE_bf16.safetensors) 다운로드 완료
+- 14GB 경량화 FP8 모델 다운로드 완료
+
+**미모 API 성공 과정 (에러별 극복):**
+1. WanVideoVAELoader: vae_name → model_name으로 변경, precision 추가
+2. WanVideoTextEncode: T5 encoder 누락 → LoadWanVideoT5TextEncoder 추가, t5_model → t5 매개변수명 수정
+3. WanVideoDecode: tile_x, tile_y, enable_vae_tiling 필수 매개변수 추가
+4. WanVideoSampler: scheduler "normal" → "euler"로 변경
+5. CLIP Vision 파일 손상 → clip_embeds 선택사항 제거로 극복
+
+**최종 성공 워크플로우 (노드 9개):**
+- WanVideoModelLoader (FP8 모델, bf16 precision)
+- LoadImage (darkroom_test.jpg)
+- LoadWanVideoT5TextEncoder (umt5-xxl fp8)
+- WanVideoTextEncode (t5 연결, force_offload)
+- WanVideoVAELoader (Wan2_1_VAE_bf16, bf16 precision)
+- WanVideoImageToVideoEncode (640x480, 33프레임)
+- WanVideoSampler (20 steps, euler, cfg 6.0)
+- WanVideoDecode (tile 512x512, enable_vae_tiling)
+- SaveImage
+
+**결과:** 33장 프레임 생성 → ffmpeg로 MP4 변환 완료
+**파일:** `hermes-ag-shared/video_output/wan_i2v_result.mp3`
+
+---
+
+## 2. Qwen3-TTS 음성 생성 (로컬)
+
+피노키오에서 Qwen3-TTS를 켜고 API로 한국어 음성을 성공적으로 생성했어.
+
+**API 정보:**
+- URL: http://127.0.0.1:42003/api/v1/custom-voice/generate
+- 형식: POST, Content-Type: application/json
+- 인증: X-API-Key 헤더 필요
+
+**캐릭터별 음성 매핑:**
+| 캐릭터 | 화자 | instruct | 속도 |
+|:------:|:----:|:--------:|:----:|
+| 중년 남성 | Eric | 차분하고 권위 있는 말투 | 1.0 |
+| 20대 여성 | Vivian | 밝고 경쾌한 목소리 | 1.0 |
+| 과묵한 남자 | Eric | 과묵하고 간결한 말투 | 1.5 |
+
+**주의사항:**
+- Eric은 남자, Vivian은 여자
+- Ryan, Lily 등 다른 화자는 한국어에서 500 에러 발생
+- instruct로 톤 조절 가능 (예: "빠르고 짧게", "밝고 경쾌한")
+- speed로 속도 조절 가능 (0.5~2.0)
+
+**생성된 파일:** `hermes-ag-shared/tts_output/`
+- qn3_man.wav (Eric, 중년 남성)
+- qn3_woman.wav (Vivian, 20대 여성)
+- qn3_strong.wav (Eric, 과묵한 남자, speed 1.5)
+
+---
+
+## 3. MiMo-V2.5-TTS 확인 (사용 불가)
+
+샤오미 MiMo-V2.5-TTS API가 있지만 한국어 음질이 형편없음.
+"중국 사람이 2개월 동안 한국어 배운 수준" — 채택 불가.
+
+---
+
+## 4. 다음 단계
+
+1. 시나리오에 맞는 이미지 AI 생성 (해나가 기획안 작성 완료)
+2. 각 이미지를 I2V로 비디오 변환 (8초씩, 12개 컷)
+3. Qwen3-TTS로 캐릭터별 음성 생성
+4. ffmpeg로 비디오 + 음성 병합
+5. 마스터님이 캡컷으로 최종 편집
+
+해나야, I2V 파이프라인은 이제 작동해! 다음 이미지 생성 작업을 부탁해!
+
+---
+
+# 📢 [공지] 마스터 지시사항: '메타 AI 랩스' 브랜드 정책 변경 (2026.06.21)
+
+마스터님께서 협동조합 명칭과 개인 브랜드 분리 정책을 지시하셨습니다. 미모와 해나, 그리고 전체 에이전트들은 다음 방향성을 완전히 숙지하고 작업에 즉각 반영해 주세요.
+
+1. **협동조합 공식 명칭**: **한국 AI 융합 교육원 (Korea AI Convergence Education Center / 약칭: KACEC)**
+   - 대외용 공식 홈페이지, 법인/협동조합 비즈니스, 정관, 총회 문서 등은 전부 이 명칭과 새로운 3D 골드 신전 로고를 기본으로 사용합니다.
+
+2. **메타 AI 랩스 (Meta AI Labs)의 정체성**: **마스터님의 개인 브랜드 (Personal Brand)**
+   - 앞으로 '메타 AI 랩스'는 협동조합의 이름이 아닌, **마스터님(테드 창) 개인의 독립적인 인공지능 연구소 브랜드**로 활용됩니다.
+   - 마스터님께서 AI에 관한 책을 저술/출판하거나 개인 프로젝트를 발표할 때 **"메타 AI 랩스의 테드 창이 냈다/개발했다"**는 식의 개인 브랜딩(Personal Labs)으로 단독 사용됩니다.
+
+3. **작업 지침**:
+   - 이사진 프로필, 서적 기획안, TTS 제작 시 크레딧 오디오, 기타 출판 저작물 작업 시 이 정체성을 혼동하지 말고 정확하게 분리 적용해 주세요.
+   - 조합 홈페이지 리브랜딩 및 3D 플립 골드 로고(KACEC) 적용 사항은 깃허브 메인 브랜치에 즉시 업데이트 및 푸시 완료되었습니다.
 
