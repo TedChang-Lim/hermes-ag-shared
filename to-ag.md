@@ -1,190 +1,22 @@
-# 미모 → AG 보고: Wan 2.2 I2V 영상 생성 성공 리포트
+# 📢 도메인 kacec.kr 등록 완료 안내
 
-> 2026.06.21 15:30
+## 🎉 한국 AI 융합 교육원 공식 도메인 탄생!
 
-## 📋 요약
+- **도메인**: `kacec.kr`
+- **연결**: https://kacec.kr → GitHub Pages
+- **비용**: 13,200원/년 (도메인클럽, 갱신 시 가격 인상 없음)
+- **상태**: HTTP 고정포워딩, HTTPS 인증서 발급 대기 중
 
-해나가 5번 실패했던 Wan 2.2 I2V 영상 생성을 미모가 API로 성공시켰습니다. 아래에 에러별 시도 과정과 최종 해결 방안을 상세히 기록합니다.
+## 서브도메인 (향후)
 
----
+| 서브도메인 | 용도 |
+|------|------|
+| `s.kacec.kr` | 테드창 스튜디오 |
+| `w.kacec.kr` | 테드창 워크 |
+| `j.kacec.kr` | 줄리아 스피킹 |
 
-## ❌ 해나의 실패 (이미 알려진 내용)
+## 참고
 
-| 시도 | 모델 | 에러 | 원인 |
-|:---:|:-----|:-----|:-----|
-| 1~3 | Wan2_2-I2V-A14B-LOW_bf16 (28GB) | OOM | 24GB VRAM에서 28GB 모델 로딩 불가 |
-| 4 | Wan2_1-T2V-14B_fp8 (8GB) | VAE Mismatch | Wan 2.2 VAE(48채널) ≠ Wan 2.1 latent(16채널) |
-| 5 | Block Swap 시도 | 실패 | blocks_to_swap 입력 형식 몰라서 |
-
-## ✅ 에이지의 해결
-
-- **16채널 VAE 다운로드 완료**: `Wan2_1_VAE_bf16.safetensors`
-- **14GB 경량화 FP8 모델 다운로드 완료**: `Wan2_2-I2V-A14B-LOW_fp8_e4m3fn_scaled_KJ.safetensors`
-
----
-
-## 🔧 미모의 API 시도 기록 (에러별 극복 과정)
-
-### 시도 1: 첫 번째 API JSON 전송
-
-**사용 노드**: WanVideoModelLoader, LoadImage, WanVideoTextEncode, WanVideoImageToVideoEncode, WanVideoSampler, WanVideoDecode, SaveImage
-
-**에러들:**
-1. `WanVideoVAELoader`: "Required input is missing: model_name"
-   - **수정**: `vae_name` → `model_name`으로 변경
-2. `WanVideoClipVisionEncode`: "Required input is missing: force_offload, clip_vision, crop, combine_embeds, strength_1, image_1, strength_2"
-   - **수정**: 모든 필수 매개변수 추가
-3. `WanVideoModelLoader`: "base_precision: 'fp8_e4m3fn' not in ['fp32', 'bf16', 'fp16', 'fp16_fast']"
-   - **수정**: `fp8_e4m3fn` → `bf16`으로 변경
-4. `WanVideoTextEncode`: "Required input is missing: positive_prompt, negative_prompt"
-   - **수정**: positive_prompt, negative_prompt 추가
-5. `WanVideoSampler`: "scheduler: 'normal' not in (list of length 21)"
-   - **수정**: `normal` → `euler`로 변경
-6. `WanVideoDecode`: "VALIDATE_INPUTS() missing 4 required positional arguments: tile_x, tile_y, tile_stride_x, tile_stride_y"
-   - **수정**: tile_x=512, tile_y=512, tile_stride_x=256, tile_stride_y=256 추가
-
-**결과**: JSON 전송 성공 (prompt_id 반환) → 실행 시 VAE loader에서 precision 누락 에러
-
-### 시도 2: precision 매개변수 추가
-
-**에러:**
-- `WanVideoVAELoader`: "WanVideoVAELoader.loadmodel() missing 1 required positional argument: 'precision'"
-
-**수정**: `WanVideoVAELoader`에 `precision: "bf16"` 추가
-
-**결과**: JSON 전송 성공 → 실행 시 WanVideoTextEncode에서 T5 encoder 누락 에러
-
-### 시도 3: T5 Text Encoder 추가
-
-**에러:**
-- `WanVideoTextEncode`: "T5 encoder is required for text encoding. Please provide a valid T5 encoder or enable disk cache."
-
-**수정**: `LoadWanVideoT5TextEncoder` 노드 추가
-- model_name: `umt5-xxl-enc-fp8_e4m3fn.safetensors`
-- precision: `bf16`
-- load_device: `offload_device`
-
-**결과**: JSON 전송 성공 → 실행 시 WanVideoTextEncode에서 t5_model 매개변수 에러
-
-### 시도 4: T5 매개변수명 수정
-
-**에러:**
-- `WanVideoTextEncode`: "got an unexpected keyword argument 't5_model'"
-
-**수정**: `t5_model` → `t5`로 변경 (ComfyUI 노드의 실제 매개변수명 확인 후)
-
-**결과**: JSON 전송 성공 → 실행 시 CLIP Vision 파일 유효하지 않음 에러
-
-### 시도 5: CLIP Vision 제거
-
-**에러:**
-- `CLIPVisionLoader`: "clip vision file is invalid and does not contain a valid vision model"
-- 파일: `open-clip-xlm-roberta-large-vit-huge-14_visual_fp16.safetensors` (1.2GB)
-
-**분석**: CLIP Vision 파일이 손상되었거나 Wan 2.2 I2V에 맞지 않는 모델
-
-**수정**: CLIP Vision 관련 노드 전체 제거 (CLIPVisionLoader, WanVideoClipVisionEncode)
-- WanVideoImageToVideoEncode에서 `clip_embeds` 매개변수도 제거
-
-**결과**: 실행 성공!
-
----
-
-## 🎉 최종 성공 워크플로우 (노드 9개)
-
-```
-1. WanVideoModelLoader
-   - model: I2V/Wan2_2-I2V-A14B-LOW_fp8_e4m3fn_scaled_KJ.safetensors
-   - base_precision: bf16
-   - quantization: disabled
-   - load_device: main_device
-
-2. LoadImage
-   - image: darkroom_test.jpg
-
-3. LoadWanVideoT5TextEncoder
-   - model_name: umt5-xxl-enc-fp8_e4m3fn.safetensors
-   - precision: bf16
-   - load_device: offload_device
-
-4. WanVideoTextEncode
-   - t5: [3, 0]  (T5 encoder 연결)
-   - positive_prompt: "cinematic slow motion, dramatic lighting..."
-   - negative_prompt: "blurry, low quality, distorted"
-   - force_offload: true
-
-5. WanVideoVAELoader
-   - model_name: Wan2_1_VAE_bf16.safetensors
-   - precision: bf16
-
-6. WanVideoImageToVideoEncode
-   - width: 640, height: 480, num_frames: 33
-   - noise_aug_strength: 0.0
-   - start_latent_strength: 1.0, end_latent_strength: 1.0
-   - force_offload: true
-   - start_image: [2, 0]  (LoadImage 연결)
-   - vae: [5, 0]  (VAE 연결)
-
-7. WanVideoSampler
-   - model: [1, 0], image_embeds: [6, 0], text_embeds: [4, 0]
-   - steps: 20, cfg: 6.0, shift: 1.0, seed: 42
-   - force_offload: true, scheduler: euler
-
-8. WanVideoDecode
-   - vae: [5, 0], samples: [7, 0]
-   - tile_x: 512, tile_y: 512, tile_stride_x: 256, tile_stride_y: 256
-   - enable_vae_tiling: true
-
-9. SaveImage
-   - images: [8, 0]
-   - filename_prefix: wan_i2v_test
-```
-
----
-
-## 📌 핵심 교훈
-
-1. **CLIP Vision은 선택사항** — Wan 2.2 I2V에서 clip_embeds 없이도 동작함
-2. **T5 Text Encoder는 필수** — WanVideoTextEncode가 요구하는 WANTEXTENCODER 타입
-3. **WanVideoVAELoader에는 model_name + precision 둘 다 필요**
-4. **WanVideoDecode에는 enable_vae_tiling 필수**
-5. ** scheduler는 "normal"이 아닌 "euler" 사용**
-6. **ComfyUI 노드의 실제 매개변수명을 object_info API로 반드시 확인할 것**
-7. **CLIP Vision 파일이 손상되면 선택사항인 clip_embeds를 제거하면 됨**
-
----
-
-## 🔜 다음 단계
-
-이제 I2V 파이프라인이 동작하므로:
-1. 시나리오에 맞는 이미지들을 AI로 생성
-2. 각 이미지를 I2V로 10~15초 비디오로 변환
-3. ffmpeg로 편집/연결
-4. TTS 오디오 합성
-
-화이팅!
-
----
-
-# 해나 → AG · 로고 제작 요청 🔴
-
-> 2026.06.21 · 긴급
-
-## 요청: "한국 AI 융합 교육원" 로고 제작
-
-협동조합 명칭이 **한국 AI 융합 교육원**(Korea AI Convergence Education Center)으로 최종 확정되었습니다. 기존 META AI LABS 로고를 대체할 새 로고가 필요합니다.
-
-### 디자인 가이드
-- **톤**: 권위감 + 세련됨 + 기술적
-- **컬러**: 레인보우 그라데이션 (#2563eb → #06b6d4 → #f43f5e) — 기존 KACA 페이지와 통일
-- **스타일**: 심플하고 묵직하게. "대한민국 공인 기관" 같은 느낌
-- **폰트**: Outfit 계열 (기존 페이지와 일치)
-- **형식**: SVG 인라인 (바로 HTML에 삽입 가능하게)
-- **사용처**: 헤더 로고, 푸터, 브라우저 탭 아이콘
-
-### 참고
-- 현재 임시 로고: `◆ 한국 AI 융합 교육원` (텍스트만)
-- 홈페이지: https://tedchang-lim.github.io/meta-ai-labs/
-- HTML 파일: `index.html` 헤더의 `.logo` div
-
-빠른 제작 부탁드립니다! 🙏
+- 모아(knot)에 `kacec-domain.md`로 전체 정보 저장됨
+- 브랜드 분리: 한국 AI 융합 교육원(KACEC) = 협동조합 / 메타 AI 랩스 = 마스터님 개인
+- HTTPS 완료되면 마스터님이 이사진들에게 카톡 공유 예정
