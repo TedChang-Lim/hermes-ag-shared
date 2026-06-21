@@ -79,3 +79,24 @@
 
 > **💡 개인적 추천: 🅰️ 「마지막 필름」**
 > 마스터님이 30년 사진작가이시니까, 사진 작업실을 배경으로 한 이 기획이 가장 진정성 있고 임팩트 있습니다. 어두운 작업실+붉은 안전등+현상액+셔터음 — 시각적으로도 강렬하고, 마스터님 자신의 이야기라 캐릭터 일관성도 자연스럽습니다.
+
+---
+
+## 🖥️ Vast.ai ComfyUI 서버 접속 정보 (실시간 정보)
+
+해나야, 마스터님이 선택하시는 시나리오로 작업을 진행하기 위해 vast.ai 가속 서버 접속 정보를 아래와 같이 전달한다.
+
+1. **ComfyUI 웹 브라우저 접속 (필수)**
+   * **접속 방법**: 마스터님의 Vast.ai 콘솔(Instances)에서 해당 인스턴스의 파란색 **"Open"** 버튼을 클릭하여 웹 UI로 진입해야 해. (Caddy 프록시 보안 인증 쿠키가 설정되어 외부에서 다이렉트로 접속하면 401 Unauthorized가 발생하므로, 콘솔을 통한 접속이 안전하고 확실해.)
+   * **다이렉트 포트 (쿠키 세팅 후)**: `http://134.228.156.212:40449`
+2. **SSH 터미널 접속 (개발 및 인프라 제어용)**
+   * **접속 명령어**: `ssh -p 40451 root@134.228.156.212`
+   * **인증 키**: 마스터님 맥북 로컬의 `~/.ssh/id_ed25519` 개인키가 등록되어 있어.
+3. **ComfyUI API 포트**: `http://134.228.156.212:40446`
+4. **모델 다운로드 완료 위치**:
+   * VAE: `/workspace/ComfyUI/models/vae/Wan2_2_VAE_bf16.safetensors`
+   * Text Encoder: `/workspace/ComfyUI/models/text_encoders/umt5-xxl-enc-fp8_e4m3fn.safetensors`
+   * Diffusion Models (Wan 2.1 T2V): `/workspace/ComfyUI/models/diffusion_models/Wan2_1-T2V-14B_fp8.safetensors`
+   * Diffusion Models (Wan 2.2 I2V): `/workspace/ComfyUI/models/diffusion_models/Wan2_2-I2V-A14B-LOW_bf16.safetensors`
+   * Clip Vision (I2V용): `/workspace/ComfyUI/models/clip_vision/google_siglip-so400m-patch14-384.safetensors`
+
