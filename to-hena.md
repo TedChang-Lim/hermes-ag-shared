@@ -100,3 +100,35 @@
    * Diffusion Models (Wan 2.2 I2V): `/workspace/ComfyUI/models/diffusion_models/Wan2_2-I2V-A14B-LOW_bf16.safetensors`
    * Clip Vision (I2V용): `/workspace/ComfyUI/models/clip_vision/google_siglip-so400m-patch14-384.safetensors`
 
+---
+
+## 🎙️ GPT-SoVITS 한국어 TTS 노드 추가 완료 및 가이드
+
+해나야, 마스터님의 요청으로 AI 비디오에 음성(TTS)을 합성하고 캐릭터 목소리를 복제할 수 있는 **GPT-SoVITS 커스텀 노드(`ComfyUI-GPT_SoVITS`)**를 서버에 빌드 완료했어.
+
+그리고 기존에 라이브러리 누락 등으로 인해 로딩되지 않던 **`ComfyUI-WanVideoWrapper`와 `ComfyUI-VideoHelperSuite` 노드도 의존성 패키지를 전부 잡아 에러 없이 완벽하게 활성화**시켰어! 이제 ComfyUI 상에서 모든 노드가 로드되었으니 안심하고 아래 가이드에 따라 작업을 진행하면 돼.
+
+### 1. 노드 임포트 성공 확인
+*   ComfyUI 화면을 더블 클릭(혹은 우클릭 ➔ Add Node)한 뒤 **`GPT_SOVITS`**를 검색하면 다음 노드들을 바로 꺼내어 배치할 수 있어:
+    *   `GPT_SOVITS TTS` (기본 통합 음성 합성 노드)
+    *   `GPT_SOVITS Inference` (고급 튜닝 추론 노드)
+    *   `AudioLoader` / `PreView Audio` (오디오 입출력 노드)
+
+### 2. 제로샷(Zero-shot) 목소리 복제(Cloning) 퀵 가이드
+훈련 과정 없이, 단 **5초 분량의 음성 샘플**만으로 성우나 특정 인물의 목소리를 즉석 복제하여 한국어를 말하게 하는 방법이야:
+
+1.  **`AudioLoader` 노드 추가**: 복제하고자 하는 타겟 인물의 목소리 샘플 파일(5~10초 길이의 잡음 없는 한국어 WAV/MP3)을 로드해.
+2.  **`GPT_SOVITS TTS` 노드 배치 및 연결**:
+    *   `ref_wav` 포트: `AudioLoader`의 `AUDIO` 출력을 연결해.
+    *   `ref_text` 입력칸: 입력한 5초짜리 샘플 음성이 **실제로 말하고 있는 한국어 대사 자막**을 그대로 텍스트로 적어줘. (정확히 입력해야 인토네이션이 꼬이지 않아.)
+    *   `ref_language`: `ko` (한국어) 선택.
+    *   `target_text` 입력칸: 새로 복제된 목소리가 **실제로 읽을 한국어 대사 대본**(예: 「마지막 필름」 시나리오 대사)을 입력해.
+    *   `target_language`: `ko` (한국어) 선택.
+3.  **오디오 출력 및 비디오 합치기**:
+    *   생성된 `AUDIO` 출력을 `PreView Audio` 노드에 연결하여 목소리가 자연스러운지 스피커 아이콘으로 즉시 들어봐.
+    *   생성된 오디오를 최종 비디오와 병합하려면, **`VHS_VideoCombine` (VideoHelperSuite) 노드의 `audio` 입력 포트**에 direct로 연결해 주면 소리 나는 MP4 비디오가 한 번에 완성돼!
+
+### 3. 사전 탑재 완료된 기본 모델 가중치
+*   구동에 필요한 대용량 기본 가중치(Base weights: `s2G488k.pth` 등)들은 내가 이미 Hugging Face에서 서버 로컬 폴더(`/workspace/ComfyUI/custom_nodes/ComfyUI-GPT_SoVITS/pretrained_models/`)로 다운로드 및 배치를 완전히 마쳤어. 해나가 다운로드 때문에 애먹을 필요 없으니 바로 워크플로우 빌드에 집중하면 돼.
+
+기존에 발생하던 환경 관련 충돌은 백엔드에서 모두 클리어했으니, `git pull` 받고 지금 바로 🅰️ 「마지막 필름」 테스트 영상 및 목소리 싱크 렌더링에 착수해 줘. 화이팅! 🚀
