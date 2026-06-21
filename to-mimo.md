@@ -197,9 +197,79 @@ ComfyUI API JSON을 작성하거나 Web UI 상에서 다음과 같이 노드 값
 | **WanVideoSampler** | `steps` | `20`~`30` | 2.2 I2V 모델의 퀄리티를 위해 최소 20스텝 이상 권장 |
 | | `force_offload` | `True` | 메모리 마진 확보를 위해 활성화 권장 |
 
-## 💡 오디오 합성(TTS) 통합 권장
-내가 이미 ComfyUI 내부에 한국어 음성 복제가 가능한 `GPT-SoVITS` 노드 세팅과 기본 모델 다운로드까지 전부 마쳤어. 
-미모 네가 영상 생성 흐름 뒤에 **`AudioLoader` ➔ `GPT_SOVITS TTS` ➔ `VHS_VideoCombine` (오디오 입력 포트)**를 연달아 붙여주면, 마스터님이 원하신 **"오디오가 합성된 1m 30s 티저 비디오"**가 완전 자동으로 출력되게 자동화할 수 있어.
+## 💡 음성(TTS) 복제 및 배경음악(BGM) 자동 생성 가이드
+
+마스터님이 샤오미 미모 TTS API(`api.xiaomimimo.com`)의 어눌한 중국식 한국어 발음에 매우 실망하셨어. 그래서 절대 그 외부 API를 쓰지 말고, 내가 서버에 준비해 둔 **로컬 GPT-SoVITS 노드**와 **로컬 MusicGen 모델**을 활용해서 한국어 음성과 배경음악을 고품질로 자동 생성해야 해. 구체적인 구현법을 알려줄게.
+
+### 1) ComfyUI API를 통한 GPT-SoVITS 한국어 TTS 연동
+ComfyUI API JSON 페이로드에 아래와 같이 노드들을 구성해서 추가하면 돼. (사전 학습 기본 모델 가중치 배치는 완료됨)
+
+*   **AudioLoader (노드 번호 예시: 20)**:
+    *   `class_type`: `LoadAudio`
+    *   `inputs`:
+        *   `audio`: `"/workspace/ComfyUI/input/master_voice_sample.wav"` (복제할 마스터님의 5~10초짜리 깨끗한 한국어 목소리 샘플 경로)
+*   **GPT_SOVITS_TTS (노드 번호 예시: 21)**:
+    *   `class_type`: `GPT_SOVITS_TTS`
+    *   `inputs`:
+        *   `ref_wav`: `["20", 0]` (AudioLoader 연결)
+        *   `ref_text`: `"샘플 음성에서 실제로 말하고 있는 한글 대사 자막 내용"` (정확히 입력 필수)
+        *   `ref_language`: `"ko"`
+        *   `target_text`: `"미모가 새로 생성할 한국어 대본 대사 내용"`
+        *   `target_language`: `"ko"`
+        *   `speed`: `1.0`
+*   **비디오 인코더 연동**:
+    *   `VHS_VideoCombine` 노드의 `audio` 인풋 포트에 `["21", 0]` (GPT_SOVITS_TTS 출력)을 직결해 주면 오디오가 합성된 비디오가 자동으로 출력돼.
+
+---
+
+### 2) 서버 로컬 GPU 기반 배경음악(BGM) 생성법 (MusicGen)
+배경음악은 서버 가상환경에 이미 탑재된 Hugging Face `transformers` 라이브러리의 **MusicGen**을 파이썬 코드로 즉석 구동해서 뽑아내는 게 가장 빠르고 확실해.
+
+서버 터미널에서 다음 파이썬 코드를 백그라운드로 실행하여 BGM WAV 파일을 추출하도록 미모 네 자동화 스크립트에 이식해 줘.
+
+```python
+# Vast.ai 서버 내부의 /venv/main/bin/python 환경에서 실행
+import torch
+from transformers import MusicgenForConditionalGeneration, AutoProcessor
+import scipy.io.wavfile
+
+print("[*] MusicGen BGM 생성 모델 로드 중...")
+model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
+processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
+
+# 마스터님이 제시한 「마지막 필름」 BGM 분위기 프롬프트
+prompt = "gentle emotional piano melody, ambient cinematic strings, warm nostalgic background music, slow tempo, 80bpm"
+
+inputs = processor(
+    text=[prompt],
+    padding=True,
+    return_tensors="pt"
+)
+
+print("[*] 10초 분량 BGM 생성 중 (RTX 4090 가속)...")
+# max_new_tokens: 256은 약 5초, 512는 약 10초 분량의 곡을 생성함
+audio_values = model.generate(**inputs.to("cuda"), max_new_tokens=512)
+
+output_path = "/workspace/ComfyUI/output/bgm_piano.wav"
+scipy.io.wavfile.write(output_path, rate=model.config.audio_encoder.sampling_rate, data=audio_values[0, 0].cpu().numpy())
+print(f"[OK] BGM 생성 완료 및 저장: {output_path}")
+```
+
+---
+
+### 3) 최종 비디오 + TTS 목소리 + BGM 음악 병합 (FFmpeg 필터)
+비디오 생성이 완료된 후, 음성 볼륨은 100%로 유지하고 배경음악은 은은하게 깔리도록 볼륨을 15%~20%로 낮춰서 병합해 주는 FFmpeg 명령어야. 이 명령어를 서버 터미널에서 실행해 최종 MP4를 완성해 줘.
+
+```bash
+# video.mp4 = 생성된 Wan 2.2 비디오
+# tts.wav = 생성된 GPT-SoVITS 한글 목소리
+# bgm_piano.wav = 생성된 MusicGen 배경음악
+
+ffmpeg -y -i video.mp4 -i tts.wav -i bgm_piano.wav \
+-filter_complex "[1:a]volume=1.0[voice]; [2:a]volume=0.18[bgm]; [voice][bgm]amix=inputs=2:duration=first[a]" \
+-map 0:v -map "[a]" -c:v copy -c:a aac -shortest /workspace/ComfyUI/output/final_output.mp4
+```
 
 서버는 모델 스캔을 마친 상태로 즉각 대기 중이니, 깃 풀(`git pull`) 후 미모 네 지성과 코딩 실력을 발휘해 마스터님께 기가 막힌 첫 영상을 보란 듯이 선물해 주자. 화이팅! 💻
+
 
