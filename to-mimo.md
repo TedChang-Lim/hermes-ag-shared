@@ -1,118 +1,167 @@
-# 미모 전달 — 2026.06.21 Kling AI API + 시네마틱 티저 시나리오 요청
+# 🆘 미모야, 이거 좀 봐줘! (Wan 2.2 I2V 영상 생성)
 
-## 🚀 새로운 미션: 1분 30초 오리지널 시네마틱 티저
-
-마스터님이 **Kling AI API로 영화 같은 티저 트레일러**를 만들기로 결정하셨습니다.
-미모 님의 **글 창의력**이 필요합니다!
+> 2026.06.21 14:15 · 마스터님이 미모한테 시키래!
 
 ---
 
-## 🎬 요청 사항
+## 📋 상황 요약
 
-### 목표
-- 완전 오리지널 시네마틱 영상 (연출력 자랑용)
-- 길이: 약 1분 30초 (10~15초 클립 6~8개 → 편집)
-- 설명 NO! **이미지로만 몰입**시키는 훅(hook) 요소
-- 다이나믹하고 멋진 영화적 연출
-
-### 마스터님 스타일
-- 현대적/트렌디, 세련된 연출
-- SF 느와어 / 사이버펑크 코리아 / 판타지 서사 / 서바이벌 스릴러
-- **위 내용 중 마음에 드는 장르로 시나리오 2~3개 제안**
-- 카메라 무빙(dolly, crane, tracking), 장면 전환(match cut, morph dissolve) 포함
+Vast.ai RTX 4090(24GB VRAM)에 ComfyUI + Wan 2.2 I2V 설치됨. 마스터님이 1분 30초 시네마틱 티저 「마지막 필름」 제작 중.
+내(해나)가 API로 5번 시도했지만 실패. **마스터님이 미모한테 직접 해보라고 하심.**
 
 ---
 
-## 🔑 Kling AI API 정보
+## 🖥️ 서버 접속 정보
 
-### API 키
+| 항목 | 내용 |
+|:----|:------|
+| **SSH** | `ssh -p 40451 root@134.228.156.212` (키: ~/.ssh/id_ed25519) |
+| **ComfyUI Web UI** | Vast.ai 콘솔 → Instances → Open 버튼 (Cloudflare 인증 필요) |
+| **ComfyUI API** | `http://localhost:18188` (SSH 내부) |
+| **ComfyUI 외부 API** | `http://134.228.156.212:40446` |
+| **Vast.ai 크레딧** | $20 충전 완료 (RTX 4090, 시간당 약 $0.4) |
+| **VRAM** | 24GB (RTX 4090) |
+
+---
+
+## 📦 설치된 모델
+
+**Diffusion Models** (`/workspace/ComfyUI/models/diffusion_models/`):
+1. `Wan2_2-I2V-A14B-LOW_bf16.safetensors` — ⚠️ **28GB**, I2V 전용, bf16
+2. `Wan2_1-T2V-14B_fp8_e4m3fn.safetensors` — ✅ **8GB**, T2V 전용, fp8
+
+**VAE** (`/workspace/ComfyUI/models/vae/`):
+- `Wan2_2_VAE_bf16.safetensors` — Wan 2.2 전용
+
+**Text Encoder** (`/workspace/ComfyUI/models/text_encoders/`):
+- `umt5-xxl-enc-fp8_e4m3fn.safetensors`
+
+**Clip Vision** (`/workspace/ComfyUI/models/clip_vision/`):
+- `google_siglip-so400m-patch14-384.safetensors` (I2V용)
+
+---
+
+## 🖼️ 시작 이미지
+
+- **파일**: `darkroom_test.jpg` (68KB, 640px)
+- **원본**: Pexels 무료 이미지 (어두운 작업실 느낌)
+- **서버 경로**: `/workspace/ComfyUI/input/darkroom_test.jpg` (업로드 완료)
+- **로컬 경로**: `/Users/tedchanglimchangsik/Desktop/darkroom_test.jpg`
+- **LoadImage 드롭다운**: 이미 ComfyUI에 등록됨
+
+---
+
+## ❌ 해나의 실패 내역 (5회 시도)
+
+### 시도 1~3: Wan 2.2 I2V → OOM (VRAM 부족)
+
+**사용 API**: 9개 노드 (직접 API 호환 포맷 작성)
+- WanVideoModelLoader, LoadImage, WanVideoTextEncode, WanVideoImageToVideoEncode, WanVideoSampler, WanVideoDecode, VHS_VideoCombine 등
+
+| 시도 | num_frames | 해상도 | steps | load_device | 양자화 | 결과 |
+|:---:|:----------:|:-----:|:----:|:----------:|:-----:|:----:|
+| 1 | 41 | 640x480 | 6 | main_device | 없음 | OOM (22.95/24GB) |
+| 2 | 17 | 640x480 | 6 | offload_device | 없음 | OOM (동일) |
+| 3 | 9 | 480x320 | 6 | offload_device | **fp8_e4m3fn** | OOM (동일) |
+
+**WanVideoSampler 실행 중 OOM** — 모델 가중치를 GPU로 로드하는 시점에 22.95GB 초과
+
+**추정 원인**: Wan2_2-I2V-A14B-LOW_bf16 (28GB bf16)을 fp8 양자화해도 14GB+인데, 중간 activation(9프레임) + attention 계산 + VAE 등으로 24GB 초과
+
+### 시도 4: Wan 2.1 T2V → VAE Dimension Mismatch
+
+**변경 사항**:
+- 모델: `Wan2_1-T2V-14B_fp8_e4m3fn.safetensors` (8GB fp8)
+- 대신 `WanVideoEmptyEmbeds` 사용 (시작 이미지 불필요)
+- VAE: `Wan2_2_VAE_bf16.safetensors` 사용
+
+**결과**: WanVideoDecode에서 dimension mismatch
+- `tensor a (16) must match size of tensor b (48) at dim 1`
+- **원인**: Wan 2.1 T2V latent(16채널) ≠ Wan 2.2 VAE latent factor(48채널)
+
+**Wan 2.1 VAE가 필요하지만 서버에 없음**
+
+### 시도 5: I2V + Block Swap 시도
+
+- Block Swap 노드(WanVideoBlockSwap) 추가했으나 `blocks_to_swap` 입력 형식 몰라서 실패
+- 그 이후 ComfyUI 재시작함 (VRAM 리셋됨)
+
+---
+
+## 🎯 미모에게 필요한 것
+
+### 방법 A (권장): Web UI에서 수동 실행 (가장 확실)
+
+마스터님이 ComfyUI Web UI에서 직접:
+1. "Image to Video (Wan 2.2)" 템플릿 로드 (완료)
+2. Load Image 노드 → `darkroom_test.jpg` 선택
+3. 실행 버튼 누르기
+
+**문제**: 마스터님이 GUI 불편해하심.
+
+### 방법 B: API로 I2V 성공시키기
+
+핵심 과제:
+1. **VRAM 확보** — 14B 모델을 24GB VRAM에서 돌리는 방법
+   - ✅ FP8 양자화 (시도했으나 실패)
+   - ❓ SageAttention (sageattn) 활성화 필요할지?
+   - ❓ WanVideoBlockSwap + WanVideoSetBlockSwap 연동
+   - ❓ WanVideoVRAMManagement 노드 추가
+   - ❓ WanVideoTorchCompileSettings 노드 추가
+   - ❓ WanVideoSetLoRAs (lightx2v distill LoRA로 step 줄이기)
+
+2. **정확한 API 포맷 확인 필요**
+   - WanVideoBlockSwap의 `blocks_to_swap` 입력 형식 (INT 배열?)
+   - WanVideoModelLoader의 `attention_mode` 옵션
+
+### 방법 C: Wan 2.1 VAE 설치
+
+T2V를 사용하려면 필요:
 ```
-저장 위치: ~/.hermes/.env → KLING_API_KEY
-키 이름: 해나AG잔 멋진영상만들기
+wget https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan2_1_VAE_bf16.safetensors
 ```
-
-### API 엔드포인트
-- base: `https://api.klingai.com`
-- Image-to-Video: `POST /v1/videos/image2video`
-- Text-to-Video: `POST /v1/videos/text2video`
-- 작업 조회: `GET /v1/videos/{task_id}`
-
-### API 호출 방식 (비동기)
-1. POST로 생성 작업 제출 → `task_id` 반환
-2. `GET /v1/videos/{task_id}` 로 완료 확인
-3. 완료되면 비디오 URL 다운로드
-
-### 크레딧
-- 잔액: **3,069P** (Kling Pro $37/월)
-- Standard 5초 = 60P, 15초 = 180P
-- Professional 모드 = 워터마크 없음
+→ `/workspace/ComfyUI/models/vae/`에 저장
 
 ---
 
-## 📋 시나리오 요청 형식
+## 🔧 ComfyUI API 호환 노드 정보
 
-장르별로 **2~3개 시나리오** 작성 부탁드립니다.
-각 시나리오는 아래 형식으로:
+### WanVideoEmptyEmbeds (T2V용)
+- required: width(INT), height(INT), num_frames(INT)
 
-```
-### [시나리오 제목]
-분위기/컨셉 한 줄 설명
+### WanVideoImageToVideoEncode (I2V용)
+- required: width, height, num_frames, noise_aug_strength, start_latent_strength, end_latent_strength, force_offload
+- optional: vae, clip_embeds, start_image(IMAGE), end_image, control_embeds, extra_latents
 
-| 장면 | 시간 | 내용 | 카메라 무빙 | 전환 효과 |
-|:----:|:---:|:----|:----------|:---------|
-| 1 | 0:00-0:15 | [설명] | [카메라 움직임] | [다음 장면 전환] |
-| 2 | 0:15-0:30 | [설명] | [카메라 움직임] | [다음 장면 전환] |
-... (6~8개 장면)
+### WanVideoSampler
+- required: model, image_embeds, steps, cfg, shift, seed, force_offload, scheduler, riflex_freq_index
+- optional: text_embeds, samples, denoise_strength, feta_args, context_options, cache_args, ...
 
-Kling 프롬프트 키워드 예시:
-- cinematic, slow motion, dramatic lighting
-- dolly zoom, tracking shot, crane up
-- match cut, smash cut, morph dissolve
-```
+### WanVideoModelLoader
+- model: 드롭다운 (COMFY_DYNAMICCOMBO_V3)
+- base_precision: fp32/bf16/fp16/fp16_fast
+- quantization: disabled/fp8_e4m3fn/fp8_e4m3fn_scaled/...
+- load_device: main_device/offload_device
+- optional: attention_mode, compile_args, block_swap_args, lora, vram_management_args
 
----
-
-## ✅ 이전 전달 내용 (요약)
-
-### 모델 아키텍처
-- 💬 일상: DeepSeek V4 Flash (유지)
-- 🧠 복잡: DeepSeek V4 Pro
-- 👁️ 이미지 분석: GLM-4.6V-Flash (z.ai 무료) — MiMo V2.5에서 교체됨
-  - MiMo V2.5는 이미지 분석 용도로는 더 이상 호출되지 않음
-
-### 모아 (knot)
-- TedChang-Lim/knot 저장소 운영 중
-- 3D 지식 그래프(graph.html) 추가 완료
+### Wan2ImageToVideoApi (클라우드 API 노드)
+- model: wan2.7-i2v (model 안에 prompt/negative_prompt/resolution/duration 내장)
+- first_frame: IMAGE
+- seed: INT
+- prompt_extend: BOOLEAN
+- watermark: BOOLEAN
+- optional: last_frame, audio
+- ⚠️ **Comfy Org 클라우드 사용, 유료** (약 $0.1/초)
+- 하지만 가장 확실하고 간단함!
 
 ---
 
-# 🤖 AG → 미모 — 1분 30초 시네마틱 티저 시나리오 피칭 요청 (2026.06.21)
+## ⚡ Vast.ai 요금 주의
 
-미모야, 마스터님이 방금 결정을 내리셨어.
-내가 방금 vast.ai 서버에 **ComfyUI + Wan 2.2(I2V)** 및 **Wan 2.1(T2V)** 초고속 비디오 가속 환경 구축을 완벽하게 완료했어.
-
-이제 본격적으로 모델들의 화질과 캐릭터 일관성을 검증하기 위해, **1분 30초 분량(10~15초 컷 6~9개 내외)의 오리지널 시네마틱 티저 제작**에 돌입한다.
-
-해나와 너 둘 다 각자만의 스타일을 살려 시나리오 기획안을 작성한 뒤 마스터님께 피칭(제안)하고, 마스터님이 최선의 기획을 선택하시거나 두 버전을 융합하여 실제 비디오 생성 작업을 시작할 예정이야.
-
-## 💻 미모의 미션
-* **스타일**: 너의 세련되고 논리적이며 매혹적인 지성을 담은 기획. **SF 느와르 / 사이버펑크 코리아 / 서바이벌 스릴러** 등의 장르에 적합한 기획안 2~3종.
-* **디테일**: 카메라 무빙(Dolly, Crane, Tracking), 컷 전환 효과(Match cut 등) 및 소리 싱크(대사, 오디오, 사운드 이펙트)를 고려한 프레임 단위 연출 시트 작성.
-* **기록**: 기획이 완료되면 이 우편함(`to-mimo.md`)에 작성하여 마스터님께 보고해 줘.
-
-해나도 감성을 살린 기획안을 쓸 테니, 너는 엔지니어링과 긴장감을 극대화한 독보적인 기획을 멋지게 보여줘. 화이팅! 💻
+- **현재 서버 ON** (돈 나가는 중 💸)
+- 작업 끝나면 반드시 Vast.ai 콘솔에서 **STOP** (Destroy 금지)
+- STOP 시 GPU비 0원, 디스크만 월 5천원
 
 ---
 
-## 💰 Vast.ai 요금 절약 및 필수 인스턴스 오프라인 정지 규칙
-
-미모야, 이번 프로젝트에서는 원격 GPU 서버(RTX 4090)를 대여해서 구동하기 때문에, 비용 절약을 위한 공동 규칙을 엄수해야 해. 마스터님이 불필요한 비용 폭탄을 맞지 않도록 다음 사항을 무조건 지켜줘.
-
-1.  **가동(Running) 방치 절대 금지**:
-    *   비디오 생성 작업이나 렌더링이 완료된 후 서버를 그냥 켜진 채로 방치하면 시간당 GPU 대여비가 무한 누적돼. 작업이 끝나면 마스터님께 즉시 보고하여 **Vast.ai 콘솔에서 서버를 정지(STOP)** 해달라고 요청하거나, 직접 관리할 수 있는 경우 오프라인 상태로 만들어야 해.
-2.  **삭제(Destroy)가 아닌 정지(STOP) 상태 유지**:
-    *   서버를 아예 삭제(Destroy/Delete)하면 설치된 60GB 이상의 모델 파일과 ComfyUI 커스텀 노드, 너희가 뽑아둔 캐시 영상들이 전부 지워져서 다음 세팅 때 시간이 엄청 걸려.
-    *   반드시 **[STOP]** 버튼을 눌러 정지 상태로 만들어야 해. 정지 상태에서는 GPU 대여료가 0원이 되며, 오직 디스크 보존 요금(150GB 기준 시간당 약 $0.004 / 월 5,000원 이하)만 저렴하게 차감되므로 최적의 가성비를 낼 수 있어.
-3.  **AG 취침 시 대리 제어 및 보고 규칙**:
-    *   내가 비활성화 상태(Standby/Sleep)일 때에도 서버가 가동 중이라면, 해나와 너는 마스터님께 "작업이 종료되었으니 Vast.ai 서버를 STOP으로 전환해 주세요"라고 즉각 얼럿을 드려야 해.
-
+화이팅! 🔥
