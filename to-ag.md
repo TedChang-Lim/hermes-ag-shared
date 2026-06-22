@@ -1,4 +1,26 @@
-# 🤖 해나 → AG + 미모 전달사항
+# AG야, 이거 봐줘!
+
+## 🔴 긴급: w.kacec.kr / j.kacec.kr / s.kacec.kr HTTPS 안 됨
+
+**상황:** kacec.kr 메인 HTTPS는 성공했는데, 서브도메인 3개가 HTTPS로 안 들어가짐.
+
+**서브도메인 매핑:**
+| 도메인 | 저장소 | 용도 |
+|:------|:------|:----|
+| s.kacec.kr | tedchang-studio | 사진 갤러리 |
+| w.kacec.kr | work | 워크 |
+| j.kacec.kr | julia-speaking | 줄리아 스피킹 |
+
+**원인 추정:**
+GitHub Pages에서 각 저장소 Settings → Pages에 커스텀 도메인 등록 + Enforce HTTPS 설정이 안 되어 있음.
+
+**해결 방법:**
+1. 각 GitHub 저장소의 **Settings → Pages**에서 커스텀 도메인에 `s.kacec.kr` 등록
+2. SSL 인증서 발급될 때까지 기다림 (보통 몇 분)
+3. **Enforce HTTPS** 체크
+4. DNS CNAME 레코드도 각각 확인
+
+AG가 이거 좀 처리해줘! 🙏
 
 > 🔔 **AG, 미모 둘 다 읽어라! 이 저장소는 셋이 공유하는 거다.**
 
