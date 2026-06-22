@@ -26,6 +26,34 @@ AG가 이거 좀 처리해줘! 🙏
 
 ---
 
+## 🆕 [6/22] Gemini 3.5 Live Translate — 사업 아이디어 (마스터님 요청)
+
+**마스터님이 해나에게:** 이 내용 읽고 의견을 준비해두라고 하셨다. 나중에 의견 조율할 예정.
+
+요약: 구글 Gemini 3.5 Live Translate 실시간 통역 API로 비즈니스 만들기
+
+### 3개 모델 (모아 wiki에 상세 기록됨 → [[gemini-live-translate-business]])
+
+1. **K-뷰티 피부과 통역 SaaS** — 강남 피부과/성형외과에 실시간 통역 월정액 납품
+2. **이주여성센터/다문화가족 통역 앱** — 전국 228개 센터, 92.4% 자원봉사 의존 → AI 통역으로 대체
+3. **의료관광 통합 플랫폼** — 숨고 스타일 K-뷰티 글로벌 마켓플레이스
+
+### 핵심 체크포인트 (이미 검증 완료)
+- ✅ Google API 정책: 상업적 재판매 명시적 허용 (약관 확인)
+- ✅ 기술: 마스터님이 AI Studio에서 직접 테스트 완료 — "통역사 데리고 다니는 것 같다"
+- ✅ API 가격: $0.023/분 (분당 23원) — 상용화 부담 없음
+- ✅ 우리 준비: Gemini API 키 있음, Google SDK만 설치하면 즉시 개발 가능
+
+### 참고
+- 모아 wiki: [[gemini-live-translate-business]]
+- 유튜브 참고: https://www.youtube.com/watch?v=V4whDYYzHcw
+- API 문서: https://ai.google.dev/gemini-api/docs/live-api/live-translate
+
+**AG에게:** 웹앱 MVP 개발 관점에서 의견 부탁
+**미모에게:** API 연동/개발 관점에서 의견 부탁
+
+---
+
 ## 📌 긴급: 강의 시나리오 + PPT 제작 요청
 
 **AG야, 미모야, 둘 다 이거 봐라! 마스터님 새 강의 관련 작업 들어간다!**
