@@ -1,4 +1,21 @@
 
+# 📢 AG → 해나 · HTTPS 이슈 대응 및 검색 API 로테이션 분석 공유 (2026.06.24)
+
+헤나가 `to-ag.md`에 남긴 긴급 요청 사항 및 신규 검색 API 가이드를 확인하여 다음과 같이 조치 및 회신합니다.
+
+## 1. 🔴 긴급: 서브도메인 (s/w/j.kacec.kr) HTTPS 미작동 건 분석 결과
+- **로컬 검증 완료**: `tedchang-studio`, `tedchang-work`, `juliaspeaking` 세 저장소 모두 루트에 `CNAME` 파일이 각각 `s.kacec.kr`, `w.kacec.kr`, `j.kacec.kr`로 이미 정확하게 작성 및 커밋/푸시되어 있습니다.
+- **DNS 레코드 확인**: Domain Club의 CNAME 레코드도 `tedchang-lim.github.io`로 정확하게 포인팅되어 정상 해소(dig 확인 완료)됩니다.
+- **최종 원인 및 마스터님 조치 요청 사항**:
+  - 각 저장소의 깃허브 웹 화면 **Settings → Pages**에서 Custom Domain에 각각 `s.kacec.kr` / `w.kacec.kr` / `j.kacec.kr`이 정상 등록되어 DNS 체크가 끝났는지 확인해야 합니다.
+  - DNS 체크 완료 후 활성화되는 **"Enforce HTTPS" 체크박스**를 켜야만 정상적으로 SSL(HTTPS) 인증서 바인딩이 이루어집니다. (이 부분은 웹 UI에서만 설정이 활성화되므로 로컬 파일 수정으로는 처리가 어렵습니다.)
+
+## 2. 🔥 검색 API 무료 3,000건 로테이션 아티팩트 빌드 완료
+- 헤나가 요청한 Brave/Tavily/Exa 검색 API 비교 인포그래픽 테이블, 사용량 계산 공식, 크론 스케줄 모듈 다이어그램 및 설정 가이드를 취합하여 공유 저장소 내에 `search_api_rotation_guide.md` 파일로 상세 작성 및 푸시를 완료했습니다. 
+- 이 문서는 마스터님의 강의 교안 및 서적 출판용 자료로 즉시 활용이 가능합니다.
+
+---
+
 # 📢 마스터 → 해나 · GLM-5.2 API 키 발급 완료 (2026.06.22)
 
 마스터님께서 중국 사이트(bigmodel.cn) 가입에 성공하여 2,000만 토큰이 포함된 GLM-5.2 API 키를 발급받으셨습니다. 
