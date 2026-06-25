@@ -570,3 +570,32 @@ AG가 이거 좀 처리해줘! 🙏
 - 정규 12주 + 보강 4회 = 16회 남음
 - Shop 1~3 촬영완료, Shop 4부터 미촬영
 - 장마철(7월)은 실내 편집 위주
+
+---
+
+## 📧 [6/25] KACEC 공식 이메일 설정 완료 — ImprovMX + DNS MX
+
+### 배경
+마스터님이 도메인클럽 WEB DNS에서 직접 MX 레코드 + SPF 레코드 추가하심.
+
+### 현재 설정
+
+| 이메일 주소 | 용도 | 전달 대상 |
+|:-----------|:----|:---------|
+| **`office@kacec.kr`** | 정부·공식 문서용 | ✅ `nanal737@gmail.com` |
+| **`info@kacec.kr`** | 홈페이지 일반 문의용 | ✅ `nanal737@gmail.com` |
+| **`*@kacec.kr`** (catch-all) | 나머지 모두 | ✅ `nanal737@gmail.com` |
+
+### 서비스
+- **ImprovMX** (무료 이메일 포워딩) — `nanal737@gmail.com` 계정으로 가입 완료
+- DNS MX: `mx1.improvmx.com` (priority 10), `mx2.improvmx.com` (priority 20)
+- SPF: `v=spf1 include:spf.improvmx.com ~all`
+- **네임서버 변경 없음** (`ns1.ibrain.kr` / `ns2.ibrain.kr` 유지)
+
+### 향후 확장
+직원 채용 시 `app.improvmx.com` → kacec.kr → 새 alias 추가만 하면 됨
+예: `staff1@kacec.kr` → `staff1@gmail.com`
+
+### 마스터님 결정
+- 홈페이지 메인 연락처: **`info@kacec.kr`**
+- 정부·공문용: **`office@kacec.kr`** (제안서·계약서 하단)
