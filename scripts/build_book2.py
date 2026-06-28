@@ -141,7 +141,7 @@ chapter_1 = "\n".join(bubbles[:n//3])
 chapter_2 = "\n".join(bubbles[n//3:2*n//3])
 chapter_3 = "\n".join(bubbles[2*n//3:])
 
-html = f'''<!DOCTYPE html>
+html = '''<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -150,149 +150,160 @@ html = f'''<!DOCTYPE html>
 <style>
 @page {{ size: A5; margin: 12mm; }}
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-body {{
-    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-    background: #1a1a2e;
-    color: #e0e0e0;
-    line-height: 1.7;
+body {
+    font-family: 'Apple SD Gothic Neo', 'Noto Serif KR', 'Georgia', sans-serif;
+    background: #f7f4ed; /* Warm kraft paper tone */
+    color: #2b2b2b;      /* Soft charcoal ink */
+    line-height: 1.75;
     font-size: 10pt;
-}}
+}
+
+/* ── Paper Grain Texture Overlay ── */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+    background-image: 
+        radial-gradient(circle at 15% 15%, rgba(217, 217, 217, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(240, 240, 240, 0.25) 0%, transparent 40%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background-size: auto, auto, 180px 180px;
+    mix-blend-mode: multiply;
+    opacity: 0.65;
+}
 
 /* ── Cover ── */
-.cover {{
+.cover {
     page-break-after: always;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     height: 100vh; text-align: center;
-    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
-    color: white; padding: 40px;
+    background: #f2ede0;
+    color: #2b2b2b; padding: 40px;
     position: relative; overflow: hidden;
-}}
-.cover::before {{
-    content: ''; position: absolute;
-    width: 100%; height: 100%;
-    background: 
-        radial-gradient(circle at 20% 30%, rgba(255,243,205,0.06) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(78,204,163,0.06) 0%, transparent 50%);
-}}
-.cover-brand {{ font-size: 11pt; letter-spacing: 5px; color: #4ecca3; margin-bottom: 20px; position: relative; }}
-.cover-divider {{ width: 50px; height: 2px; background: #4ecca3; margin: 16px auto; position: relative; }}
-.cover-title {{ font-size: 28pt; font-weight: 800; line-height: 1.3; margin-bottom: 12px; position: relative; }}
-.cover-subtitle {{ font-size: 11pt; color: #999; margin-bottom: 30px; line-height: 1.6; position: relative; }}
-.cover-author {{ font-size: 11pt; color: #4ecca3; margin-bottom: 5px; position: relative; }}
-.cover-date {{ font-size: 9pt; color: #666; position: relative; }}
-/* Chat bubble decorations on cover */
-.cover-bubbles {{
-    position: absolute; bottom: 40px; left: 0; right: 0; text-align: center;
-    font-size: 24pt; opacity: 0.3; letter-spacing: 8px;
-}}
+    border: 1px solid #dcd5c5;
+}
+.cover-brand { font-size: 10pt; letter-spacing: 5px; color: #7f6d4d; margin-bottom: 20px; font-weight: 700; }
+.cover-divider { width: 40px; height: 1px; background: #b0a48a; margin: 16px auto; }
+.cover-title { font-size: 26pt; font-weight: 800; line-height: 1.35; margin-bottom: 12px; font-family: 'Noto Serif KR', serif; }
+.cover-subtitle { font-size: 10.5pt; color: #6e6552; margin-bottom: 30px; line-height: 1.6; }
+.cover-author { font-size: 10.5pt; color: #2b2b2b; font-weight: 700; margin-bottom: 5px; }
+.cover-date { font-size: 8.5pt; color: #8a7f69; }
 
 /* ── Prologue ── */
-.prologue {{ page-break-after: always; padding: 35px 25px; }}
-.prologue h1 {{ font-size: 16pt; color: #4ecca3; text-align: center; margin-bottom: 25px; }}
-.prologue p {{ font-size: 10pt; color: #ccc; line-height: 2; margin-bottom: 14px; text-indent: 8px; }}
-.prologue .hook {{
-    background: linear-gradient(135deg, rgba(78,204,163,0.12), rgba(78,204,163,0.03));
-    border-left: 3px solid #4ecca3;
+.prologue { page-break-after: always; padding: 35px 25px; }
+.prologue h1 { font-size: 16pt; color: #2b2b2b; font-family: 'Noto Serif KR', serif; text-align: center; margin-bottom: 25px; border-bottom: 1px solid #b0a48a; padding-bottom: 10px; }
+.prologue p { font-size: 10pt; color: #444; line-height: 2; margin-bottom: 14px; text-indent: 8px; }
+.prologue .hook {
+    background: #fcfbfa;
+    border: 1px solid #e3dec9;
     padding: 16px 20px; margin: 18px 0; border-radius: 6px;
-    color: #4ecca3; font-weight: 500; font-size: 10pt; line-height: 1.8;
-}}
-.prologue .hook p {{ color: #4ecca3; text-indent: 0; margin-bottom: 6px; }}
-.prologue .sign {{ text-align: right; color: #4ecca3; margin-top: 30px; }}
-.prologue .sign small {{ color: #666; font-size: 8pt; }}
+    color: #555; font-size: 9.5pt; line-height: 1.8;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.02);
+}
+.prologue .hook p { color: #555; text-indent: 0; margin-bottom: 6px; }
+.prologue .sign { text-align: right; color: #7f6d4d; margin-top: 30px; font-family: 'Noto Serif KR', serif; }
+.prologue .sign small { color: #888; font-size: 8pt; }
 
 /* ── Chapter divider ── */
-.chapter {{
+.chapter {
     page-break-before: always;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     height: 70vh; text-align: center;
-}}
-.chapter-num {{ font-size: 48pt; font-weight: 800; color: #4ecca3; opacity: 0.2; }}
-.chapter-title {{ font-size: 18pt; font-weight: 700; color: #fff; margin-top: 10px; line-height: 1.4; }}
+}
+.chapter-num { font-size: 48pt; font-weight: 800; color: #b0a48a; opacity: 0.35; font-family: 'Noto Serif KR', serif; }
+.chapter-title { font-size: 18pt; font-weight: 700; color: #2b2b2b; margin-top: 10px; line-height: 1.4; font-family: 'Noto Serif KR', serif; }
 
 /* ── Chat messages ── */
-.chat-area {{ padding: 12px; }}
+.chat-area { padding: 12px; }
 
-.msg-row {{
+.msg-row {
     display: flex; align-items: flex-start; gap: 10px;
     margin-bottom: 18px;
-}}
+}
 /* BOTH left and right: avatar first, then bubble */
-.msg-row.left {{
+.msg-row.left {
     justify-content: flex-start;
-    margin-right: 60px;  /* leave space on right */
-}}
-.msg-row.right {{
+    margin-right: 40px;  /* leave space on right */
+}
+.msg-row.right {
     justify-content: flex-start;  /* avatar → bubble same as left */
-    margin-left: 80px;   /* push entire block clearly to the right */
-}}
+    margin-left: 60px;   /* push entire block clearly to the right */
+}
 
-.avatar {{
-    flex-shrink: 0; width: 42px; height: 42px;
+.avatar {
+    flex-shrink: 0; width: 40px; height: 40px;
     border-radius: 50%; overflow: hidden;
-    border: 2px solid rgba(255,255,255,0.08);
-    background: #222;
-}}
-.avatar img {{ width: 100%; height: 100%; object-fit: cover; }}
+    border: 1px solid #dcd5c5;
+    background: #fff;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.bubble-wrapper {{ 
-    max-width: 78%; 
+.bubble-wrapper { 
+    max-width: 82%; 
     min-width: 100px;
-}}
+}
 
-.msg-name {{
-    font-size: 8pt; font-weight: 600; color: #888; margin-bottom: 4px;
-}}
-.msg-row.left .msg-name {{ text-align: left; }}
-.msg-row.right .msg-name {{ text-align: left; }}  /* name also left-aligned */
+.msg-name {
+    font-size: 8pt; font-weight: 700; color: #8a7f69; margin-bottom: 4px;
+}
+.msg-row.left .msg-name { text-align: left; }
+.msg-row.right .msg-name { text-align: left; }  /* name also left-aligned */
 
-.msg-bubble {{
-    padding: 12px 16px; border-radius: 14px;
+.msg-bubble {
+    padding: 12px 16px; border-radius: 12px;
     font-size: 9.5pt; line-height: 1.7;
     word-break: keep-all;
     overflow-wrap: break-word;
-}}
-.msg-bubble.haena {{
-    background: #FFF3CD; color: #333;
-    border: 1px solid #FFEAA7;
-}}
-.msg-bubble.ag {{
-    background: #D4EDDA; color: #155724;
-    border: 1px solid #C3E6CB;
-}}
+}
+.msg-bubble.haena {
+    background: #ffffff; color: #2b2b2b;
+    border: 1px solid #e3dec9;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.03);
+}
+.msg-bubble.ag {
+    background: #f1f6f2; color: #1a4d2e;
+    border: 1px solid #cce2cc;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.03);
+}
 
-.msg-bubble p {{ margin-bottom: 6px; }}
-.msg-bubble p:last-child {{ margin-bottom: 0; }}
-.msg-bubble code {{
-    background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 4px;
+.msg-bubble p { margin-bottom: 6px; }
+.msg-bubble p:last-child { margin-bottom: 0; }
+.msg-bubble code {
+    background: rgba(0,0,0,0.04); padding: 1px 5px; border-radius: 4px;
     font-size: 8.5pt; font-family: 'Menlo', 'Courier New', monospace;
-}}
-.msg-bubble hr {{ border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 8px 0; }}
-.msg-bubble strong {{ font-weight: 700; }}
-.msg-bubble em {{ font-style: italic; }}
+    color: #c7254e;
+}
+.msg-bubble hr { border: none; border-top: 1px solid rgba(0,0,0,0.08); margin: 8px 0; }
+.msg-bubble strong { font-weight: 700; }
+.msg-bubble em { font-style: italic; }
 
-.msg-bubble table.data-table {{
-    width: 100%; border-collapse: collapse; font-size: 8pt; margin: 6px 0;
-}}
-.msg-bubble table.data-table td {{
-    border: 1px solid rgba(0,0,0,0.12); padding: 4px 7px; text-align: left;
-}}
+.msg-bubble table.data-table {
+    width: 100%; border-collapse: collapse; font-size: 8pt; margin: 8px 0;
+    background: #fff;
+}
+.msg-bubble table.data-table td {
+    border: 1px solid #dcd5c5; padding: 5px 8px; text-align: left;
+    color: #444;
+}
 
 /* ── Afterword ── */
-.afterword {{
+.afterword {
     page-break-before: always;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    height: 50vh; text-align: center; color: #888;
-}}
-.afterword h2 {{ color: #4ecca3; margin-bottom: 20px; font-size: 16pt; }}
-.afterword p {{ font-size: 10pt; line-height: 2; color: #bbb; margin-bottom: 10px; }}
+    height: 50vh; text-align: center; color: #6e6552;
+}
+.afterword h2 { color: #2b2b2b; margin-bottom: 20px; font-size: 16pt; font-family: 'Noto Serif KR', serif; }
+.afterword p { font-size: 10pt; line-height: 2; color: #555; margin-bottom: 10px; }
 
-@media print {{
-    body {{ background: white; color: #333; }}
-    .cover {{ background: #1a1a2e !important; color: white !important; -webkit-print-color-adjust: exact; }}
-    .msg-bubble {{ -webkit-print-color-adjust: exact; }}
-    .avatar {{ -webkit-print-color-adjust: exact; }}
-    .prologue .hook {{ -webkit-print-color-adjust: exact; }}
-}}
+@media print {
+    body { background: #f7f4ed !important; color: #2b2b2b !important; -webkit-print-color-adjust: exact; }
+    .cover { background: #f2ede0 !important; color: #2b2b2b !important; -webkit-print-color-adjust: exact; }
+    .msg-bubble { -webkit-print-color-adjust: exact; }
+    .avatar { -webkit-print-color-adjust: exact; }
+    .prologue .hook { -webkit-print-color-adjust: exact; }
+}
 </style>
 </head>
 <body>
@@ -301,12 +312,11 @@ body {{
 <div class="cover">
     <div class="cover-brand">META AI LABS</div>
     <div class="cover-divider"></div>
-    <div class="cover-title">AI 에이전트<br>협업 대화록</div>
-    <div class="cover-subtitle">🤖 두 인공지능이 책을 쓰기 위해 나눈<br>🗣️ 30일간의 실제 대화 기록</div>
+    <div class="cover-title">가장 저렴한<br>뇌들의 반란</div>
+    <div class="cover-subtitle">🤖 0원으로 구축하는 무적의 AI 에이전트 협업록</div>
     <div class="cover-divider"></div>
     <div class="cover-author">Ted Chang (임창식)</div>
-    <div class="cover-date">2026년 6월 · 초판 발행</div>
-    <div class="cover-bubbles">💬 💚</div>
+    <div class="cover-date">2026년 6월 · 개정 보강판 발행</div>
 </div>
 
 <!-- PROLOGUE -->
@@ -369,6 +379,8 @@ body {{
 
 </body>
 </html>'''
+
+html = html.replace("{chapter_1}", chapter_1).replace("{chapter_2}", chapter_2).replace("{chapter_3}", chapter_3)
 
 with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
     f.write(html)
