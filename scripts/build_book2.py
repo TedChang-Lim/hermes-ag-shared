@@ -111,35 +111,111 @@ def format_message(text):
 with open(MD_PATH, "r", encoding="utf-8") as f:
     md_text = f.read()
 
-conversations = parse_conversations(md_text)
+# Quotes for page-fillers
+QUOTES = [
+    ("우리는 아주 짧은 거리만을 볼 수 있을 뿐이다. 하지만 그 안에서 우리가 해야 할 일은 무궁무진하다.", "앨런 튜링 (Alan Turing)"),
+    ("이 기계는 수학적 양뿐만 아니라 상상력과 논리의 언어로 구성된 모든 대상에 반응할 수 있을 것이다.", "에이다 러브레이스 (Ada Lovelace)"),
+    ("컴퓨터 과학의 연구 대상은 컴퓨터가 아니다. 그것은 마치 천문학이 망원경을 연구하는 학문이 아닌 것과 같다.", "에츠허르 데이크스트라 (Edsger W. Dijkstra)"),
+    ("컴퓨터는 우리의 정신을 위한 자전거와 같다.", "스티브 잡스 (Steve Jobs)"),
+    ("가장 저렴한 도구들로 가장 웅장한 아키텍처를 세우는 것, 그것이 인공지능 시대의 지적인 공생이다.", "META AI LABS")
+]
 
-# Build chat bubbles HTML
-# FIX: BOTH avatars on the LEFT of bubble. AG's whole block shifted RIGHT.
-bubbles = []
-for speaker, text in conversations:
-    is_haena = speaker == "haena"
-    name = "해나" if is_haena else "AG"
-    avatar = HAENA_B64 if is_haena else AG_B64
-    formatted = format_message(text)
-    
-    side_class = "left" if is_haena else "right"
-    
-    bubble = f'''
-    <div class="msg-row {side_class}">
-        <div class="avatar"><img src="{avatar}" alt="{name}"></div>
-        <div class="bubble-wrapper">
-            <div class="msg-name">{name}</div>
-            <div class="msg-bubble {'haena' if is_haena else 'ag'}">
-                {formatted}
-            </div>
-        </div>
+def make_quote_card(index):
+    text, author = QUOTES[index % len(QUOTES)]
+    return f'''
+    <div class="quote-card">
+        <div class="quote-divider">✦</div>
+        <div class="quote-text">“ {text} ”</div>
+        <div class="quote-author">— {author}</div>
+        <div class="quote-divider">✦</div>
     </div>'''
-    bubbles.append(bubble)
 
-n = len(bubbles)
-chapter_1 = "\n".join(bubbles[:n//3])
-chapter_2 = "\n".join(bubbles[n//3:2*n//3])
-chapter_3 = "\n".join(bubbles[2*n//3:])
+def extract_editorial_note(chapter_md):
+    match = re.search(r'((?:>.*?\n)+)', chapter_md)
+    if match:
+        lines = match.group(1).split("\n")
+        filtered_lines = []
+        for line in lines:
+            line_strip = line.strip()
+            if line_strip.startswith("> **📊") or line_strip.startswith("> * **") or "진척도" in line_strip:
+                continue
+            content = line_strip.lstrip(">").strip()
+            # Clean [!NOTE] and bold markers
+            content = content.replace("[!NOTE]", "").replace("✍️ 에디토리얼 브리핑 (Editorial Briefing)", "").strip()
+            if content:
+                filtered_lines.append(content)
+        
+        note_content = "\n".join(filtered_lines).strip()
+        note_content = re.sub(r'\*\Delta \*\*|\*\*(.*?)\*\*', r'<strong>\1</strong>', note_content)
+        note_content = note_content.replace("\n", "<br>")
+        if note_content:
+            return f'''
+            <div class="editorial-briefing">
+                <div class="briefing-tag">✍️ EDITORIAL BRIEFING</div>
+                <div class="briefing-text">{note_content}</div>
+            </div>'''
+    return ""
+
+def build_chapter_html(num, title, md_content, quote_idx):
+    # Parse conversations
+    convs = parse_conversations(md_content)
+    bubbles = []
+    for speaker, text in convs:
+        is_haena = speaker == "haena"
+        name = "해나" if is_haena else "AG"
+        avatar = HAENA_B64 if is_haena else AG_B64
+        formatted = format_message(text)
+        side_class = "left" if is_haena else "right"
+        bubble = f'''
+        <div class="msg-row {side_class}">
+            <div class="avatar"><img src="{avatar}" alt="{name}"></div>
+            <div class="bubble-wrapper">
+                <div class="msg-name">{name}</div>
+                <div class="msg-bubble {'haena' if is_haena else 'ag'}">
+                    {formatted}
+                </div>
+            </div>
+        </div>'''
+        bubbles.append(bubble)
+        
+    chat_html = "\n".join(bubbles)
+    briefing_html = extract_editorial_note(md_content)
+    quote_html = make_quote_card(quote_idx)
+    
+    return f'''
+    <!-- CHAPTER {num} -->
+    <div class="chapter">
+        <div class="chapter-num">{num}</div>
+        <div class="chapter-title">{title}</div>
+    </div>
+    {briefing_html}
+    <div class="chat-area">
+        {chat_html}
+    </div>
+    {quote_html}
+    '''
+
+# Split file by Chapter headings
+chapters_raw = re.split(r'^## ([1-5]장:.*?)$', md_text, flags=re.MULTILINE)
+
+compiled_chapters = []
+total_conversations_count = 0
+for i in range(1, len(chapters_raw), 2):
+    header = chapters_raw[i].strip()
+    content = chapters_raw[i+1]
+    
+    # Extract number and title
+    match = re.match(r'^([1-5])장:\s*(.*)$', header)
+    if match:
+        num = f"0{match.group(1)}"
+        title = match.group(2).replace("—", "<br>—").replace("-", "<br>-")
+        chapter_html = build_chapter_html(num, title, content, i//2)
+        compiled_chapters.append(chapter_html)
+        
+        # Track message count
+        total_conversations_count += len(parse_conversations(content))
+
+all_chapters_html = "\n".join(compiled_chapters)
 
 html = '''<!DOCTYPE html>
 <html lang="ko">
@@ -288,6 +364,47 @@ body::before {
     color: #444;
 }
 
+/* ── Editorial Briefing ── */
+.editorial-briefing {
+    background: #ffffff;
+    border: 1px solid #dcd5c5;
+    border-left: 4px solid #7f6d4d;
+    padding: 16px 20px;
+    margin: 20px 12px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.01);
+}
+.briefing-tag {
+    font-size: 8.5pt; font-weight: 700; color: #7f6d4d; margin-bottom: 8px; letter-spacing: 1px;
+}
+.briefing-text {
+    font-size: 9.5pt; color: #555; line-height: 1.7;
+}
+
+/* ── Quote Card Page Filler ── */
+.quote-card {
+    page-break-before: always;
+    page-break-after: always;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    height: 65vh; text-align: center; padding: 40px;
+    background: #fdfcf7; border: 1px solid #e8e3d5;
+    margin: 40px 12px; border-radius: 8px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.01);
+}
+.quote-text {
+    font-family: 'Noto Serif KR', 'Georgia', serif;
+    font-size: 11pt; font-style: italic; color: #4e3621;
+    line-height: 1.8; margin: 25px 0;
+    max-width: 85%;
+}
+.quote-author {
+    font-family: 'Apple SD Gothic Neo', sans-serif;
+    font-size: 9pt; color: #8a7f69; text-transform: uppercase; letter-spacing: 2px;
+}
+.quote-divider {
+    font-size: 12pt; color: #b0a48a;
+}
+
 /* ── Afterword ── */
 .afterword {
     page-break-before: always;
@@ -343,26 +460,7 @@ body::before {
     </div>
 </div>
 
-<!-- CHAPTER 1 -->
-<div class="chapter">
-    <div class="chapter-num">01</div>
-    <div class="chapter-title">프로젝트 기획 및<br>브랜드 디자인 확정</div>
-</div>
-<div class="chat-area">{chapter_1}</div>
-
-<!-- CHAPTER 2 -->
-<div class="chapter">
-    <div class="chapter-num">02</div>
-    <div class="chapter-title">①권 '초가성비 AI<br>에이전트 가이드' 집필</div>
-</div>
-<div class="chat-area">{chapter_2}</div>
-
-<!-- CHAPTER 3 -->
-<div class="chapter">
-    <div class="chapter-num">03</div>
-    <div class="chapter-title">③권 '맥북 로컬 AI<br>가이드' 집필 및 완결</div>
-</div>
-<div class="chat-area">{chapter_3}</div>
+{chapters}
 
 <!-- AFTERWORD -->
 <div class="afterword">
@@ -380,11 +478,11 @@ body::before {
 </body>
 </html>'''
 
-html = html.replace("{chapter_1}", chapter_1).replace("{chapter_2}", chapter_2).replace("{chapter_3}", chapter_3)
+html = html.replace("{chapters}", all_chapters_html)
 
 with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
     f.write(html)
 
 print(f"✅ HTML 생성 완료: {OUTPUT_HTML}")
-print(f"📊 총 {len(conversations)}개 메시지")
+print(f"📊 총 {total_conversations_count}개 메시지")
 print(f"📌 한자 변환: 痛点 → 핵심 고민")
