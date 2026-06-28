@@ -9,100 +9,77 @@
 
 ### 1장: 왜 로컬 AI인가?
 
-- 클라우드 API의 문제점 (비용, 프라이버시, 속도)
-- 로컬 AI의 장점: 무료, 오프라인, 무제한
-- Apple Silicon(M 시리즈)이 특별한 이유
-- 이 가이드의 목표: 맥북 하나로 AI 비서 완성하기
+- 클라우드 AI와 데이터 주권 (비용, 프라이버시, 속도)
+- 로컬 AI의 본질적 가치: 무검열, 오프라인, 제로 비용
+- Apple Silicon(통합 메모리) 하드웨어가 바꾼 패러다임
+- Mythos 시나리오: 내 맥북에 구축하는 격리된 인공지능 연구소
 
 ### 2장: LM Studio로 첫발 떼기
 
-- LM Studio 설치 (공식 사이트)
-- 첫 번째 모델 다운로드 (Qwen 3.5, Gemma 4)
-- 모델 실행 및 채팅 테스트
-- 속도 확인: tok/s 의미와 정상 범위
-- 한계점 인식: LM Studio의 문제
+- 온디바이스 AI 입문 도구, LM Studio
+- 첫 번째 모델 다운로드 및 구동 (Qwen 3.5, Gemma 4)
+- Metal GPU 가속 활성화 및 추론 속도(tok/s) 최적화
+- 로컬 OpenAI 호환 API 서버 가동
+- LM Studio의 구조적 한계와 극복 방안
 
-### 3장: Jan.ai로 업그레이드
+### 3장: Jan.ai로 업그레이드 — 본격적인 모델 관리
 
-- LM Studio에서 Jan.ai로 이전해야 하는 이유
-- Jan.ai 설치 및 기본 설정
-- GGUF 모델 폴더 구조 이해
-  ```bash
-  ~/Library/Application Support/Jan/data/llamacpp/models/
-  └── <모델명>/
-      ├── model.gguf
-      ├── mmproj.gguf (선택)
-      └── model.yml
-  ```
-- model.yml 설정 완벽 가이드
-  - batch_size, ctx_size, n_gpu_layers
-- HuggingFace CLI로 모델 다운로드
+- 왜 Jan.ai인가? 로컬 파일 제어권 확보
+- Jan.ai 설치 및 환경 구성
+- GGUF 모델 폴더와 yml 설정 구조 분석
+- model.yml 설정 가이드 (batch_size, ctx_size, n_gpu_layers)
+- HuggingFace CLI를 통한 정밀한 모델 반입
 
-### 4장: MLX — Apple 순정 최적화
+### 4장: MLX — Apple Silicon 순정 최적화 프레임워크
 
-- MLX 프레임워크란? (Apple의 Metal Performance Shaders)
-- GGUF vs MLX: 언제 무엇을 써야 하나?
-- MLX 모델 설치 및 실행
-- vLLM(Mac)과 MLX 비교
-- 실제 속도 비교 차트
+- Apple 공식 MLX 프레임워크의 메커니즘
+- GGUF vs MLX: 아키텍처와 성능 트레이드오프
+- mlx-lm 라이브러리 설치 및 모델 구동
+- MLX-Audio를 활용한 오프라인 음성 처리 (STT/TTS)
+- MLX-VLM 기반의 온디바이스 이미지 분석
 
-### 5장: GGUF 양자화 완벽 이해
+### 5장: GGUF 양자화 아키텍처 완벽 이해
 
-- 양자화(Quantization)란?
-- Q2_K, Q3_K, Q4_K, Q5_K, Q6_K, Q8_0 차이
-  - 작은 모델(Qwen 3B 등): Q8_0 권장
-  - 중간 모델(Gemma 4 12B 등): Q4_K_M 권장
-  - 큰 모델(Qwen 35B 등): Q3_K 또는 Q2_K
-- 메모리 vs 품질 트레이드오프 표
+- 정밀도 압축(Quantization)의 수학적 이해
+- 비트별 특성과 트레이드오프 (Q2_K부터 Q8_0까지)
+- 하드웨어 사양별(RAM 용량) 최적의 양자화 프로필 매핑
+- iMatrix 보정을 통한 양자화 손실 최소화 전략
 
-### 6장: APEX 양자화 — MoE 모델의 비밀
+### 6장: APEX 양자화 — MoE 모델 최적화의 핵심
 
-- MoE(Mixture of Experts) 아키텍처 이해
-  - Qwen3.6-35B-A3B = 35B 파라미터 중 3B만 활성화
-  - Dense vs MoE 속도 비교
-- APEX(Adaptive Precision for EXpert Models)란?
-- APEX 프로필 선택 가이드
-  - I-Compact (17GB) ⭐ 추천
-  - I-Mini (14GB)
-  - I-Balanced (24GB)
-  - I-Quality (22GB)
+- MoE(Mixture of Experts) 아키텍처와 추론 속도의 비밀
+- APEX(Adaptive Precision for EXpert Models) 작동 원리
+- 하드웨어 리소스 효율을 극대화하는 프로필 설계 (I-Compact 등)
+- M3 Max 48GB 환경에서의 APEX 실전 적용
 
-### 7장: 검열 해제(Uncensored) 모델 선택
+### 7장: 무검열(Uncensored) 모델 빌드 및 도입
 
-- 중국 모델의 정치적 검열 문제
-- Abliterated (diff-in-means) 방식
-- 추천 저장소
-  - OpenYourMind
-  - mudler APEX GGUF
-- 설치 및 검증
+- 거대 IT 기업의 정밀한 모델 검열 필터링 실태
+- Abliterated (거절 벡터 절제) 기법의 원리와 효과
+- 신뢰할 수 있는 무검열 모델 배포 채널 (OpenYourMind, mudler)
+- 로컬 환경 탑재 및 정상 작동 테스트
 
 ### 8장: Hermes Agent + 로컬 모델 연동
 
-- Hermes Agent에 로컬 모델 연결
-  ```bash
-  hermes config set model.base_url http://localhost:1337/v1
-  ```
-- 클라우드 + 로컬 하이브리드 전략
-  - 일상 작업: DeepSeek V4 Flash (클라우드)
-  - 민감한 작업: 로컬 모델
-  - 이미지 분석: Mimo 2.5 (클라우드)
-- Profile로 모델 전환 자동화
+- Nous Research의 오픈소스 에이전트 프레임워크, Hermes Agent
+- 클라우드와 온디바이스의 시너지: 하이브리드 인텔리전스 아키텍처
+- config.yaml 정밀 설정 가이드
+- Telegram 연동 및 오프라인 음성 에이전트 구축 실전
 
-### 9장: 실제 마스터님의 하루
+### 9장: 실전 운영 가이드 — 24시간 로컬 에이전트 라이프
 
-- 아침: DeepSeek Flash로 메일/리포트 확인
-- 낮: Hermes Agent + AG 협업 (클라우드)
-- 저녁: Jan.ai 로컬 모델로 테스트
-- 밤: 크론잡 자동 실행
-- 월간 비용 리포트
+- 30년 IT 엔지니어 출신 창작자가 설계한 AI 협업 일상
+- 아침 브리핑부터 야간 자동 백업까지의 실전 타임라인
+- 하이브리드 연동을 통한 월 $4.50 초저비용 시스템의 실체
+- 1인 대기업을 실현하는 로컬 AI 인프라의 미래
 
 ### 부록
 
-- A. 추천 모델 사양표
-- B. 문제 해결 (FAQ)
-- C. 유용한 명령어 모음
+- A. Apple Silicon 사양별 권장 모델 매핑 테이블
+- B. 자주 겪는 트러블슈팅 및 예외 처리
+- C. 로컬 AI 관리자 필수 명령어 레퍼런스
 
 ---
 
-**예상 분량:** Lite: 약 50페이지 / Pro: 약 80페이지 + 설정 파일 패키지
-**예상 가격:** Lite $9.90 / Pro $24.90 (Guide 1과 동일)
+**예상 분량:** 약 80페이지 내외 (실전 설정 코드 포함)  
+**출판 포맷:** e-Book (PDF / EPUB)  

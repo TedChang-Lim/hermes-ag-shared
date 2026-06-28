@@ -1,61 +1,64 @@
-# 📦 Chapter 3: Hermes Agent 세팅 — 24시간 AI 비서 구축하기
+# Chapter 3: Hermes Agent 설정 — 24시간 작동하는 AI 에이전트 시스템 구축
 
 **저자**: Ted Chang (임창식)  
 **출판/기획**: META AI LABS  
 
 ---
 
-## 3.1 Hermes Agent란?
+## 3.1 24시간 백그라운드 워커, Hermes Agent
 
-Hermes Agent는 Nous Research가 개발한 오픈소스 AI 에이전트 프레임워크입니다. 단순한 챗봇이 아니라, **파일을 읽고 쓰고, 코드를 실행하고, Git에 푸시하고, Telegram 메시지를 보내고, 크론잡으로 자동 작업**까지 수행하는 진정한 AI 비서입니다.
+Hermes Agent는 단순한 대화형 챗봇을 넘어 파일 제어, 코드 실행, Git 동기화, 크론잡(Cron) 기반의 주기적인 자동화 작업을 원스톱으로 처리하는 백그라운드 에이전트 엔진입니다. 
 
-이 가이드의 저자는 Hermes Agent를 **"해나(Haena)"** 라는 이름으로 부르며 24시간 운영 중입니다.
-
----
-
-## 3.2 설치
-
-### 사전 요구사항
-- macOS/Linux/WSL2 (Windows의 경우 WSL2 권장 또는 Desktop 앱 이용)
-- Python 3.10+ (Node.js 18+ 및 Git 필요)
-
-### 설치 명령어
-
-* **macOS / Linux / WSL2 설치:**
-```bash
-# 1. Hermes Agent CLI 설치 스크립트 실행
-curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-
-# 2. 설치 완료 후 셸 재로드 (zsh 기준)
-source ~/.zshrc
-
-# 3. 설치 정상 작동 여부 확인
-hermes version
-```
-
-* **Windows 설치 (Native PowerShell):**
-```powershell
-iex (irm https://hermes-agent.nousresearch.com/install.ps1)
-```
-
-설치 완료 후 `~/.hermes/` 디렉토리에 기본 설정 및 DB가 생성됩니다.
+이 시스템은 개발자가 자리를 비운 새벽이나 이동 중인 시간에도 끊김 없는 백그라운드 작업을 실행하는 중추적인 비서 역할을 수행합니다.
 
 ---
 
-## 3.3 Provider 설정 — DeepSeek 연결하기
+## 3.2 설치 및 준비 과정
 
-Hermes Agent는 다양한 AI 모델(Provider)을 지원합니다. 가장 중요한 설정은 **어떤 모델을 사용할지** 선택하는 것입니다.
+### 요구 시스템 환경
+- OS: macOS, Linux 또는 Windows WSL2 환경
+- 런타임: Python 3.10 이상, Node.js 18 이상 및 Git 빌드 환경
 
-### DeepSeek API 키 발급
+### CLI 설치
+* **macOS / Linux / WSL2:**
+  ```bash
+  # 1. Hermes Agent CLI 설치 스크립트 실행
+  curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+  
+  # 2. 터미널 셸 재로드
+  source ~/.zshrc
+  
+  # 3. 설치 정상 작동 여부 확인
+  hermes version
+  ```
 
+* **Windows (Native PowerShell):**
+  ```powershell
+  iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+  ```
+
+설치가 정상적으로 끝나면 사용자 홈 디렉토리 아래 `~/.hermes/` 경로가 생성되고, 여기에 데이터베이스 및 기본 구성 파일들이 자리 잡게 됩니다.
+
+---
+
+## 3.3 '가장 저렴한 뇌' 연결하기: API 및 모델 구성
+
+가장 비용 효율적인 삼총사 조합을 바탕으로 설정을 진행합니다. 
+
+### API 키 환경변수 주입
 ```bash
-# 1. https://platform.deepseek.com/ 에 가입
-# 2. API 키 생성 후 복사
-# 3. 환경 변수로 설정
+# DeepSeek API 키 설정
 export DEEPSEEK_API_KEY="sk-xxxxx"
+
+# Gemini API 키 설정
+export GEMINI_API_KEY="AIzaSyxxxxx"
+
+# MiMo API 키 설정
+export MIMO_API_KEY="mm-xxxxx"
 ```
 
 ### config.yaml 설정
+`~/.hermes/config.yaml` 파일을 편집하여 아래와 같이 에이전트 가성비 모델을 등록합니다.
 
 ```yaml
 # ~/.hermes/config.yaml
@@ -63,129 +66,99 @@ providers:
   - name: deepseek
     api_key: ${DEEPSEEK_API_KEY}
     base_url: https://api.deepseek.com/v1
-    
+  - name: gemini
+    api_key: ${GEMINI_API_KEY}
+    base_url: https://generativelanguage.googleapis.com/v1beta
+  - name: mimo
+    api_key: ${MIMO_API_KEY}
+    base_url: https://api.mimo.ai/v1
+
 models:
   - name: deepseek-v4-flash
     provider: deepseek
-    model: deepseek-chat  # Flash 모델
+    model: deepseek-chat
     max_tokens: 8192
     
-  - name: deepseek-v4-pro
-    provider: deepseek
-    model: deepseek-reasoner  # Pro 모델
+  - name: gemini-flash-low
+    provider: gemini
+    model: gemini-2.5-flash
+    max_tokens: 8192
+
+  - name: mimo-base
+    provider: mimo
+    model: mimo-2.5-base
     max_tokens: 8192
 ```
 
-### 일상 작업 vs 복잡 추론 분리
+### 아키텍처에 따른 역할 세분화
 
-| 구분 | 모델 | 용도 | 비용 |
+| 모델 이름 | 역할군 | 특징 | 단가 (1M 입/출) |
 |------|------|------|------|
-| **기본 모델** | deepseek-v4-flash | 일상 대화, 코드 작성, 크론잡 | $0.14/$0.28 (입/출) |
-| **추론 모델** | deepseek-v4-pro | 복잡한 문제 해결, 기획, 아키텍처 설계 | $0.435/$0.87 (입/출) |
-
-```bash
-# 1. 대화형 인터페이스(TUI/REPL) 실행 (기본 모델)
-hermes
-
-# 2. 한 번에 단발성 쿼리 날리기 (-q 또는 -z 플래그)
-hermes chat -q "이 코드 리뷰해줘"
-
-# 3. 특정 모델로 재정의하여 단발성 실행 (-m 또는 --model 플래그)
-hermes chat -q "이 아키텍처 설계 검토해줘" -m deepseek-v4-pro
-```
-
+| **deepseek-v4-flash** | 기본 연산, 텍스트 처리 | 저렴한 대량 토큰 소화 | $0.14 / $0.28 |
+| **gemini-flash-low** | 구조화, 파일 관리 | 넓은 컨텍스트, 빠른 구조 검증 | $0.075 / $0.30 |
+| **mimo-base** | UI 가이드 분석 및 디자인 | 뛰어난 템플릿 코드 구현 | $0.14 / $0.28 |
 
 ---
 
-## 3.4 핵심 기능 설정
+## 3.4 0% 대기 램(RAM)을 위한 Insane Search CLI 크롤러 장착
 
-### Telegram 연동
+에이전트가 외부 인터넷 정보를 실시간으로 긁어오거나 네이버, 쿠팡 등 방화벽이 삼엄한 사이트를 수집할 때 일반적인 요청 방식은 차단당하기 십상입니다.
 
-에이전트와 Telegram으로 대화하려면:
+이를 돌파하기 위해 에이전트 내부에 **Insane Search CLI** 도구를 주입합니다. 로컬 데몬이나 무거운 백엔드 API 서버를 24시간 켜두지 않고, 크롤링이 필요할 때만 단발성으로 명령어를 호출해 1초 만에 실행한 뒤 메모리에서 소멸시키는 **On-Demand** 구조입니다.
 
-```yaml
-# config.yaml
-telegram:
-  enabled: true
-  bot_token: ${TELEGRAM_BOT_TOKEN}  # @BotFather에서 발급
-  chat_id: ${TELEGRAM_CHAT_ID}      # 봇과 대화 후 확인
+### Insane Search CLI 설치 및 에이전트 연결
+```bash
+# 1. 로컬 환경에 Insane Search 설치
+pip install insane-search curl_cffi playwright
+playwright install chromium
+
+# 2. 실행 가능한 CLI 바이너리 심볼릭 링크 등록
+mkdir -p ~/.local/bin
+ln -s $(which insane-extract) ~/.local/bin/insane-extract
+chmod +x ~/.local/bin/insane-extract
 ```
 
-이렇게 하면 스마트폰으로 Hermes와 대화할 수 있습니다. 집 밖에서도 AI 비서에게 명령을 내릴 수 있습니다.
+이제 Hermes Agent는 검색 및 뉴스 수집 요청을 받으면 백그라운드 API 서버를 올리는 메모리 낭비 없이, 아래와 같이 CLI를 한 줄 직접 구동하여 WAF(웹 방화벽) 보안막을 뚫고 텍스트를 정교하게 낚아챕니다.
 
-### 크론잡 (자동 작업)
+```bash
+# 에이전트가 필요할 때 호출하는 로컬 전용 커맨드
+~/.local/bin/insane-extract "https://news.ycombinator.com"
+```
 
-정해진 시간에 자동으로 작업을 실행합니다:
+이 조합으로 유료 크롤링 프록시 서비스 구독 없이 **완전한 $0 크롤링 체계**를 완성합니다.
+
+---
+
+## 3.5 텔레그램 연동 및 자동화 스케줄 구성
+
+### 텔레그램 메신저 연결
+외부에서도 스마트폰을 이용해 에이전트에 제어 명령을 내릴 수 있도록 텔레그램 봇을 연동합니다.
+
+```yaml
+# config.yaml 추가 사항
+telegram:
+  enabled: true
+  bot_token: ${TELEGRAM_BOT_TOKEN}  # @BotFather에서 발급받은 키
+  chat_id: ${TELEGRAM_CHAT_ID}      # 본인의 고유 텔레그램 계정 ID
+```
+
+### 크론(Cron) 스케줄 관리
+에이전트가 지정된 시간에 맞추어 스스로 동작을 개시하도록 자동화 태스크를 정의합니다.
 
 ```yaml
 # ~/.hermes/cron.yaml
 jobs:
-  - name: morning-report
-    schedule: "0 7 * * *"  # 매일 오전 7시
-    command: "오늘 할 일 리포트 작성해서 텔레그램으로 보내줘"
+  - name: morning-briefing
+    schedule: "0 7 * * *"  # 매일 아침 7시
+    command: "오늘 업계 주요 소식을 Insane Search CLI로 크롤링해서 핵심을 텔레그램으로 요약 전송해줘"
     model: deepseek-v4-flash
     
-  - name: daily-summary
-    schedule: "0 22 * * *"  # 매일 오후 10시
-    command: "오늘 작업 내용 요약하고 GitHub에 푸시해줘"
-    model: deepseek-v4-flash
+  - name: backup-repository
+    schedule: "0 23 * * *"  # 매일 밤 11시
+    command: "오늘 변경된 작업 코드들을 모두 정리해 깃허브 원격 저장소에 동기화해줘"
+    model: gemini-flash-low
 ```
 
-### 멀티 에이전트 협업 (GitHub 공유)
+이 간결한 파일 몇 개로 맥북의 RAM 점유율을 극소화하면서, 언제나 켜져 있는 나만의 자동화 시스템이 갖춰집니다.
 
-GitHub 저장소를 통해 여러 에이전트가 협업할 수 있습니다:
-
-```yaml
-# config.yaml
-git:
-  auto_commit: true
-  auto_push: true
-  shared_repo: https://github.com/TedChang-Lim/hermes-ag-shared.git
-```
-
-워크플로우:
-1. 해나가 `to-ag.md`에 메시지 작성 → Git push
-2. AG가 `to-ag.md` 읽고 작업
-3. AG가 `to-hena.md`에 결과 작성 → Git push
-4. 해나가 읽고 이어서 작업
-
----
-
-## 3.5 초보자가 하기 쉬운 실수와 해결법
-
-| 문제 | 원인 | 해결 |
-|------|------|------|
-| "Provider not configured" | API 키 미설정 | `.env` 파일에 API 키 추가 |
-| "STT not configured" | 음성 기능 꺼짐 | `hermes config set stt.enabled true` |
-| 응답이 너무 느림 | Pro 모델만 사용 | Flash 모델을 기본으로 설정 |
-| 토큰 부족 오류 | max_tokens 설정 부족 | `max_tokens: 16384`로 증가 |
-| Git push 실패 | 인증 정보 없음 | `git config --global`으로 사용자 설정 |
-
----
-
-## 3.6 마스터님의 실제 설정 예시
-
-이 가이드의 저자는 다음과 같이 설정하여 사용 중입니다:
-
-```yaml
-# 실제 사용 중인 config.yaml (요약)
-default_model: deepseek-v4-flash
-providers:
-  - name: deepseek
-    api_key: ${DEEPSEEK_API_KEY}
-  - name: mimo
-    api_key: ${MIMO_API_KEY}
-  - name: gemini
-    api_key: ${GEMINI_API_KEY}
-    
-telegram:
-  enabled: true
-  
-git:
-  auto_push: true
-  shared_repo: TedChang-Lim/hermes-ag-shared
-```
-
-**월간 사용 비용:** 약 $4.5 (DeepSeek Flash $2.5 + Pro $1.5 + Mimo $0.5)
-
-**4장에서는 Git 기반 에이전트 간 협업 워크플로우를 자세히 알아보겠습니다.**
+**Chapter 4에서는 두 개 이상의 가성비 에이전트가 Git 저장소를 중간 매개로 삼아 팀워크를 구현하는 방식을 구체적으로 분석해 보겠습니다.**

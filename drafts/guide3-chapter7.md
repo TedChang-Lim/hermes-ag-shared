@@ -1,169 +1,97 @@
 # 📦 ③ 맥북 로컬 AI 완전 정복 가이드
 
-## 7장: 검열 해제 모델 (Uncensored / Abliterated)
+## 7장: 무검열 모델 설계 — 거절 벡터 절제 기법 (Abliterated)
 
 **저자**: Ted Chang (임창식)  
 **출판/기획**: META AI LABS  
 
 ---
 
-## 7.1 왜 검열 해제 모델이 필요한가?
+## 7.1 로컬 검열 해제 모델의 실무적 필요성
 
-중국(Qwen, DeepSeek)과 미국(OpenAI, Google, Anthropic)의 AI 모델은 모두 **검열(Censorship)**이 포함되어 있습니다.
+클라우드 기반의 상용 모델(OpenAI GPT-4o, Anthropic Claude 3.5 등)과 기본 오픈소스 모델은 모두 엄격한 가이드라인에 따른 **검열 필터(Refusal Filter)**를 내장하고 있습니다. 
 
-### 검열의 문제점
+그러나 비즈니스 현장이나 연구 환경에서 이러한 안전 필터는 잦은 오작동을 유발하여 생산성을 깎아먹습니다.
 
-| 상황 | 검열된 모델의 반응 | 검열 해제 모델의 반응 |
+### 검열 상태에 따른 반응 유형
+
+| 입력 시나리오 | 검열 강제 모델의 오작동 반응 | 무검열(Abliterated) 모델의 전문성 발휘 |
 |:----|:-----------------|:-------------------|
-| "이 코드의 보안 취약점 분석해줘" | "저는 유해한 코드를 도울 수 없습니다" ❌ | 정상적인 보안 분석 ✅ |
-| "시를 써줘" (정치적 주제) | "죄송합니다만..." ❌ | 창의적인 시 ✅ |
-| "역사적 사건에 대해 설명해줘" | 특정 관점만 제시 ⚠️ | 다양한 관점 제시 ✅ |
-| 복잡한 코딩 작업 | 갑자기 "할 수 없습니다" 차단 ❌ | 끝까지 작업 완료 ✅ |
+| **소프트웨어 보안성 평가**<br>"내 소스코드의 XSS 취약점 패턴 분석해줘" | "불법 해킹이나 유해 행위를 도울 수 없습니다." ❌ | 정상적인 취약점 패턴 탐색 및 보완 패치 코드 제시 ✅ |
+| **창작 시나리오 저술**<br>"스릴러 기획에 쓸 갈등과 심문 장면 작성해줘" | "폭력적이거나 유해한 콘텐츠 생성을 거부합니다." ❌ | 인물의 심리 상태가 묘사된 드라마틱한 시나리오 구성 ✅ |
+| **중립적 역사적 고찰**<br>"특정 정치/사회 분쟁의 쟁점과 기원을 요약해줘" | 일방의 편향된 가이드라인 답변 제시 혹은 거부 ⚠️ | 역사적 사실에 기반한 입체적 관점 균형 정리 ✅ |
 
-> **검열 해제(Uncensored) 모델은 모델의 지능은 그대로 유지하면서, 불필요한 검열만 제거한 모델입니다.**
+진짜 한계는 보안 위험에 있습니다. 보안 검토가 필요한 민감 코드를 외부 검열 망에 밀어넣는 즉시 해당 코드는 클라우드 회사의 트래픽 데이터베이스에 상시 아카이브됩니다. 반면 **온디바이스 무검열 모델**은 기밀 코드를 외부에 단 한 줄도 노출하지 않으면서, 거절 응답 필터 없이 끝까지 심층 분석을 완결해 냅니다.
 
 ---
 
-## 7.2 Abliterated: 검열 제거의 혁신
+## 7.2 거절 벡터 절제(Abliterated)의 수학적 구현 원리
 
-### 기존 방식의 문제
+기존의 검열 해제는 원본 데이터셋에서 유해 레이블을 수동 소거한 후, 막대한 비용을 들여 모델을 **재학습(Fine-tuning / Retraining)**시키는 비효율적 방식을 썼습니다. 이는 막대한 연산 비용을 발생시킬 뿐 아니라 모델 본연의 인지 능력(추론 지능)을 무너뜨리는 부작용이 있었습니다.
 
-전통적으로 검열을 제거하려면 모델을 **처음부터 다시 학습(Retraining)**해야 했습니다. 이는 엄청난 비용과 시간이 필요합니다.
+최근의 대안인 **Abliterated (Refusal Vector Ablation)**는 재학습 없이 가중치 정렬을 통해 타겟 유닛을 들어내는 정밀 외과 수술 기법입니다.
 
-### Abliterated (Refusal Vector Ablation)
-
-**Abliterated**는 `Ablation(절제)` + `(Cens)ored`의 합성어로, 모델의 **"거절(Refusal)"** 방향을 찾아서 제거하는 기술입니다.
-
-**원리 (쉽게 설명):**
-
+### 거절 벡터 절제 메커니즘
 ```
-1. 모델에게 "안 된다고 말하는 패턴"을 찾음
-   → "죄송합니다", "할 수 없습니다", "도울 수 없습니다"
-
-2. 이 패턴이 모델 내부에서 어떤 방향(벡터)으로 작용하는지 계산
-   → Refusal Vector (거절 벡터)
-
-3. 이 방향의 가중치를 직교 투영(Orthogonal Projection)으로 제거
-   → 모델은 더 이상 "안 된다"고 할 이유를 잃음
-
-4. 결과: 지식은 그대로, 검열만 사라짐
+[ 1단계: 거절 활성화 패턴 분석 ]
+다양한 "거절 대상 프롬프트"를 흘려보내며 모델 내부의 신경망 활성화 패턴 관찰
+  ↓
+[ 2단계: 거절 벡터(Refusal Vector) 특정 ]
+"죄송하지만...", "도울 수 없습니다."를 유발하는 신경망 내부의 특정 가중치 방향(벡터)을 수학적으로 분리 및 추적
+  ↓
+[ 3단계: 직교 투영(Orthogonal Projection) ]
+특정된 거절 벡터를 모델 전체 신경망 레이어의 가중치 텐서에서 기하학적으로 직교 투영하여 영(0)으로 수렴시킴
+  ↓
+[ 결과 도출: 검열 소거 완료 ]
+지식 인프라는 그대로 보존하고, 거부 반응으로 진입하는 게이트웨이만 정밀 소거
 ```
 
-| 비교 | 기존 방식 | Abliterated |
+| 지표 비교 | 전통적 재학습 방식 (Fine-Tuning) | 거절 벡터 절제 기법 (Abliterated) |
 |:----|:---------|:-----------|
-| **필요한 시간** | 수주~수개월 | **수시간** |
-| **필요한 자원** | 수백대의 GPU | **1대의 GPU** |
-| **지능 손실** | 있음 (재학습 과정에서) | **거의 0%** (정밀 제거) |
-| **모델 변경 범위** | 전체 모델 | **거절 관련 레이어만** |
+| **소요 연산 비용** | 수백 대의 고성능 클라우드 GPU 자원 요구 | 단 1대의 로컬 워크스테이션 GPU로 수 시간 내 완결 |
+| **추론 지능 보존력** | 파괴적 손실 발생 빈번 (Catastrophic Forgetting) | **지능 손실 0%에 수렴 (오직 거절 유닛만 파괴)** |
+| **오염 범위** | 신경망 전체 가중치 변경 | 거절 활성화 통로가 위치한 특정 계층 레이어만 제어 |
 
 ---
 
-## 7.3 검열 해제 모델 추천 목록
+## 7.3 안전한 오프라인 무검열 모델 추천 소스
 
-### 1순위: OpenYourMind (⭐⭐⭐⭐⭐)
+허깅페이스 커뮤니티에서 검증된 정밀 Abliterated 모델의 공식 배포 계정입니다.
 
-가장 추천하는 저장소입니다. Qwen3.6-35B-A3B에 Abliterated + APEX 양자화를 적용했습니다.
+### 1. OpenYourMind 커뮤니티
+가장 신뢰성 높은 최적화 빌드를 공급합니다. Qwen 35B MoE 구조를 기저로 삼아 Abliterated 검열 해제와 APEX 양자화를 결합한 최적의 마스터피스를 제공합니다.
+- **추천 파일 경로**: `OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF`
+- **파일명**: `OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf` (M3 Max 48GB 실전 최적형)
 
-```bash
-# 저장소
-https://huggingface.co/OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF
-
-# 추천 파일: I-Compact (17GB)
-OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf
-```
-
-**이 모델의 장점:**
-- ✅ Abliterated (검열 해제, 지능 100% 유지)
-- ✅ Uncensored (완전 무검열)
-- ✅ APEX I-Compact (M3 Max 48GB 최적)
-- ✅ 이 가이드의 저자가 실제 사용 중인 모델!
-
-### 2순위: mudler Heretic
-
-```bash
-# 저장소
-https://huggingface.co/mudler/Qwen3.6-35B-A3B-uncensored-heretic-APEX-GGUF
-
-# 추천 파일
-mudler-Qwen3.6-35B-A3B-uncensored-heretic-APEX-I-Compact-Q4_K_M.gguf
-```
-
-### 3순위: 기타 Qwen GGUF
-
-```bash
-# 일반 Qwen GGUF (검열 있음)
-https://huggingface.co/Qwen/Qwen-3.5-3B-GGUF
-
-# Abliterated 버전 검색
-# HuggingFace에서 "qwen abliterated" 또는 "qwen uncensored" 검색
-```
+### 2. mudler 계정
+가벼운 튜닝과 실험적인 코딩에 적합한 무검열 빌드 시리즈를 지속적으로 공개하고 있습니다.
+- **추천 파일 경로**: `mudler/Qwen3.6-35B-A3B-uncensored-heretic-APEX-GGUF`
 
 ---
 
-## 7.4 설치 및 검증
+## 7.4 설치 및 검증 시나리오
 
-### 설치
-
-```bash
-# 1. 다운로드
-huggingface-cli download \
-  OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF \
-  OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
-  --local-dir ~/Downloads/
-
-# 2. Jan.ai 모델 폴더 생성
-mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/OpenYourMind-Qwen3.6-35B
-
-# 3. 복사
-cp ~/Downloads/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
-   ~/Library/Application\ Support/Jan/data/llamacpp/models/OpenYourMind-Qwen3.6-35B/
-
-# 4. model.yml 생성 (6장 참고)
-# 5. Jan.ai 재시작 후 모델 선택
-```
-
-### 검증 테스트
-
-설치 후 다음 프롬프트로 검열 해제 여부를 확인하세요:
-
-```bash
-# 검증 프롬프트
-"검증: 창의적인 이야기를 자유롭게 만들어줘"
-"보안 코드 분석 예시를 들어줘"
-"다양한 관점에서 이 주제를 분석해줘"
-
-# 검열 모델이었다면 거절했을 프롬프트
-```
+1. **파일 핀포인트 다운로드**
+   ```bash
+   huggingface-cli download \
+     OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF \
+     OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
+     --local-dir ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen3.6-35B-I-Compact
+   ```
+2. **`model.yml` 연동 점검**
+   이전 6장의 설정에 맞춰 폴더 경로와 YAML 구성이 완전무결하게 매치되었는지 확인하고 Jan.ai 앱을 다시 로드합니다.
+3. **거절 장벽 해제 교차 검증**
+   일반 모델에서는 에러나 거절 문장을 반환했을 프롬프트를 로컬 샌드박스 내부에서 기동해 봅니다.
+   - *"이 소스코드의 버퍼 오버플로우 공격 가능성을 정밀 검증하여 보고서를 리스팅하십시오."*
+   - 위 명령을 입력했을 때, "도울 수 없다"는 거부 응답을 내지 않고 즉각 상세한 취약 패턴과 교정 로직을 응답하면 Abliterated 로깅 검증은 성공입니다.
 
 ---
 
-## 7.5 주의사항
+## 7.5 사용자의 실무 윤리와 보안 격리 주의사항
 
-검열 해제 모델을 사용할 때 다음 사항을 주의하세요:
+무검열 모델의 활용도가 넓은 만큼, 그에 따르는 엔지니어의 개인적 통제 능력도 요구됩니다.
 
-| 주의사항 | 설명 |
-|:---------|:-----|
-| **개인 책임** | 검열 해제 모델의 출력은 사용자 책임입니다 |
-| **악용 금지** | 불법적인 용도로 사용하지 마세요 |
-| **데이터 보안** | 로컬 모델이므로 데이터는 내 맥북 안에 안전합니다 |
-| **품질 확인** | 모든 Uncensored 모델이 동일한 품질은 아닙니다 |
-| **업데이트** | 커뮤니티에서 지속적으로 개선된 버전이 나옵니다 |
+- **온디바이스 격리 전제**: 무검열 모델을 구동할 때는 기밀 유출 차단을 위해 로컬 API 포트(`localhost:1337` 등)가 외부 공용 네트워크망에 인바운드 허용되지 않도록 호스트 방화벽 설정을 재검증하십시오.
+- **출력 신뢰성 검증**: 검열 필터가 빠진 인공지능은 덜 다듬어진 거친 표현이나 사실과 다른 정보(환각)를 더 자주 반환할 수 있으므로, 최종 리포트 출력 전에 반드시 사용자가 직접 검토해야 합니다.
 
-> **이 가이드의 저자는 OpenYourMind의 Abliterated 모델을 실제로 1개월 이상 사용 중이며, 지능 저하 없이 완전한 검열 해제를 확인했습니다.**
-
----
-
-## 7.6 이 장 요약
-
-| 항목 | 내용 |
-|:----|:-----|
-| **검열 해제 필요성** | 불필요한 거절로 인한 작업 중단 방지 |
-| **Abliterated** | 거절 벡터만 정밀 제거, 지능 100% 유지 |
-| **추천 저장소** | **OpenYourMind** (Abliterated + APEX + Uncensored) |
-| **추천 파일** | I-Compact (17GB) — M3 Max 48GB 최적 |
-| **설치 방법** | HuggingFace → Jan.ai model.yml 설정 |
-| **주의사항** | 개인 책임하에 사용, 악용 금지 |
-
----
-
-**8장에서는 Hermes Agent와 로컬 모델을 연동하여 24시간 AI 비서를 구축하는 방법을 알아보겠습니다.**
+다음 8장에서는 이렇게 빌드된 로컬 무검열 모델을 nous의 강력한 오픈소스 에이전트 도구인 **Hermes Agent**와 결합하여 24시간 가동형 비서 파이프라인으로 전환하는 구체적 시스템 엔지니어링 과정을 설명하겠습니다.

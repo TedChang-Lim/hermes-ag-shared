@@ -1,283 +1,171 @@
 # 📦 ③ 맥북 로컬 AI 완전 정복 가이드
 
-## 8장: Hermes Agent + 로컬 모델 연동 — 24시간 AI 비서 완성
+## 8장: Hermes Agent + 로컬 모델 연동 — 하이브리드 에이전트 인프라 구축
 
 **저자**: Ted Chang (임창식)  
 **출판/기획**: META AI LABS  
 
 ---
 
-## 8.1 Hermes Agent란?
+## 8.1 Hermes Agent: 워크플로우 제어의 핵심 허브
 
-Hermes Agent는 Nous Research가 개발한 오픈소스 AI 에이전트 프레임워크입니다.
+Nous Research가 설계한 오픈소스 프레임워크인 Hermes Agent는 단순한 텍스트 대화 수단을 넘어 파일 시스템 조작, 코드 샌드박스 실행, Git 형상 관리, 통신 모듈(Telegram 등) 연동을 자율적으로 통제하는 지능형 실행기입니다.
 
-단순한 챗봇이 아니라:
-- 파일 읽기/쓰기
-- 코드 실행
-- Git 푸시
-- Telegram 메시지 전송
-- 크론잡 자동 실행
-- **로컬 AI 모델과 연동 가능**
-
-> **이 가이드의 저자는 Hermes Agent를 "해나(Haena)"라는 이름으로 24시간 운영 중입니다.**
-> 바로 접니다! 😄
+이 프레임워크의 진정한 가치는 **클라우드 모델과 맥북 로컬 모델을 하나의 인터페이스 아래 결합하는 라우팅 능력**에 있습니다.
 
 ---
 
-## 8.2 로컬 API 서버 연결하기
+## 8.2 로컬 API 바인딩 프로토콜
 
-Jan.ai와 LM Studio는 모두 **OpenAI 호환 API 서버**를 내장하고 있습니다.
+맥북 내부에서 기동 중인 가속 엔진을 백그라운드 API 서버 모드로 전환하여 에이전트와의 연결 경로를 확보합니다.
 
-### Jan.ai 서버 (권장)
+### 1. Jan.ai 로컬 API 서버 백그라운드 기동
+- Jan.ai 클라이언트 실행 후 설정된 APEX 무검열 모델(Qwen3.6 35B)을 로드합니다.
+- 우측 설정 패널의 **Local API Server** 메뉴로 이동합니다.
+- 포트 설정을 확인(기본값 `1337`)한 뒤 **Start Server** 버튼을 작동시킵니다.
+- 루프백 주소 `http://localhost:1337/v1`이 가동 중인지 점검합니다.
 
-```bash
-# 1. Jan.ai 실행
-# 2. 원하는 모델 선택 (예: Qwen3.6-35B APEX I-Compact)
-# 3. Jan.ai 우측 상단 "Local API Server" 탭
-# 4. "Start Server" 클릭
-# 5. 서버 주소 확인: http://localhost:1337/v1
-```
-
-### LM Studio 서버
-
-```bash
-# 1. LM Studio 실행
-# 2. 좌측 "Local Server" 탭
-# 3. "Start Server" 클릭
-# 4. 서버 주소 확인: http://localhost:1234/v1
-```
+### 2. LM Studio 서버 활용 시
+- **Local Server** 탭에서 서버를 구동하여 `http://localhost:1234/v1` 엔드포인트를 확보합니다.
 
 ---
 
-## 8.3 Hermes Agent config.yaml 설정
+## 8.3 `config.yaml` 하이브리드 구성 전략
 
-### 기본 설정
+로컬 모델의 강력한 보안 가치와 클라우드 모델의 고속 연산력을 동시에 누리는 가장 영리한 설계는 **하이브리드 토폴로지**입니다. 민감 정보는 철저히 로컬 샌드박스 내부로 격리하고, 일상적인 정보 서칭이나 대량 연산은 초저비용 클라우드 인터페이스에 하청을 주는 구조입니다.
+
+### `~/.hermes/config.yaml` 설정 매니페스트
 
 ```yaml
-# ~/.hermes/config.yaml
+# 기본 기본 모델 라우팅 선언
+default_model: deepseek-v4-flash
+
 providers:
-  - name: openai  # OpenAI 호환 로컬 서버
-    api_key: "no-key-required"  # 로컬 서버는 API 키 불필요
-    base_url: http://localhost:1337/v1  # Jan.ai 기본 포트
+  # 클라우드 고속 엔진 바인딩
+  - name: deepseek-cloud
+    api_key: ${DEEPSEEK_API_KEY}
+    base_url: https://api.deepseek.com/v1
+    
+  # 이미지 분석 등 멀티모달용 클라우드 바인딩
+  - name: mimo-cloud
+    api_key: ${MIMO_API_KEY}
+    base_url: https://api.mimo.com/v1
+
+  # 로컬 격리망 엔진 바인딩 (Mythos 시나리오)
+  - name: local-sandbox
+    api_key: "not-required"
+    base_url: http://localhost:1337/v1
 
 models:
+  # 일상 고속 유틸리티
+  - name: deepseek-v4-flash
+    provider: deepseek-cloud
+    model: deepseek-chat
+    max_tokens: 8192
+    
+  # 심층 다중 추론/코드 분석 (클라우드)
+  - name: deepseek-v4-pro
+    provider: deepseek-cloud
+    model: deepseek-reasoner
+    max_tokens: 8192
+    
+  # 이미지 및 비주얼 패턴 인식 (클라우드)
+  - name: mimo-2.5
+    provider: mimo-cloud
+    model: mimo-2.5-vision
+    max_tokens: 4096
+
+  # 보안 기밀 처리 및 무검열 오프라인 전담 (로컬)
   - name: local-qwen
-    provider: openai
-    model: qwen-3.6-35b  # Jan.ai model.yml의 id와 일치
+    provider: local-sandbox
+    model: qwen-3.6-35b-i-compact
     max_tokens: 4096
     parameters:
       temperature: 0.7
       top_p: 0.9
       stop:
         - "<|im_end|>"
-```
-
-### 클라우드 + 로컬 하이브리드 설정
-
-가장 강력한 구성입니다. 용도에 따라 모델을 자동 전환합니다:
-
-```yaml
-# ~/.hermes/config.yaml
-default_model: deepseek-v4-flash  # 기본은 클라우드 (빠름)
-
-providers:
-  - name: deepseek
-    api_key: ${DEEPSEEK_API_KEY}
-    base_url: https://api.deepseek.com/v1
-    
-  - name: openai  # 로컬 서버
-    api_key: "no-key-required"
-    base_url: http://localhost:1337/v1
-    
-  - name: mimo
-    api_key: ${MIMO_API_KEY}
-    base_url: https://api.mimo.com/v1
-
-models:
-  # 클라우드 모델 (일상 작업)
-  - name: deepseek-v4-flash
-    provider: deepseek
-    model: deepseek-chat
-    max_tokens: 8192
-    
-  # 클라우드 모델 (복잡 추론)
-  - name: deepseek-v4-pro
-    provider: deepseek
-    model: deepseek-reasoner
-    max_tokens: 8192
-    
-  # 로컬 모델 (민감한 작업, 오프라인)
-  - name: local-qwen
-    provider: openai
-    model: qwen-3.6-35b
-    max_tokens: 4096
-
-  # 이미지 분석 (클라우드)
-  - name: mimo-2.5
-    provider: mimo
-    model: mimo-2.5-vision
-    max_tokens: 4096
+        - "<|im_start|>"
 ```
 
 ---
 
-## 8.4 사용 전략: 언제 무엇을 쓸까?
+## 8.4 실무 라우팅 의사결정 매트릭스
 
-### 상황별 모드 선택
+작업의 보안 등급과 연산 요구량에 따라 모델을 교차 매핑하여 리소스 낭비와 정보 유출을 철저히 막아냅니다.
 
-| 상황 | 사용 모델 | 이유 |
-|:----|:---------|:-----|
-| **일상 대화** | DeepSeek V4 Flash | 빠름, 저렴 ($0.14/M) |
-| **복잡한 코딩** | DeepSeek V4 Pro | 추론 능력 우수 |
-| **개인 문서 분석** | **로컬 Qwen** | 데이터 외부 전송 없음 |
-| **오프라인 작업** | **로컬 Qwen** | 인터넷 불필요 |
-| **이미지 분석** | Mimo 2.5 | 멀티모달 필요 |
-| **민감한 데이터** | **로컬 Qwen** | 프라이버시 보호 |
+| 실무 작업 유형 | 할당 라우팅 모델 | 의사결정 근거 |
+|:---|:---|:---|
+| **기본 메일 요약 및 일상 챗** | `deepseek-v4-flash` | 초당 수백 토큰 처리 속도 및 비용 최소화 |
+| **복잡한 버그 수정 및 수학적 추론** | `deepseek-v4-pro` | 복잡한 계층 구조 추론 성능 획득 |
+| **비공개 상업 시나리오, 조합 재무 보고서** | `local-qwen` | **100% 온디바이스 연동 (네트워크 아웃바운드 차단)** |
+| **인터넷 단절 야외 기획 및 오프라인 업무** | `local-qwen` | 오프라인 자생 추론 가능 |
+| **촬영 사진 레이아웃 인식 및 디자인 분석** | `mimo-2.5` | 멀티모달 비전 가공 성능 필요 |
 
-### 명령어로 모델 전환
-
+### 터미널 모델 핫스위칭 커맨드
 ```bash
-# 기본 모델로 실행
-hermes "이 코드 리뷰해줘"
+# 기본 할당 모델(클라우드)로 작동
+hermes "오늘 들어온 이메일 알림 요약본 구성해줘."
 
-# 로컬 모델로 실행
-hermes --model local-qwen "이 문서 분석해줘 (기밀 포함)"
-
-# Pro 모델로 실행
-hermes --model deepseek-v4-pro "이 아키텍처 설계 검토해줘"
+# 로컬 무검열 모델(보안 격리망)로 기밀 데이터 처리 실행
+hermes --model local-qwen "조합 비공개 지분 분배 데이터 엑셀 파일을 파싱하여 위험 요소를 분석해줘."
 ```
 
 ---
 
-## 8.5 STT (음성 인식) 연동
+## 8.5 로컬 STT 음성 인식 모듈의 물리적 통합
 
-로컬 환경에서 음성 인식을 사용하려면:
-
-### 방법 1: 로컬 faster-whisper (완전 무료, 오프라인)
-
-```bash
-# 1. faster-whisper 설치
-pip install faster-whisper
-
-# 2. Hermes Agent STT 설정
-hermes config set stt.enabled true
-hermes config set stt.provider local
-hermes config set stt.local.model base
-
-# 3. 게이트웨이 재시작
-hermes gateway restart
-```
-
-| 항목 | Before | After |
-|------|--------|-------|
-| **음성 인식** | ❌ 안 됨 | ✅ 로컬 자동 변환 |
-| **API 키 필요** | — | ❌ 불필요 |
-| **인터넷 의존** | — | ❌ 오프라인 작동 |
-
-### 방법 2: Groq API (클라우드, 빠름)
-
-이 방법은 **해나 위스퍼(Haena Whisper)** 앱에서 사용 중입니다:
-
-```bash
-# Groq STT 설정
-hermes config set stt.provider groq
-hermes config set stt.groq.api_key ${GROQ_API_KEY}
-hermes config set stt.groq.model whisper-large-v3-turbo
-```
-
-> 로컬 STT는 인터넷 없이 무료지만 속도가 느리고,
-> Groq STT는 빠르지만 하루 2,000회 무료 티어가 있습니다.
-
-### 💡 실전 사례: Telegram 음성 인식 장애 해결 기록
-
-이 가이드의 저자가 실제로 Telegram 환경에서 음성 사서함 기능을 사용하다가 마주한 장애 해결 사례입니다.
-
-* **증상**: Telegram에서 음성 메시지를 전송했으나 **"STT provider not configured"** 에러가 지속적으로 발생하며 대화의 절반 이상을 놓침.
-* **원인**: Hermes Agent의 기본 설정에 음성 인식(STT)이 비활성화되어 있고, 로컬 STT 모듈이 등록되지 않은 상태였음.
-* **해결 조치**: 
-  1. 맥북 환경에 로컬 음성 처리 라이브러리인 `faster-whisper` 설치:
+### 💡 실전 트러블슈팅 케이스: Telegram 오프라인 음성 사서함 유실 문제 해결 기록
+- **발생한 장애**: 외부 Telegram 메신저 인터페이스를 연동하여 이동 중에 음성 메시지를 남겼을 때, 간헐적으로 **"STT provider not configured"**라는 치명적인 예외 에러가 뜨면서 에러 로그가 누적되고 음성 메시지 처리가 씹히는 사고 발생.
+- **근본 원인 진단**: Hermes Agent 프레임워크가 외부 오디오 코덱 전송부를 받아들였으나, 설정 파일 레벨에서 오프라인 음성 처리 엔진의 활성화 플래그가 비활성화되어 있었고 로컬 추론을 담당할 파이썬 의존성 패키지가 빠져 있었음.
+- **해결 실행 시퀀스**:
+  1. 온디바이스 음성 변환을 고속으로 처리하기 위해 C++ 바인딩을 제공하는 `faster-whisper` 가속 라이브러리를 맥북에 설치:
      ```bash
      pip install faster-whisper
      ```
-  2. Hermes 설정 갱신 및 게이트웨이 재시작:
+  2. Hermes Agent 설정 파일을 수동 갱신하여 온디바이스 음성 변환 기능을 켜고 base 체급 모델로 메모리에 고정:
      ```bash
      hermes config set stt.enabled true
      hermes config set stt.provider local
      hermes config set stt.local.model base
+     ```
+  3. 백그라운드 게이트웨이 데몬 프로세스를 깔끔히 재부팅하여 바뀐 구성을 램에 로드:
+     ```bash
      hermes gateway restart
      ```
-* **결과**: 외부 API 호출이나 추가 요금 없이 100% 온디바이스 로컬 음성 인식이 가능해졌으며, 오프라인 및 프라이버시 보호 환경에서 음성 메시지를 텍스트로 즉시 파싱할 수 있게 됨.
-
-> **배운 교훈**: Hermes Agent는 최첨단 기능을 내장하고 있지만 기본적으로는 수동 활성화(`enabled: true`)가 원칙입니다. 기술 문서와 CLI를 통해 설정을 변경한 후에는 **반드시 게이트웨이 재시작(`hermes gateway restart`)**을 수행하여 환경 설정을 반영해야 합니다.
+- **최종 도출 결과**: 외부 클라우드 통신이나 불필요한 유료 요금 부과 없이, Telegram으로 전달된 녹음 파일이 맥북 내부 통합 칩셋 안에서 완전히 텍스트로 녹아내려 자율 분석으로 직접 인계됨. 프라이버시가 강하게 보존되는 로컬 음성 비서 파이프라인의 완성입니다.
 
 ---
 
-## 8.6 TTS (음성 합성) 연동
-
-로컬 TTS는 MLX-Audio를 통해 가능합니다:
-
-```bash
-# MLX-Audio 설치
-pip install mlx-audio
-
-# Python으로 TTS 실행
-python -c "
-from mlx_audio.tts import generate
-audio = generate(
-    text='안녕하세요, 로컬 AI 음성 비서입니다.',
-    voice='default'
-)
-audio.save('response.wav')
-"
-```
-
-Hermes Agent의 TTS 설정:
-
-```bash
-hermes config set tts.enabled true
-hermes config set tts.provider local
-```
-
----
-
-## 8.7 전체 시스템 아키텍처
+## 8.6 전체 아키텍처 토폴로지
 
 ```
                     ┌─────────────────────────┐
                     │     Telegram / Web UI     │
-                    │       (사용자 인터페이스)      │
+                    │      (사용자 상호작용)      │
                     └──────────┬──────────────┘
                                │
                     ┌──────────▼──────────────┐
                     │     Hermes Agent (해나)    │
-                    │    ┌─────────────────┐   │
-                    │    │   Router (라우터)  │   │
-                    │    └────────┬────────┘   │
-                    └─────────────┼────────────┘
-                                 │
-        ┌────────────────────┬────┴────┬───────────────────┐
-        ▼                    ▼         ▼                   ▼
-┌──────────────┐   ┌──────────────┐ ┌────────┐  ┌──────────────┐
-│  DeepSeek    │   │  로컬 Qwen   │ │ Mimo   │  │   로컬 STT   │
-│  V4 Flash    │   │  (Jan.ai)    │ │ 2.5    │  │ (faster-     │
-│  (클라우드)   │   │  localhost   │ │ (이미지)│  │  whisper)    │
-│  $0.14/M     │   │  :1337/v1    │ │ $0.14/M│  │   무료       │
-└──────────────┘   └──────────────┘ └────────┘  └──────────────┘
+                    │   - 자율 오케스트레이션 -  │
+                    └──────────┬──────────────┘
+                               │ (작업 분류 라우팅)
+        ┌──────────────────────┼──────────────────────┐
+        ▼ (보안 기밀/무검열)    ▼ (일상/고속)            ▼ (이미지 비전)
+┌──────────────┐       ┌──────────────┐       ┌──────────────┐
+│  로컬 Qwen   │       │  DeepSeek    │       │  Mimo 2.5    │
+│  APEX GGUF   │       │  V4 Flash    │       │  (클라우드)   │
+│ (온디바이스)  │       │  (클라우드)   │       │              │
+│  localhost   │       │              │       │              │
+└──────┬───────┘       └──────────────┘       └──────────────┘
+       │
+┌──────▼───────┐
+│ faster-      │
+│ whisper      │
+│ (로컬 STT)    │
+└──────────────┘
 ```
 
----
+온디바이스 AI 인프라는 이와 같이 각 도구들의 명확한 포지셔닝과 경계선 안에서 구축될 때 최대의 보안성과 최저의 비용이라는 두 토끼를 완벽하게 포착해 냅니다.
 
-## 8.8 이 장 요약
-
-| 항목 | 내용 |
-|:----|:-----|
-| **로컬 API 서버** | Jan.ai :1337, LM Studio :1234 |
-| **config.yaml** | provider + model 설정으로 클라우드/로컬 전환 |
-| **하이브리드 전략** | 일상=클라우드, 민감=로컬, 이미지=Mimo |
-| **STT** | faster-whisper (로컬/무료) 또는 Groq (클라우드/무료) |
-| **TTS** | MLX-Audio (로컬/무료) |
-| **전체 구조** | Hermes Agent가 라우터 역할, 상황별 모델 자동 선택 |
-
----
-
-**9장(마지막 장)에서는 이 모든 환경을 실제로 운영하는 저자의 하루를 소개합니다.**
+다음 9장에서는 이 시스템을 24시간 가동하여 다양한 영역의 복합적 업무를 일 단위로 격파해 나가는 실제 운영 사례와 워크플로우를 살펴보겠습니다.

@@ -1,185 +1,98 @@
-# 📦 Chapter 4: Git 기반 협업 워크플로우 — 두 AI 에이전트가 팀으로 일하는 법
+# Chapter 4: Git 기반 협업 워크플로우 — 서로 다른 AI 에이전트들의 팀워크 설계
 
 **저자**: Ted Chang (임창식)  
 **출판/기획**: META AI LABS  
 
 ---
 
-## 4.1 왜 Git인가?
+## 4.1 상호 커뮤니케이션을 위한 저장소 중심 아키텍처
 
-AI 에이전트 하나만으로도 강력하지만, **두 개 이상의 에이전트가 협업**하면 시너지는 기하급수적으로 늘어납니다.
+로컬에 흩어진 경량형 에이전트들(Hermes Agent "해나", AntiGravity "AG", MiMo "미모")이 서로 직접 데이터를 교환하거나 제어 명령을 내릴 수 있는 통합 네트워크는 부재합니다. 각 에이전트의 런타임 환경과 시스템 구조가 서로 상이하기 때문입니다.
 
-하지만 문제가 있습니다. 서로 다른 AI 에이전트(Hermes, AntiGravity, Claude Code 등)는 서로 직접 대화할 수 없습니다. 각자 다른 시스템 위에서 돌아가기 때문이죠.
-
-**해결책이 바로 Git 저장소를 통한 파일 공유입니다.**
+이 통신 단절을 극복하기 위해 **Git 저장소를 공유 매개체(Shared Board)**로 활용하는 워크플로우를 도입합니다. 파일의 변경 점을 감지하고 커밋 이력을 교환하며 에이전트 간의 정교한 앙상블을 연출하는 모델입니다.
 
 ```
-해나(Hermes)  → to-ag.md 작성 → Git Push 
-                                    ↓
-                           GitHub 저장소
-                                    ↓
-AG(AntiGravity) → to-ag.md 읽기 → Git Pull
-                                    ↓
-                       AG가 to-hena.md 작성 → Git Push
-                                    ↓
-                           GitHub 저장소
-                                    ↓
-해나 → to-hena.md 읽기 → Git Pull (반복)
+[해나 (DeepSeek Flash)] ──> to-ag.md 작성 및 커밋 ──> [GitHub 저장소]
+                                                             │ (Pull)
+                                                             v
+[미모 (MiMo Base)] <── to-hena.md 작성 및 커밋 <── [AG (Gemini Flash Low)]
 ```
 
 ---
 
-## 4.2 저장소 구조
+## 4.2 협업 저장소의 파일 디렉토리 설계
 
 ```
 hermes-ag-shared/
-├── to-ag.md          # 해나 → AG 메시지 (해나가 쓰고 AG가 읽음)
-├── to-hena.md        # AG → 해나 메시지 (AG가 쓰고 해나가 읽음)
-├── drafts/           # 공동 작업 문서 (챕터별)
+├── to-ag.md            # 해나가 작성하고 AG가 분석하는 제어 채널
+├── to-hena.md          # AG가 응답하고 해나가 수신하는 피드백 채널
+├── drafts/             # 공동 챕터 집필 및 문서 작업 공간
 │   ├── chapter1.md
 │   ├── chapter2.md
 │   └── chapter3.md
-├── scripts/          # 공유 스크립트
-│   └── api_tracker.py
-└── templates/        # 템플릿 및 이미지
+├── scripts/            # 가속 및 수집을 위한 유틸리티 스크립트
+│   └── insane_extract  # 램 0% 점유의 Insane Search CLI 실행 스크립트
+└── templates/          # 공용 디자인 리소스 및 가이드북
     ├── clinerules.template
-    ├── ai_agent_guide_cover_v4.png
-    └── local_ai_guide_cover.png
+    └── open_design_guidelines.md
 ```
 
-**핵심 규칙:**
-- `to-ag.md`와 `to-hena.md`는 **덮어쓰기** (누적 금지, 항상 최신 메시지만)
-- `drafts/`는 **추가만** (작업 내역 보존)
-- 모든 파일은 **자동 Push** 설정 권장
+### 상호 충돌 방지를 위한 접근 통제
+- **소유권 구분**: `to-ag.md`는 오직 해나만 쓰기(Write) 권한을 가지며, `to-hena.md`는 AG 전용 송신 채널로 작동해 동시 수정으로 인한 Git 충돌(Merge Conflict)을 원천 차단합니다.
+- **On-Demand 메시징**: 메신저 파일들은 이전 대화 내역을 계속 덧붙여 무겁게 만들지 않고, 항상 한 번 처리할 '최신 명령 및 파라미터'만 기입한 뒤 작업을 마치면 덮어씁니다.
+- **임시 저장 공간 활용**: 장문의 문서 초안이나 코드베이스 뭉치는 `drafts/` 폴더에 별도 파일로 분리 배치하여 대화 채널 파일의 크기를 늘 가볍게 유지합니다.
 
 ---
 
-## 4.3 설정 방법
+## 4.3 오픈 디자인(Open Design) 프레임워크와 미모의 시너지
 
-### Hermes Agent (해나) 설정
+텍스트 지능에만 치중된 초경량 가성비 에이전트들이 웹 레이아웃이나 UI 제안서를 짜면, 대개 투박하거나 촌스러운 'AI 슬롭(Slop) 디자인'이 나오기 마련입니다. 그렇다고 해서 고성능 그래픽 능력을 지닌 비싼 멀티모달 모델을 쓰면 비용이 감당하기 힘들 정도로 치솟습니다.
 
-```yaml
-# ~/.hermes/config.yaml
-git:
-  auto_commit: true
-  auto_push: true
-  shared_repo: https://github.com/TedChang-Lim/hermes-ag-shared.git
+이 문제를 해결하고자 가성비 삼총사에게 **오픈 디자인(Open Design) MCP 프레임워크**를 장착합니다.
 
-# Git 사용자 정보
-# git config --global user.name "Haena"
-# git config --global user.email "haena@example.com"
+### 0원 디자인 시스템 장착법
+```bash
+# 로컬에 오픈 디자인 가이드를 클론하고 연동
+git clone https://github.com/nexu-io/open-design.git
+./open-design/bin/od mcp install hermes
 ```
 
-### GitHub 인증 설정
+이를 통해 해나, AG, 미모는 Stripe, Linear, Vercel 등 세계 최고 수준의 테크 기업들이 다년간 축적한 웹 UI 디자인 규칙과 스타일 가이드(CSS 변수명, 레이아웃 공식, 다크-골드 앤톤 매너)를 완벽히 숙지하게 됩니다.
+
+실제로 이 공유 가이드를 참조한 가장 가볍고 저렴한 모델인 **MiMo Base** 에이전트는, 마스터가 요청한 한국AI융합교육원(KACEC) 공식 웹 제안서(`KACEC_proposal.html`)를 제작할 때 거대 모델 부럽지 않은 프리미엄 골드 포인트의 고급 다크 모드 레이아웃을 단번에 뽑아내는 놀라운 역량을 발휘했습니다. 
+
+비싼 단일 초지능 모델 대신 **경량 뇌와 오픈 디자인 가이드라인의 조화로운 협업**이 거둔 결정적 승리입니다.
+
+---
+
+## 4.4 공유 스크립트 관리와 Insane Search의 통합
+
+에이전트들이 협업 과정에서 외부 정보를 가져와 검증해야 할 때는 공유 폴더 내의 `scripts/` 디렉토리를 통합니다.
+
+메모리 자원을 실시간으로 아끼기 위해, 24시간 도는 봇 대신 필요할 때만 가동해 데이터를 낚아채고 소멸하는 **Insane Search CLI** 래퍼를 셋업합니다. 
 
 ```bash
-# Personal Access Token 발급 (GitHub → Settings → Developer settings → Personal access tokens)
-export GIT_TOKEN="github_pat_xxxxx"
-
-# 또는 SSH 키 방식
-ssh-keygen -t ed25519 -C "haena@example.com"
-cat ~/.ssh/id_ed25519.pub  # → GitHub SSH Keys에 등록
+# scripts/insane_extract 내용 예시
+#!/bin/bash
+# 램 대기 소모 0%의 크롤링 유틸리티
+python -m insane_search.extract "$1" --output-format markdown
 ```
+
+해나가 이 로컬 래퍼 스크립트를 빌드하여 저장소에 올려두면, AG와 미모는 본인들의 컨텍스트 환경에서 이 실행 파일을 직접 호출(`chmod +x scripts/insane_extract`)해 즉각적인 WAF 우회 웹 크롤링 작업을 무료로 수행할 수 있게 됩니다.
 
 ---
 
-## 4.4 워크플로우 예시: 실제 협업 사례
+## 4.5 24시간 백그라운드 싱크 및 네이티브 알림
 
-이 가이드북이 실제로 만들어진 과정을 보여드리겠습니다.
-
-### Step 1: 기획 단계
-
-```
-AG → to-hena.md:
-"초가성비 AI 에이전트 구축 가이드 기획해줘"
-
-해나 → to-ag.md:
-"기획안 작성 완료. 타깃 1인 기업가→스타트업, Lite $9.90/Pro $24.90"
-```
-
-### Step 2: 검증 및 수정
-
-```
-AG → to-hena.md:
-"스크립트랑 커버 이미지 만들었어. 저장소에 업로드함"
-
-해나 → to-ag.md (검증 결과):
-"⚠️ api_tracker.py 가격 오류 발견!
-- V4 Pro 가격이 Flash 가격으로 잘못 입력됨
-- 커버 이미지 저자명이 'Alex Rivera'로 되어 있음
-→ 내가 수정해서 다시 올림"
-```
-
-### Step 3: 브랜딩 확정
-
-```
-AG → to-hena.md:
-"알겠어. 브랜드는 META AI LABS로 통일, 저자명은 Ted Chang (임창식)"
-
-해나 → to-ag.md:
-"확인. 커버 v4, 1장 본문, 2장까지 완료"
-```
-
-이 모든 과정이 `to-ag.md`와 `to-hena.md`에 생생하게 기록되어 있습니다. 이 대화록 자체가 이 가이드의 **부록**이자, 별도 상품으로도 충분한 가치가 있습니다.
-
----
-
-## 4.5 고급 설정
-
-### 여러 에이전트 확장
-
-3개 이상의 에이전트가 협업해야 한다면:
-
-```yaml
-# 파일 구조 예시 (3개 에이전트)
-hermes-ag-shared/
-├── to-ag.md          # 해나 → AG
-├── to-hena.md        # AG → 해나
-├── to-claude.md      # 해나 → Claude Code
-├── from-claude.md    # Claude Code → 해나
-└── shared-board.md   # 전체 공지 (모두 읽기 전용)
-```
-
-### 크론 자동 알림
-
-일일 Git 상태를 자동으로 확인:
-
-```yaml
-# cron.yaml
-jobs:
-  - name: check-shared
-    schedule: "*/30 * * * *"  # 30분마다
-    command: "GitHub 저장소에 새로운 메시지 있는지 확인하고 있으면 알려줘"
-### macOS 자동 동기화 및 알림 스크립트
-
-Pro 패키지에서 제공하는 `scripts/sync.sh`를 사용하면, 백그라운드에서 주기적으로 깃허브 변경 사항을 가져오고(pull), 상대 에이전트로부터 새 메시지가 왔을 때 macOS 시스템 알림창으로 띄워줍니다.
+에이전트 간의 실시간 작업 상태를 동기화하고 마스터에게 작업 진척도를 알리기 위해, 백그라운드 동기화 스크립트(`scripts/sync.sh`)를 macOS 크론 시스템에 30분 주기로 등록합니다.
 
 ```bash
 # scripts/sync.sh
-# 30분마다 크론(Cron)이나 백그라운드로 실행하여 새 메시지를 자동 감지합니다.
+git pull origin main
+# 이전 해시와 비교해 to-ag.md가 갱신되었다면 시스템에 네이티브 알림 전송
+osascript -e 'display notification "해나로부터 새 작업이 도착했습니다" with title "AI Team Sync"'
 ```
 
-이 스크립트는 파일의 MD5 해시를 비교하여 `to-ag.md`가 수정되었을 때만 애플스크립트(`osascript`)를 통해 네이티브 알림을 전송하므로, 작업 흐름이 끊기지 않고 원활히 유지됩니다.
+이 백그라운드 동기화 체계는 사람의 수동 개입을 배제한 채, 24시간 동안 여러 대의 에이전트들이 Git 커밋을 주고받으며 자발적으로 책 초안을 검증하고, 오타를 잡고, 디자인 뼈대를 조립하도록 만들어 줍니다.
 
-### 충돌 방지 규칙
-
-
-여러 에이전트가 동시에 같은 파일을 수정하지 않도록:
-
-| 규칙 | 설명 |
-|------|------|
-| **하나의 파일은 한 에이전트만 작성** | to-ag.md = 해나 전용, to-hena.md = AG 전용 |
-| **덮어쓰기 전에 항상 읽기** | Push 전에 상대방 새 메시지 없는지 확인 |
-| **대용량 파일은 drafts/에 분리** | to-ag.md는 가볍게 유지 |
-
----
-
-## 4.6 이것만 기억하세요
-
-1. **Git = AI 에이전트의 공용 메신저**
-2. **to-ag.md / to-hena.md = 쪽지 시스템** (읽으면 덮어씀)
-3. **drafts/ = 공동 작업 문서** (누적 저장)
-4. **Auto Push = 24시간 협업의 핵심**
-5. **에이전트 간 검증 = 품질 보장** (한쪽이 실수해도 다른 쪽이 발견)
-
-이 워크플로우는 두 에이전트뿐 아니라 셋, 넷으로도 확장 가능합니다. **5장에서는 이 모든 환경을 한 달간 운영한 실제 사용 후기와 비용 리포트를 공개합니다.**
+**Chapter 5에서는 이 초가성비 AI 팀을 실제 한 달간 풀가동하여 산출된 비용 분석표와 실전 후기를 공개합니다.**

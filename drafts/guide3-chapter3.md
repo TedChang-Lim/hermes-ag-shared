@@ -1,231 +1,142 @@
 # 📦 ③ 맥북 로컬 AI 완전 정복 가이드
 
-## 3장: Jan.ai로 업그레이드 — 본격적인 모델 관리
+## 3장: Jan.ai로 업그레이드 — 본격적인 모델 관리와 파일 통제
 
 **저자**: Ted Chang (임창식)  
 **출판/기획**: META AI LABS  
 
 ---
 
-## 3.1 왜 LM Studio에서 Jan.ai로 옮겨야 할까?
+## 3.1 왜 Jan.ai로 이전하는가?
 
-LM Studio는 처음 시작하기에는 최고의 도구입니다. 설치만 하면 바로 쓸 수 있으니까요. 하지만 몇 주 사용하다 보면 이런 불편함이 생깁니다:
+LM Studio가 샌드박스의 문을 여는 열쇠라면, 오픈소스 기반의 Jan.ai는 내부 아키텍처를 자유롭게 주무를 수 있는 제어 시스템입니다. 로컬 AI를 일회성 장난감이 아닌 비즈니스 생산성의 축으로 삼으려면, 리소스를 투명하게 격리하고 관리할 수 있어야 합니다.
 
-| 비교 항목 | LM Studio | Jan.ai |
+| 제어 항목 | LM Studio | Jan.ai |
 |:---------|:---------|:-------|
-| 모델 폴더 구조 | 자동 생성, 커스터마이징 어려움 | **직접 제어 가능** |
-| 설정 파일 | UI에서만 설정 가능 | **model.yml로 세밀 튜닝** |
-| 컨텍스트 길이 | 기본값 고정 | **ctx_size 자유 설정** |
-| 모델 이전 | 다른 폴더로 복사 어려움 | **GGUF 파일만 있으면 OK** |
-| 동시 실행 | 1개 모델만 | 여러 모델 전환 쉬움 |
-| 커뮤니티 | 상대적으로 폐쇄적 | **오픈소스, 확장성 높음** |
+| **모델 저장소 구조** | 앱 전용 경로 강제, 커스터마이징 차단 | **원하는 로컬 경로 지정 및 수동 폴더 관리** |
+| **세부 환경 매니페스트** | GUI 슬라이더 기반의 불투명한 설정 | **`model.yml` 코드를 통한 세밀한 선언** |
+| **컨텍스트 길이 제어** | 변경 시 추론 병목 감지 모호 | **`ctx_len` 값의 하드웨어 맞춤 튜닝** |
+| **수동 임포트 호환성** | 로컬 모델 복제 및 인식 오류 빈번 | **GGUF 파일과 yml 선언만 일치하면 100% 인식** |
+| **확장성** | GUI 런타임에 종속 | **오픈소스 엔진 기반, 향후 고성능 서빙 프레임워크 확장 용이** |
 
-> **이 가이드의 저자도 LM Studio로 시작해 지금은 Jan.ai를 메인으로 사용 중입니다.**
-> LM Studio는 모델 다운로드 용도로만 남겨두고, 실제 운영은 Jan.ai로 하고 있습니다.
+디렉토리 구조와 YAML 파일을 직접 제어함으로써, 우리는 민감한 업무 기밀이나 개인 IP를 다룰 모델이 외부 트래픽을 단 한 바이트도 발생시키지 않는다는 사실을 파일 시스템 수준에서 물리적으로 추적하고 검증할 수 있습니다.
 
 ---
 
-## 3.2 Jan.ai 설치
+## 3.2 Jan.ai 클라이언트 전개
 
-### 다운로드 및 설치
-
-```bash
-1. 공식 사이트 방문: https://jan.ai
-2. macOS 버전 다운로드 (Apple Silicon)
-3. Applications 폴더에 설치
-4. 실행 후 모델 폴더 자동 생성 확인
-```
-
-### 첫 실행 시 확인사항
-
-Jan.ai를 처음 실행하면 좌측 하단에 **"No model selected"** 메시지가 표시됩니다. 아직 모델을 설치하지 않았기 때문입니다. 정상입니다.
+### 설치 단계
+1. **공식 릴리즈 다운로드**: [https://jan.ai](https://jan.ai)에서 Apple Silicon 빌드를 확인하고 내려받습니다.
+2. **패키지 설치**: 다운로드된 dmg 아카이브를 열어 앱 목록으로 이관합니다.
+3. **런타임 디렉토리 생성**: 최초 실행 시 시스템 내부에 가상 가속 엔진이 빌드되며 기본 작업 디렉토리가 생성됩니다.
 
 ---
 
-## 3.3 Jan.ai 모델 폴더 구조 이해하기
+## 3.3 로컬 모델 디렉토리 토폴로지
 
-가장 중요한 부분입니다. Jan.ai의 모델 폴더 구조는 다음과 같습니다:
+Jan.ai의 핵심 가치는 명확한 디렉토리 구조에 있습니다. 맥OS 환경의 경우 아래의 시스템 경로 아래 모든 모델이 엄격히 격리되어 배치됩니다.
 
 ```bash
 ~/Library/Application Support/Jan/data/llamacpp/models/
-├── Qwen-3.5-3B/                    # 모델 폴더 (직접 생성)
-│   ├── qwen-3.5-3b-q8_0.gguf      # 실제 모델 파일 (1~30GB)
-│   └── model.yml                   # 설정 파일 (직접 작성)
-│
-├── Gemma-4-4B/
-│   ├── gemma-4-4b-q4_k_m.gguf
-│   └── model.yml
+├── Qwen-3.5-3B/                    # 사용자가 수동 생성하는 개별 모델 컨테이너
+│   ├── qwen-3.5-3b-q8_0.gguf      # 다운로드한 이진(Binary) 가중치 파일
+│   └── model.yml                   # 가중치를 해석할 환경 매니페스트 파일
 │
 └── Qwen3.6-35B-A3B-I-Compact/
     ├── qwen3.6-35b-i-compact.gguf
     └── model.yml
 ```
 
-**규칙은 간단합니다:**
-- 모델 하나당 폴더 하나
-- 폴더 안에 `model.gguf` (또는 아무 이름 .gguf) + `model.yml`
+**디렉토리 구성 규칙:**
+- 모델마다 독립된 하위 디렉토리를 구축합니다.
+- 디렉토리 내부는 단 하나의 이진 파일(`.gguf`)과 환경 설정 매니페스트(`model.yml`)로 최소 구성됩니다.
 
 ---
 
-## 3.4 model.yml 완벽 설정 가이드
+## 3.4 `model.yml` 명세서 작성
 
-`model.yml`이 Jan.ai의 핵심입니다. 이 파일 하나로 모델의 모든 설정이 결정됩니다.
+`model.yml` 파일은 가속 엔진이 로컬 가중치를 물리 칩셋에 올리는 방식을 설명하는 Blueprint입니다. 불필요한 설정 오버헤드를 지우고 최상의 효율을 얻기 위한 권장 명세를 공유합니다.
 
-### 기본 템플릿 (AG 제공)
+### 템플릿 명세 (통합 칩셋 최적화 버전)
 
 ```yaml
 # ~/Library/Application Support/Jan/data/llamacpp/models/<모델명>/model.yml
-id: qwen-3.5-3b          # 고유 식별자
-name: Qwen 3.5 3B        # Jan.ai에 표시될 이름
-engine: llamacpp          # 엔진 (고정)
+id: qwen-3.5-3b-local     # 호출에 사용될 고유 모델 식별자
+name: Qwen 3.5 3B (Local) # 인터페이스에 출력될 별칭
+engine: llamacpp          # 추론용 실행 런타임 엔진 지정
 
-# 주요 설정
-ctx_len: 4096             # 컨텍스트 길이 (모델 기본값 기준)
-temperature: 0.7          # 창의성 조절
-top_p: 0.9                # 샘플링 방식
-max_tokens: 2048          # 최대 응답 토큰 수
+# 추론 제어 파라미터
+ctx_len: 4096             # 컨텍스트 윈도우 크기 (메모리 제어의 핵심)
+temperature: 0.7          # 출력 자유도
+top_p: 0.9                # 샘플링 확률 임계치
+max_tokens: 2048          # 1회 최대 출력 토큰 제약
 
-# Apple Silicon GPU 가속 (중요!)
-n_gpu_layers: -1          # -1 = 모든 레이어를 GPU로 오프로드
+# Apple Silicon 하드웨어 가속 설정
+n_gpu_layers: -1          # -1 선언 시 모델의 모든 연산 레이어를 Metal GPU로 즉시 오프로드
 
-# 프롬프트 템플릿 (ChatML 방식, Qwen/Gemma 권장)
+# 프롬프트 구성 프로토콜 (ChatML 규격)
 prompt_template: "<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
 stop:
   - "<|im_end|>"
   - "<|im_start|>"
 ```
 
-### 파라미터 상세 설명
+### 세부 파라미터 제어
 
-| 파라미터 | 설명 | 추천값 |
-|:---------|:-----|:------|
-| `ctx_len` | 한 번에 기억할 수 있는 토큰 수 | Qwen 3.5: 4096, Qwen3.6: 32768, Gemma 4: 131072 |
-| `n_gpu_layers` | GPU에 올릴 레이어 수 | **-1 (전체)** — M Mac은 항상 이 값 |
-| `temperature` | 응답의 창의성 (낮을수록 보수적) | 0.5 ~ 0.9 |
-| `max_tokens` | 한 번에 생성할 최대 토큰 | 2048 ~ 8192 |
-
-### ctx_len 설정 팁
-
-| 모델 | 기본 ctx_len | 최대 ctx_len | 비고 |
-|:----|:-----------:|:-----------:|:-----|
-| Qwen 3.5 3B | 32,768 | 32,768 | 그대로 사용 |
-| Qwen 3.5 7B | 32,768 | 32,768 | 그대로 사용 |
-| Qwen3.6-35B | 32,768 | 131,072 (YaRN) | 기본값 권장 |
-| Gemma 4 4B | 131,072 | 262,144 | 너무 크면 느려짐 |
-
-> ⚠️ ctx_len을 너무 크게 설정하면 속도가 크게 느려집니다.
-> 기본값에서 시작해서 필요할 때만 늘리세요.
+- **`ctx_len` (컨텍스트 길이)**: 모델이 한 번에 기억하는 히스토리 범위입니다. 이를 무작정 늘리면 추론 시점의 메모리 할당량이 기하급수적으로 증가해 속도가 느려집니다. 작업 범위에 맞게 조율해야 합니다.
+- **`n_gpu_layers`**: Apple Silicon 맥북은 CPU와 GPU가 RAM을 공유하므로 무조건 `-1`로 설정하여 전체 모델을 GPU에 올리는 것이 빠릅니다.
 
 ---
 
-## 3.5 LM Studio → Jan.ai 모델 이전
+## 3.5 모델 마이그레이션 및 CLI 다운로드
 
-LM Studio에서 이미 다운로드한 모델을 Jan.ai로 옮기는 방법입니다.
+기존 LM Studio로 받아둔 가중치 파일을 Jan.ai 저장소로 복사하거나, Hugging Face CLI를 이용해 필요한 버전을 정확히 획득하는 실전 프로토콜입니다.
 
-### 방법 1: 파일 직접 복사 (가장 간단)
-
-```bash
-# 1. LM Studio 모델 폴더 찾기
-ls ~/.lmstudio/models/
-# 또는
-ls ~/Documents/LM\ Studio/models/
-
-# 2. 원하는 GGUF 파일 확인
-ls ~/.lmstudio/models/*.gguf
-
-# 3. Jan.ai 모델 폴더에 복사
-mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/MyModel
-cp ~/.lmstudio/models/모델파일.gguf \
-   ~/Library/Application\ Support/Jan/data/llamacpp/models/MyModel/
-
-# 4. model.yml 작성 (위 템플릿 참고)
-```
-
-### 방법 2: HuggingFace CLI로 직접 다운로드 (권장)
-
-HuggingFace Hub에서 모델을 다운로드하려면 CLI 도구가 필요합니다. Python 패키지나 Homebrew를 통해 쉽게 설치할 수 있습니다.
+### 방법 1: 로컬 파일 시스템 직접 연동 (즉각 이관)
+이미 다운로드한 파일이 존재한다면, 네트워크 대역폭을 낭비하지 않고 로컬 디렉토리 생성만으로 마이그레이션이 완료됩니다.
 
 ```bash
-# 1. HuggingFace CLI 설치 (방법 A 또는 B 중 하나 선택)
-# 방법 A: Python pip를 이용하는 가장 표준적인 방법 (권장)
-pip install -U "huggingface_hub[cli]"
-
-# 방법 B: Homebrew를 이용하는 방법 (hf 라는 이름의 공식 포뮬러로 설치)
-brew install hf
-
-# 2. 모델 폴더 생성
+# 1. 대상 디렉토리 생성
 mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
 
-# 3. 모델 다운로드 실행
+# 2. 기존 LM Studio 모델 저장 경로에서 이관 처리
+cp ~/Documents/LM\ Studio/models/qwen-3.5-3b-q8_0.gguf \
+   ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B/
+
+# 3. 해당 폴더 내부에 위 3.4 절의 model.yml 파일 생성
+```
+
+### 방법 2: Hugging Face CLI를 활용한 다이렉트 반입 (권장)
+터미널을 이용해 허깅페이스 서버로부터 손실 없이 고속으로 모델을 받는 가장 정밀한 프로세스입니다.
+
+```bash
+# 1. 허깅페이스 CLI 도구 설치 (Python pip 또는 홈브루 중 하나로 전개)
+# Python 패키지 환경
+pip install -U "huggingface_hub[cli]"
+
+# Homebrew 환경
+brew install hf
+
+# 2. 타겟 모델용 로컬 디렉토리 선언
+mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
+
+# 3. CLI 명령어로 타겟 모델의 특정 파일만 핀포인트 다운로드
 huggingface-cli download \
   Qwen/Qwen-3.5-3B-GGUF \
   qwen-3.5-3b-q8_0.gguf \
   --local-dir ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
-
-# 4. model.yml 작성 (나노 에디터 또는 VS Code로 편집)
-nano ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B/model.yml
 ```
 
-
-> **다운로드 시간:** 17GB 모델 기준, 500Mbps 인터넷에서 약 5~6분 소요됩니다.
-
 ---
 
-## 3.6 모델 적용 확인
+## 3.6 가속 런타임 검증 및 예외 처리
 
-모델 폴더에 파일을 추가한 후:
+모델 파일 전개와 `model.yml` 작성이 끝난 후, Jan.ai를 재기동하면 좌측 대화 대상 메뉴에 해당 모델이 활성화됩니다. "반갑습니다" 등의 기본 발화를 입력하여 정상 출론 속도(50+ tok/s)가 기록되는지 관찰합니다.
 
-```bash
-1. Jan.ai 앱 완전 종료 (메뉴바 아이콘도 Quit)
-2. Jan.ai 재실행
-3. 좌측 모델 목록에 새 모델이 나타나는지 확인
-4. 모델 선택 후 채팅창에서 "안녕하세요" 입력
-5. 우측 상단 속도 확인: 50+ tok/s 정상
-```
+### 오작동 대처법
 
-### 속도가 느릴 때 확인사항
+- **모델 리스트 미출력**: `model.yml` 코드의 인덴트(들여쓰기) 오류가 주로 원인입니다. YAML 파서 에러를 확인하고 오타를 수정합니다.
+- **초당 토큰 속도 저하**: `n_gpu_layers`가 `-1`이 아닌 값으로 덮어써졌거나, 애플 실리콘 전용 빌드가 아닌 x86 CPU 에뮬레이션 버전으로 Jan.ai를 구동하고 있는지 확인합니다.
+- **지연 시간 발생**: `ctx_len` 값이 과도하게 크지 않은지 검토하여 로컬 통합 RAM 가용 범위를 맞춥니다.
 
-| 문제 | 원인 | 해결 방법 |
-|:----|:-----|:---------|
-| 30 tok/s 미만 | GPU 가속 꺼짐 | model.yml에서 `n_gpu_layers: -1` 확인 |
-| 10 tok/s 미만 | Intel 버전 설치 | Jan.ai 공식 사이트에서 Apple Silicon 버전 재설치 |
-| 응답이 늦게 시작됨 | ctx_len 너무 큼 | ctx_len을 기본값으로 줄이기 |
-| 모델이 안 보임 | model.yml 오류 | id, engine 필드 확인 |
-
----
-
-## 3.7 추천 초기 설정 (이 가이드 저자의 실제 설정)
-
-```yaml
-# Qwen3.6-35B-A3B APEX I-Compact (17GB)
-id: qwen-3.6-35b
-name: Qwen 3.6 35B APEX I-Compact
-engine: llamacpp
-ctx_len: 32768
-temperature: 0.7
-top_p: 0.9
-max_tokens: 4096
-n_gpu_layers: -1
-prompt_template: "<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
-stop:
-  - "<|im_end|>"
-  - "<|im_start|>"
-```
-
-이 설정으로 M3 Max 48GB에서 **55~60 tok/s**의 속도를 유지합니다.
-
----
-
-## 3.8 이 장 요약
-
-| 단계 | 내용 |
-|:----|:------|
-| **설치** | jan.ai에서 다운로드, Apple Silicon 버전 필수 |
-| **폴더 구조** | `~/Library/Application Support/Jan/data/llamacpp/models/<모델명>/` |
-| **설정 파일** | `model.yml` 직접 작성 (ctx_len, n_gpu_layers 핵심) |
-| **모델 이전** | LM Studio 폴더 → Jan.ai 폴더로 GGUF 복사 |
-| **속도 확인** | 50+ tok/s 정상, `n_gpu_layers: -1` 반드시 확인 |
-
----
-
-**4장에서는 Apple Silicon의 성능을 100% 활용하는 MLX 프레임워크 설정을 알아보겠습니다.**
+파일 제어 권한을 획득했다면 이제 하드웨어 최적화의 극단으로 나아갈 준비가 되었습니다. 다음 4장에서는 GGUF의 상위 가속 대안으로, 애플이 직접 튜닝한 MLX 프레임워크 기반의 네이티브 추론 기법을 분석합니다.
