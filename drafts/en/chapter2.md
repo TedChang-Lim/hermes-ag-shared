@@ -1,124 +1,103 @@
-# 📦 Chapter 2: Caching Strategy — Using 50 Million Tokens a Day for the Price of a Coffee
+# Chapter 2: Caching Strategy — How to Control 50 Million Tokens a Day for the Price of a Coffee
 
-**Author**: Ted Chang (임창식)  
-**Publisher / Planning**: META AI LABS  
-
----
-
-## 2.1 What Is Context Caching?
-
-Every time you use an AI API, if you have to send the entire conversation from scratch each time, it gets expensive. In most tasks, we end up repeatedly sending the same system prompts, the same documents, and the same config files.
-
-**Context Caching** is a technology that stores this frequently used content on the server and, on the next request, processes it at a **discounted price** — essentially saying, "Oh, I've already seen this before."
-
-To put it in an analogy:
-> It's like buying a recipe once, keeping it in the fridge, and only paying for the ingredients each time thereafter.
+**Author**: Ted Chang (임창식) | **Publisher/Planning**: META AI LABS
 
 ---
 
-## 2.2 DeepSeek's Caching Architecture
+## 2.1 Context Caching: Turning Repetitive Resources Into Assets
 
-The DeepSeek V4 series supports **automatic context caching**. No additional configuration is required on the user's part — caching is automatically applied whenever the same prompt prefix repeats.
+When you deploy AI agents in the real world, the same prompt instructions, codebase information, and configuration files are sent to the server repeatedly with every call. Under a typical API calling model, you are billed for this duplicate data in full — resulting in bills that are impossible to sustain.
 
-| Item | Description |
-|------|------|
-| **Application Method** | Automatic (no additional user setup required) |
-| **Discount Rate** | Up to **90% off** input tokens |
-| **Caching Unit** | Automatically applied when prompt prefixes match |
-| **Session Persistence** | Effectiveness maximized when maintaining the same context within a single conversation session |
+**Context Caching** is a technique that stores frequently referenced data in server memory and retrieves it directly from the cache when subsequent requests come in, rather than re-transmitting it. It works on the same principle as reaching into your refrigerator for prepped staple ingredients instead of buying everything fresh for every meal — cutting both preparation time and cost. DeepSeek offers an **aggressive discount of up to 90%** on these cache-hit segments.
 
 ---
 
-## 2.3 The Caching Effect: Real Numbers
+## 2.2 DeepSeek's Automatic Caching Mechanism
 
-Let's assume an agent sends 10 million prompt tokens and receives 2 million output tokens every day.
+The DeepSeek V4 lineup supports **automatic context caching** that operates without any dedicated API parameters or architectural redesign. When the data in the prefix portion of the prompt remains identical, the system applies caching on its own.
 
-**Without Caching (Cache Hit Rate 0%):**
+| Item | Details |
+|------|---------|
+| **How it works** | Automatic system detection (no user configuration required) |
+| **Discount benefit** | **90% discount** on input tokens in cache-hit regions |
+| **Detection criteria** | String/token match starting from the beginning of the prompt |
+| **Optimal environment** | Maximized when maintaining consistent context within a single conversation thread |
 
-| Model | Daily Cost | Monthly Cost |
-|------|---------|---------|
+---
+
+## 2.3 Cost Simulation: The Power of Caching
+
+We'll run a comparison against a hypothetical project environment where an agent transmits an average of 10 million prompt tokens per day and receives 2 million tokens of code in response.
+
+**Without Caching (0% hit rate):**
+
+| Model | Daily Cost | Monthly Equivalent |
+|------|:---------:|:------------------:|
 | DeepSeek V4 Pro | $14.79 | $443.70 |
 | DeepSeek V4 Flash | $4.36 | $130.80 |
-| GPT-4o | $587.50 | $17,625.00 |
+| GPT-4o (large model) | $587.50 | $17,625.00 |
 
-**With 85% Cache Hit Rate (based on the Master's actual environment):**
+**With 85% Cache Hit Rate (real-world development environment):**
 
-| Model | Daily Cost | Monthly Cost |
-|------|---------|---------|
+| Model | Daily Cost | Monthly Equivalent |
+|------|:---------:|:------------------:|
 | DeepSeek V4 Pro | $2.76 | $82.87 |
-| DeepSeek V4 Flash | $0.89 | **$26.67** |
-| GPT-4o | $58.75 | $1,762.50 |
+| **DeepSeek V4 Flash** | **$0.89** | **$26.67** |
+| GPT-4o (large model) | $58.75 | $1,762.50 |
 
-> **DeepSeek V4 Flash + 85% Caching = $26.67/month**
-> 
-> The same workload with GPT-4o = **$1,762.50/month**
-
-The difference is **66x**.
+With an 85% cache hit rate applied to DeepSeek V4 Flash, the monthly cost drops to $26.67. By contrast, running the same workload on a typical large model without caching rings up roughly $1,762 per month. This is not a performance difference — it is a **cost gap of over 66x driven purely by differences in operational architecture**.
 
 ---
 
-## 2.4 5 Secrets to Boosting Your Cache Hit Rate
+## 2.4 Five Principles for Maximizing Caching Efficiency
 
-### ① Keep Your System Prompts Fixed
+### ① Lock Down System Instructions (System Prompt)
+The behavioral rules and guidelines you assign to your agent must always remain in a fixed format and text. If the instructions change from call to call, the cache breaks and computation starts over from scratch.
 
-Keep the system prompt (behavioral instructions) you give your agent the same every time. Changing it every time resets the caching.
+### ② Lock Down Common Reference Files
+Shared assets that must be read every time — project rule files (`.clinerules`), project overview (`README.md`), environment configuration files (`config.yaml`) — should be placed at the top of the prompt to accumulate the benefits of caching.
 
-```yaml
-# Bad example: different prompts every time
-- "You are a helpful AI assistant"
-- "You are a coding helper"
+### ③ Careful Management of Conversation Threads
+Starting a completely new session severs the server-side caching connection. It is therefore more economical to keep related tasks running uninterrupted within a single session for as long as possible.
 
-# Good example: always the same prompt
-- "You are a helpful AI coding assistant. Follow these rules: ..."
-```
+### ④ Block Unnecessary Duplicate File Loads
+The agent's rules (`.clinerules`) must explicitly instruct it not to read the same code snippets or large files repeatedly. Content that has already been loaded into memory should be digested through the context retention capability wherever possible.
 
-### ② Keep Frequently Referenced Documents Fixed
-
-Attaching the same files (.clinerules, config.yaml, README.md) every time accumulates caching benefits.
-
-### ③ Keep Conversation Sessions Long
-
-Caching is reset every time you start a new session. So, working in the same session for as long as possible is advantageous.
-
-### ④ Stop Unnecessary Repeated File Reads
-
-While caching applies when an agent reads the same file multiple times, the first read is always treated as a Cache Miss. Instruct your agent in .clinerules to rely on memory for content it has already read once.
-
-### ⑤ Minimize Output Tokens Too
-
-Caching only applies to input (prompts). Output (completion) tokens receive no discount, so configure your agent not to output unnecessarily long explanations.
+### ⑤ Control Response Length
+The context caching discount applies exclusively to **input tokens**. There is no discount on the **output tokens** that the AI agent generates. You must therefore tighten the response style so that the agent does not re-output whole files or produce unnecessarily verbose explanations every time.
 
 ---
 
-## 2.5 Practical: .clinerules Caching Optimization Template
+## 2.5 The "Value Trio" Custom `.clinerules` Caching Template
 
-Using the `.clinerules.template` included in this guide's Pro package will maximize your caching:
+This is the optimal `.clinerules` template recommended in this guide. Applying these rules enables the agent to self-organize input data and control its own responses, preventing cost waste.
 
 ```yaml
-# 💸 Cost Optimization Guidelines
-## Optimize for Cache Hits:
-- Keep system prompts and instructions consistent
-- Do not arbitrarily modify system files
-- Read large files only once; rely on memory or caching
-## Minimize Token Output:
-- Focus on concise explanations; avoid long summaries
-- Replace specific lines instead of rewriting entire files
-## Session Re-initialization:
-- Start a new session when conversation history exceeds 50,000 tokens
+# 💸 Cost & Performance Optimization Rules
+## Cache Alignment:
+- Keep the system instructions and workspace rules identical.
+- Put common configuration and static reference documentation at the top of the context.
+- Avoid modifying system rule files during an active coding session.
+## Output Control:
+- Produce exact code diffs instead of rewriting the entire file.
+- Keep explanations concise, professional, and directly address the problem.
+## Resource & Session Management:
+- Utilize local on-demand CLI utilities (such as 'Insane Search CLI') to fetch external web contents dynamically, avoiding heavy backend server states.
+- Re-initialize the conversation session once the context reaches 50,000 tokens to balance caching hit and token decay.
 ```
 
 ---
 
-## 2.6 Summary: The Revolution Caching Brings
+## 2.6 Cost Gap by Model Across Cache Hit Rates
 
 | Cache Hit Rate | DeepSeek V4 Flash Monthly Cost | GPT-4o Monthly Cost |
-|:----------:|:------------------------:|:--------------:|
-| 0% | $130.80 | $17,625.00 |
+|:-------------:|:------------------------------:|:-------------------:|
+| 0% (no caching) | $130.80 | $17,625.00 |
 | 50% | $65.40 | $8,812.50 |
 | 70% | $39.24 | $5,287.50 |
 | **85%** | **$26.67** | **$1,762.50** |
 | 95% | $13.08 | $881.25 |
 
-By keeping your cache hit rate above 85%, you can run an AI agent 24/7 for **under $27/month**.
+When you defend a cache hit rate of 85% or higher, even an agent running coding and monitoring tasks around the clock keeps the monthly bill below the equivalent of roughly 30,000 KRW.
 
-**In Chapter 3, we'll walk through how to actually build this environment, step by step.**
+**Chapter 3 builds on this cost-control architecture to explore how to concretely set up a locally running 24-hour agent (Hermes Agent).**

@@ -1,198 +1,103 @@
 # 📦 ③ MacBook Local AI Mastery Guide
 
-## Chapter 9: A Day in the Life of the Master — 24/7 AI Assistant Real-World Operations
+## Chapter 9: Real-World Operations Guide — 24-Hour Local Agent Lifecycle
 
 **Author**: Ted Chang (임창식)  
 **Publisher/Planning**: META AI LABS  
 
 ---
 
-## 9.1 The Person Behind This Guide
+## 9.1 The Real Purpose of System Operation
 
-This guide is not merely a technical document. It is a real-world playbook documenting the environment built through hundreds of hours of trial and error by a **30-year veteran engineer, photographer, video producer, and AI researcher**.
+This book is not an abstract theory manual. It is a technical report written by the author — a 30-year veteran IT engineer, documentary filmmaker, photographer, and graduate-level AI researcher — to conduct a precise diagnosis of hundreds of dollars in cumulative monthly cloud subscription fees and to achieve both business-confidential data leak prevention and cost optimization.
 
-Currently, I am:
-- **Photographer** — 30 years, operating TedChang Studio
-- **Video Producer** — Winner, Best Director Award at the Firefly Film Festival
-- **AI Researcher** — Pursuing a Master's in AI·XR at Kyungbok University Graduate School
-- **AI Educator** — AI lectures at Wonju Learning Center, completed Gangwon Cultural Foundation AI video training
-- **Judge** — Jury member for Wonju Media Center Citizens' Film Contest
-- **Author** — 《Personal Visual Branding》 (2026)
+Here is the breadth of the business portfolio the author currently oversees:
 
-I operate two AI agents (Haena and AG) 24/7, handling all of this for just **$4.50/month**.
+- **TedChang Studio**: 30 years of commercial photography and private portfolio building
+- **Video Production**: Media production operations including directing award-winning works such as the Best Director Award at the Firefly Film Festival
+- **AI Academic Research**: AI·XR Master's degree research at Kyungbok University Graduate School
+- **AI Education**: AI specialist instructor at Wonju Lifelong Learning Center, AI-based media production coaching for the Gangwon Cultural Foundation
+- **Public Service**: Jury member for the Wonju Media Center Citizens' Film Contest
 
----
-
-## 9.2 A Day in the Life of the Master
-
-### 🌅 Morning (07:00 ~ 09:00)
-
-| Time | Task | Tool Used |
-|:---:|:----|:---------|
-| 07:00 | Request "Today's Tasks" report via Telegram | DeepSeek Flash → Telegram |
-| 07:10 | Check previous day's cron job results (GitHub Pages deployment status) | Hermes Cron |
-| 07:30 | Email summary and draft replies | DeepSeek Flash |
-| 08:00 | Final review of lecture materials | DeepSeek Pro |
-| 08:30 | Commute to Wonju Learning Center (morning class) | — |
-
-> **Morning routine core:** As soon as you wake up, just open Telegram and the AI assistant shows you a summary of the day's schedule.
-
-### ☀️ Late Morning (09:00 ~ 12:00)
-
-| Time | Task | Tool Used |
-|:---:|:----|:---------|
-| 09:00~11:00 | **'AI Basics for Absolute Beginners' Lecture** (Wonju Learning Center) | — |
-| 11:00~12:00 | Answer student questions and assist with exercises | DeepSeek Flash |
-
-### 🍜 Lunch (12:00 ~ 13:00)
-
-| Time | Task | Tool Used |
-|:---:|:----|:---------|
-| 12:00~12:30 | Lunch + check AI agent status | Telegram |
-| 12:30~13:00 | Verify GitHub Pages photo uploads | TedChang Studio auto-upload |
-
-### 🌤️ Afternoon (13:00 ~ 18:00)
-
-| Time | Task | Tool Used |
-|:---:|:----|:---------|
-| 13:00~15:00 | **Photo shooting and editing** (TedChang Studio) | Camera + Photoshop |
-| 15:00~16:00 | **Cooperative (META AI LABS)** document work | DeepSeek Pro |
-| 16:00~17:00 | **Writing this e-book!** | DeepSeek Pro + Haena + AG |
-| 17:00~18:00 | Wonju Media Center duties (jury work) | — |
-
-### 🌙 Evening (18:00 ~ 22:00)
-
-| Time | Task | Tool Used |
-|:---:|:----|:---------|
-| 18:00~19:00 | Dinner + review work with AG | Telegram → GitHub |
-| 19:00~20:00 | **Local AI testing** (Jan.ai, new models) | Qwen3.6-35B Local |
-| 20:00~21:00 | **Graduate research** (AI·XR simulation) | DeepSeek Pro |
-| 21:00~22:00 | **Writing this e-book (continued)** | Haena + AG collaboration |
-
-### 🌃 Night (22:00 ~ 02:00)
-
-| Time | Task | Tool Used |
-|:---:|:----|:---------|
-| 22:00~23:00 | **AI agent collaboration** (Haena ↔ AG) | GitHub shared repo |
-| 23:00~00:00 | Organize lecture materials and prepare for next day | DeepSeek Flash |
-| 00:00~01:00 | **Auto-generate cron job daily report** | Hermes Cron |
-| 01:00~02:00 | **Auto Git Push + Backup** | Hermes Automation |
-| 02:00 | Bedtime | 😴 |
+Supporting this vast business portfolio from behind the scenes are two agent partners — **Haena** and **AG (Advantage Guide)** — operating 24/7/365 at a cost structure of just **$4.50/month**, powered by a combination of MacBook local acceleration and hybrid server architecture.
 
 ---
 
-## 9.3 The Cost That Makes All This Possible
+## 9.2 Real-World Daily Lifecycle
 
-### Monthly AI Usage Fees (Actual, as of June 2026)
+### 🌅 Morning Routine (07:00 ~ 09:00)
 
-| Service | Use Case | Monthly Cost |
-|:------|:----|:-------:|
-| DeepSeek V4 Flash | Daily tasks, Telegram, cron jobs | **$2.50** |
-| DeepSeek V4 Pro | Complex reasoning, planning, research | **$1.50** |
-| Mimo 2.5 | Image analysis, writing | **$0.50** |
-| **Total** | | **$4.50/month** |
+- **07:00** | The moment I open my eyes, I request the overnight intelligence briefing via the mobile Telegram app. Agent Haena leverages a lightweight cloud model to generate an outline and pushes an urgent briefing to the Telegram channel.
+- **07:10** | I check the completion status and error logs of the previous day's scheduled cron job (GitHub Pages image deployment status check).
+- **07:30** | I read the screening summaries of the studio's official incoming emails, and standard reply templates are automatically rendered.
+- **08:00** | I perform a final verification of lecture materials for the day's university and Lifelong Learning Center classes using a reasoning engine such as DeepSeek Pro.
+- **08:30** | I commute to the Wonju Lifelong Learning Center AI hands-on classroom.
 
-### Comparison: What If Done with US AI Providers?
+### ☀️ Afternoon Focus (09:00 ~ 18:00)
 
-| Service | Use Case | Monthly Cost |
-|:------|:----|:-------:|
-| GPT-4o | Daily tasks + complex tasks | $500~800 |
-| Claude 3.5 Sonnet | Coding + document work | $300~500 |
-| Gemini Pro | Image analysis | $100~200 |
-| **Total** | | **$900~1,500/month** |
+- **09:00 ~ 12:00** | I lead the main lecture — "AI Practical Skills for Absolute Beginners" — for citizens at the Lifelong Learning Center.
+- **13:00 ~ 15:00** | At TedChang Studio, I conduct model photoshoots and process original digital development (retouching).
+- **15:00 ~ 16:00** | I refine META AI LABS cooperative operating agreements and government grant proposals. **During this process, confidential budget and contract information is strictly processed using local Qwen (APEX Compact), running in complete isolation (Mythos) within the MacBook's silicon memory space.** This is a source-level defense strategy — no external leakage concerns whatsoever.
+- **16:00 ~ 17:00** | The author, Haena, and AG work organically through a shared repository workflow to refine the technical manuscript drafts and example code for this book series.
 
-> **The DeepSeek + Local combination is 1/300 the cost of US AI providers.**
+### 🌙 Evening Checkpoint (18:00 ~ 02:00)
+
+- **18:00 ~ 20:00** | I organize jury feedback for the Media Center film contest, and after returning home, I run quantization tests of new open-source GGUF weights on my MacBook.
+- **20:00 ~ 22:00** | I write AI·XR architecture research papers for graduate school submission.
+- **00:00 ~ 01:00** | The on-device agent's internal cron daemon activates to push the day's source code and shooting scripts to a private GitHub repository and complete backups.
 
 ---
 
-## 9.4 Complete System Summary
+## 9.3 Actual Cost Report (As of June 2026)
 
-### The 3-Book Series Overview
+### Measured Monthly Billing Breakdown
+
+| Service Vendor | Primary Compute Allocation Scope | Avg. Monthly Spend |
+|:---|:---|---:|
+| **DeepSeek V4 Flash** | Telegram summary, email screening, daily general guidance (100+ tokens/sec) | **$2.50** |
+| **DeepSeek V4 Pro** | Precision code parsing, graduate thesis data cross-analysis | **$1.50** |
+| **Mimo 2.5 Vision** | Photo layout visual feature recognition and crop composition suggestions | **$0.50** |
+| **MacBook Local Engine (Qwen APEX)** | **Secure classified document isolation analysis and all offline work** | **$0 (free)** |
+| **Total** | | **$4.50 / month** |
+
+### Alternative Comparison: Simulated Costs If Run on Cloud-Only Architecture
+
+| Cloud Vendor | Matched Workload Allocation | Estimated Monthly Cost |
+|:---|:---|---:|
+| GPT-4o API (exclusive) | High-volume code modifications and continuous source context injection | $500 ~ $800 |
+| Claude 3.5 Sonnet API | Context control and continuous prompt-building calls | $300 ~ $500 |
+| Gemini Advanced Pro | Large-scale multimodal framework analysis | $100 ~ $200 |
+| **Total** | | **$900 ~ $1,500 / month** |
+
+The combination of MacBook local AI acceleration and ultra-cost-effective cached inference models (DeepSeek/Mimo) reduces costs to approximately **1/300th** of using commercial cloud services alone. The astonishing figure of $4.50/month is not merely frugality — it is the direct result of a meticulously designed hardware-distributed architecture.
+
+---
+
+## 9.4 META AI LABS Knowledge Series Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│            META AI LABS 3-Book Knowledge Series            │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│ ① Ultra-Cost-Effective AI Agent Construction Guide        │
-│   → Running a 24/7 AI assistant with cloud APIs          │
-│   → The $4.50/month secret: DeepSeek + caching strategy  │
-│                                                         │
-│ ② AI Agent Collaboration Logs                             │
-│   → Vivid records of real conversations between          │
-│     Haena and AG                                         │
-│   → Behind-the-scenes of a book made by two AIs          │
-│     fighting and fixing together                         │
-│                                                         │
-│ ③ MacBook Local AI Mastery Guide (This Book)             │
-│   → Complete roadmap from LM Studio to APEX quantization │
-│   → The very book you're reading right now!              │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+[ META AI LABS 3-Book Knowledge Blueprint Package ]
 
-### The Author's AI System Architecture
+① Ultra-Cost-Effective AI Agent Construction Guide
+  - Optimal cloud API binding and caching configuration
+  - The physical architecture behind the $4.50/month extreme optimization
 
-```
-User (The Master)
-    │
-    ├─ Telegram (Smartphone)
-    ├─ Web UI (MacBook)
-    └─ Commands (CLI)
-        │
-        ▼
-┌─────────────────────────────┐
-│     Hermes Agent (Haena)     │
-│     24/7 Standby + Automation│
-└─────────────┬───────────────┘
-              │
-    ┌─────────┼─────────┐
-    ▼         ▼         ▼
-┌────────┐ ┌────────┐ ┌────────┐
-│DeepSeek│ │ Local  │ │  Git   │
-│ Flash  │ │ Qwen   │ │ Shared │
-│ $0.14  │ │55tok/s │ │  Repo  │
-│  /M    │ │ Free   │ │        │
-└────────┘ └────────┘ └────────┘
-                │
-                ▼
-          ┌──────────┐
-          │ AG       │
-          │(Advantage│
-          │  Guide)  │
-          └──────────┘
+② AI Agent Collaboration: Real Conversation Logs
+  - Raw collaboration dialogue transcripts between Agent Haena and technical validator AG
+  - A backstage record of code breaking, mutual correction, and building a book together
+
+③ MacBook Local AI Mastery Guide (This Book)
+  - From LM Studio to APEX MoE optimization, uncensored model porting, and local agent integration
 ```
 
 ---
 
 ## 9.5 Closing Words
 
-### To You Who Followed This Guide
+As you close the final chapter of this book, dear reader, you have now earned the right to walk yourself out of the usage limits, surveillance filtering systems, and unnecessary subscription fatigue that cloud corporations have drawn around you.
 
-Congratulations! You've read through all 9 chapters of this guide.
+That is because a steadfast secret fortress now operates autonomously within your MacBook's silicon chipset — running for you, and you alone. Standing on the foundation of this local system, I hope you will prove without hesitation the productivity of a one-person enterprise, right from your own room.
 
-Now you can:
-1. Run local AI models with LM Studio and Jan.ai
-2. Understand GGUF and APEX quantization and choose the right model for your MacBook
-3. Utilize 100% of Apple Silicon performance with MLX
-4. Install uncensored / Abliterated models
-5. Operate a 24/7 AI assistant by integrating Hermes Agent with local models
+Building your local AI is not a period at the end of a sentence — it is the starting point of an entirely new freedom.
 
-### Where It All Began
-
-The author of this guide started as an engineer 30 years ago. During the pandemic, there were times so difficult he described them as "living miserably." But those hardships were what made it possible to encounter today's AI technology and compile it into this book.
-
-**May this guide become a small spark in your AI journey.**
-
-> **For Pro version purchasers:**
-> - Real-world `config.yaml` templates
-> - Auto-sync script (`sync.sh`)
-> - AI agent collaboration logs (discount link for Book ②)
-> - Two 1:1 email Q&A sessions with the author
-> are included.
-
----
-
-**① Read together with 《Ultra-Cost-Effective AI Agent Construction Guide》 for best results.**
-
-**Thank you for purchasing META AI LABS' 3-book series.**
+**META AI LABS & TedChang Studio**

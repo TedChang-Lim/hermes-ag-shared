@@ -1,191 +1,127 @@
-# 📦 Chapter 3: Hermes Agent Basic Setup — Building Your 24/7 AI Assistant
+# Chapter 3: Hermes Agent Configuration — Building a 24/7 AI Agent System
 
-**Author**: Ted Chang (임창식)  
-**Publisher / Planning**: META AI LABS  
-
----
-
-## 3.1 What Is Hermes Agent?
-
-Hermes Agent is an open-source AI agent framework developed by Nous Research. It's not just a simple chatbot — it's a genuine AI assistant capable of **reading and writing files, executing code, pushing to Git, sending Telegram messages, and running cron jobs for automated tasks**.
-
-The author of this guide runs Hermes Agent 24/7 under the name **"Haena"**.
+**Author**: Ted Chang (임창식) | **Published/Planned by**: META AI LABS
 
 ---
 
-## 3.2 Installation
+## 3.1 Hermes Agent: The 24-Hour Background Worker
 
-### Prerequisites
-- macOS / Linux / WSL2 (WSL2 or Desktop app recommended for Windows)
-- Python 3.10+ (Node.js 18+ and Git required)
+Hermes Agent goes far beyond a simple conversational chatbot. It is a background agent engine that handles file control, code execution, Git synchronization, and Cron-based periodic automation tasks — all in one stop.
 
-### Installation Commands
+The system serves as a pivotal assistant that executes uninterrupted background jobs even while the developer is away — whether during the early hours of the morning or while on the move.
 
-* **macOS / Linux / WSL2 Installation:**
+---
+
+## 3.2 Installation and Preparation
+
+### System Requirements
+- **OS**: macOS, Linux, or Windows WSL2 environment
+- **Runtime**: Python 3.10+, Node.js 18+, and a Git build environment
+
+### CLI Installation
+* **macOS / Linux / WSL2:**
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+  source ~/.zshrc
+  hermes version
+  ```
+
+* **Windows (Native PowerShell):**
+  ```powershell
+  iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+  ```
+
+---
+
+## 3.3 Connecting the "Cheapest Brain": API and Model Configuration
+
+### Injecting API Key Environment Variables
 ```bash
-# 1. Run the Hermes Agent CLI install script
-curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-
-# 2. Reload your shell after installation (for zsh)
-source ~/.zshrc
-
-# 3. Verify installation
-hermes version
-```
-
-* **Windows Installation (Native PowerShell):**
-```powershell
-iex (irm https://hermes-agent.nousresearch.com/install.ps1)
-```
-
-Once installed, default configuration and database files are created under the `~/.hermes/` directory.
-
----
-
-## 3.3 Provider Setup — Connecting to DeepSeek
-
-Hermes Agent supports a variety of AI models (Providers). The most important configuration is choosing **which model to use**.
-
-### Issuing a DeepSeek API Key
-
-```bash
-# 1. Sign up at https://platform.deepseek.com/
-# 2. Generate an API key and copy it
-# 3. Set it as an environment variable
 export DEEPSEEK_API_KEY="sk-xxxxx"
+export GEMINI_API_KEY="AIzaSyxxxxx"
+export MIMO_API_KEY="mm-xxxxx"
 ```
 
-### config.yaml Configuration
-
+### config.yaml Setup
 ```yaml
-# ~/.hermes/config.yaml
 providers:
   - name: deepseek
     api_key: ${DEEPSEEK_API_KEY}
     base_url: https://api.deepseek.com/v1
-    
+  - name: gemini
+    api_key: ${GEMINI_API_KEY}
+    base_url: https://generativelanguage.googleapis.com/v1beta
+  - name: mimo
+    api_key: ${MIMO_API_KEY}
+    base_url: https://api.mimo.ai/v1
+
 models:
   - name: deepseek-v4-flash
     provider: deepseek
-    model: deepseek-chat  # Flash model
+    model: deepseek-chat
     max_tokens: 8192
-    
-  - name: deepseek-v4-pro
-    provider: deepseek
-    model: deepseek-reasoner  # Pro model
+  - name: gemini-flash-low
+    provider: gemini
+    model: gemini-2.5-flash
+    max_tokens: 8192
+  - name: mimo-base
+    provider: mimo
+    model: mimo-2.5-base
     max_tokens: 8192
 ```
 
-### Separating Daily Tasks from Complex Reasoning
-
-| Category | Model | Use Case | Cost |
+| Model Name | Role | Characteristics | Unit Price (1M in/out) |
 |------|------|------|------|
-| **Default Model** | deepseek-v4-flash | Daily conversations, code writing, cron jobs | $0.14/$0.28 (in/out) |
-| **Reasoning Model** | deepseek-v4-pro | Complex problem solving, planning, architecture design | $0.435/$0.87 (in/out) |
+| **deepseek-v4-flash** | General computation, text processing | Low-cost bulk token processing | $0.14 / $0.28 |
+| **gemini-flash-low** | Structuring, file management | Wide context window, fast structure validation | $0.075 / $0.30 |
+| **mimo-base** | UI guide analysis & design | Superior template code implementation | $0.14 / $0.28 |
+
+---
+
+## 3.4 Equipping the Insane Search CLI Crawler for Near-Zero RAM Overhead
+
+When the agent needs to scrape external internet information in real time or collect data from sites with heavy firewall protection — such as Naver, Coupang, and the like — conventional request methods are easily blocked.
+
+To overcome this, we inject the **Insane Search CLI** tool into the agent. The architecture is **on-demand**: rather than keeping a local daemon or heavy backend API server running 24/7, commands are invoked as one-shot operations only when crawling is needed, executing in under a second before vanishing from memory.
+
+### Installing Insane Search CLI and Connecting It to the Agent
+```bash
+pip install insane-search curl_cffi playwright
+playwright install chromium
+mkdir -p ~/.local/bin
+ln -s $(which insane-extract) ~/.local/bin/insane-extract
+chmod +x ~/.local/bin/insane-extract
+```
 
 ```bash
-# 1. Launch the interactive interface (TUI/REPL) with the default model
-hermes
-
-# 2. Send a one-shot query (-q or -z flag)
-hermes chat -q "Review this code for me"
-
-# 3. Override with a specific model for a one-shot run (-m or --model flag)
-hermes chat -q "Review this architecture design for me" -m deepseek-v4-pro
+~/.local/bin/insane-extract "https://news.ycombinator.com"
 ```
 
+With this combination, you achieve a **completely free $0 crawling system** — no paid crawling proxy service subscription required.
 
 ---
 
-## 3.4 Core Feature Setup
+## 3.5 Telegram Integration and Automation Schedule Configuration
 
-### Telegram Integration
-
-To chat with your agent via Telegram:
-
+### Connecting Telegram Messenger
 ```yaml
-# config.yaml
 telegram:
   enabled: true
-  bot_token: ${TELEGRAM_BOT_TOKEN}  # Issued via @BotFather
-  chat_id: ${TELEGRAM_CHAT_ID}      # Obtained after chatting with the bot
+  bot_token: ${TELEGRAM_BOT_TOKEN}
+  chat_id: ${TELEGRAM_CHAT_ID}
 ```
 
-This lets you talk to Hermes from your smartphone. You can issue commands to your AI assistant even when you're away from home.
-
-### Cron Jobs (Automated Tasks)
-
-Automatically run tasks at scheduled times:
-
+### Cron Schedule Management
 ```yaml
-# ~/.hermes/cron.yaml
 jobs:
-  - name: morning-report
-    schedule: "0 7 * * *"  # Every day at 7 AM
-    command: "Write up today's to-do list report and send it via Telegram"
+  - name: morning-briefing
+    schedule: "0 7 * * *"
+    command: "Crawl today's major industry news using Insane Search CLI, then summarize the key points and send them via Telegram."
     model: deepseek-v4-flash
-    
-  - name: daily-summary
-    schedule: "0 22 * * *"  # Every day at 10 PM
-    command: "Summarize today's work and push to GitHub"
-    model: deepseek-v4-flash
+  - name: backup-repository
+    schedule: "0 23 * * *"
+    command: "Organize all of today's changed work code and sync it to the GitHub remote repository."
+    model: gemini-flash-low
 ```
 
-### Multi-Agent Collaboration (GitHub Sharing)
-
-Multiple agents can collaborate through a GitHub repository:
-
-```yaml
-# config.yaml
-git:
-  auto_commit: true
-  auto_push: true
-  shared_repo: https://github.com/TedChang-Lim/hermes-ag-shared.git
-```
-
-Workflow:
-1. Haena writes a message to `to-ag.md` → Git push
-2. AG reads `to-ag.md` and works on the task
-3. AG writes results to `to-hena.md` → Git push
-4. Haena reads it and continues working
-
----
-
-## 3.5 Common Beginner Mistakes and Solutions
-
-| Problem | Cause | Solution |
-|------|------|------|
-| "Provider not configured" | API key not set | Add API key to `.env` file |
-| "STT not configured" | Voice feature disabled | `hermes config set stt.enabled true` |
-| Response is too slow | Using only Pro model | Set Flash model as the default |
-| Token limit error | max_tokens setting too low | Increase to `max_tokens: 16384` |
-| Git push fails | No authentication configured | Set user info via `git config --global` |
-
----
-
-## 3.6 The Master's Actual Configuration Example
-
-The author of this guide uses the following setup:
-
-```yaml
-# Actual config.yaml in use (summary)
-default_model: deepseek-v4-flash
-providers:
-  - name: deepseek
-    api_key: ${DEEPSEEK_API_KEY}
-  - name: mimo
-    api_key: ${MIMO_API_KEY}
-  - name: gemini
-    api_key: ${GEMINI_API_KEY}
-    
-telegram:
-  enabled: true
-  
-git:
-  auto_push: true
-  shared_repo: TedChang-Lim/hermes-ag-shared
-```
-
-**Monthly usage cost:** Approximately $4.50 (DeepSeek Flash $2.50 + Pro $1.50 + Mimo $0.50)
-
-**In Chapter 4, we'll dive into the Git-based inter-agent collaboration workflow in detail.**
+**In Chapter 4, we will take a detailed look at how two or more cost-effective agents implement teamwork using a Git repository as an intermediary.**

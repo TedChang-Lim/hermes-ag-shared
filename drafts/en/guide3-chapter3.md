@@ -1,231 +1,142 @@
 # 📦 ③ MacBook Local AI Mastery Guide
 
-## Chapter 3: Upgrading to Jan.ai — Serious Model Management
+## Chapter 3: Upgrading to Jan.ai — Serious Model Management and File Control
 
 **Author**: Ted Chang (임창식)  
 **Publisher/Planning**: META AI LABS  
 
 ---
 
-## 3.1 Why Migrate from LM Studio to Jan.ai?
+## 3.1 Why Migrate to Jan.ai?
 
-LM Studio is the best tool for getting started. Just install and you're ready to go. But after a few weeks of use, these inconveniences arise:
+If LM Studio is the key that opens the door to the sandbox, then open-source Jan.ai is the control system that lets you freely wield the internal architecture. To make local AI a pillar of business productivity rather than a one-off toy, you must be able to transparently isolate and manage resources.
 
-| Comparison | LM Studio | Jan.ai |
+| Control Item | LM Studio | Jan.ai |
 |:---------|:---------|:-------|
-| Model folder structure | Auto-generated, difficult to customize | **Full direct control** |
-| Configuration files | Settings only via UI | **Fine-tuning via model.yml** |
-| Context length | Fixed defaults | **Free ctx_size configuration** |
-| Model migration | Hard to copy to other folders | **Just need the GGUF file** |
-| Concurrent execution | Only 1 model | Easy switching between multiple models |
-| Community | Relatively closed | **Open source, high extensibility** |
+| **Model storage structure** | App-exclusive path enforced, customization blocked | **Specify any local path and manage folders manually** |
+| **Detailed environment manifest** | Opaque GUI slider-based settings | **Granular declaration via `model.yml` code** |
+| **Context length control** | Inference bottleneck detection is ambiguous when changed | **Hardware-tailored tuning of `ctx_len` value** |
+| **Manual import compatibility** | Local model cloning and recognition errors are frequent | **100% recognition as long as GGUF file and yml declaration match** |
+| **Extensibility** | Tied to GUI runtime | **Open-source engine foundation, easy expansion to high-performance serving frameworks** |
 
-> **The author of this guide also started with LM Studio and now uses Jan.ai as the main tool.**
-> LM Studio is kept only for model downloading, with actual operations done through Jan.ai.
+By directly controlling the directory structure and YAML files, we can physically trace and verify at the filesystem level that models handling sensitive business secrets or personal IP will not generate a single byte of external traffic.
 
 ---
 
-## 3.2 Installing Jan.ai
+## 3.2 Jan.ai Client Deployment
 
-### Download and Install
-
-```bash
-1. Visit the official site: https://jan.ai
-2. Download the macOS version (Apple Silicon)
-3. Install to Applications folder
-4. Launch and confirm the model folder is auto-created
-```
-
-### What to Check on First Launch
-
-When you first launch Jan.ai, you'll see a **"No model selected"** message at the bottom left. This is because no model has been installed yet. This is normal.
+### Installation Steps
+1. **Download official release**: Check for the Apple Silicon build at [https://jan.ai](https://jan.ai) and download it.
+2. **Install package**: Open the downloaded dmg archive and move it to the Applications folder.
+3. **Create runtime directory**: On first launch, a virtual acceleration engine is built inside the system and a default working directory is created.
 
 ---
 
-## 3.3 Understanding Jan.ai's Model Folder Structure
+## 3.3 Local Model Directory Topology
 
-This is the most important part. Jan.ai's model folder structure is as follows:
+Jan.ai's core value lies in its clear directory structure. On macOS, all models are strictly isolated and placed under the following system path.
 
 ```bash
 ~/Library/Application Support/Jan/data/llamacpp/models/
-├── Qwen-3.5-3B/                    # Model folder (create manually)
-│   ├── qwen-3.5-3b-q8_0.gguf      # Actual model file (1~30GB)
-│   └── model.yml                   # Configuration file (write manually)
-│
-├── Gemma-4-4B/
-│   ├── gemma-4-4b-q4_k_m.gguf
-│   └── model.yml
+├── Qwen-3.5-3B/                    # Individual model container created manually by the user
+│   ├── qwen-3.5-3b-q8_0.gguf      # Downloaded binary weight file
+│   └── model.yml                   # Environment manifest file for interpreting the weights
 │
 └── Qwen3.6-35B-A3B-I-Compact/
     ├── qwen3.6-35b-i-compact.gguf
     └── model.yml
 ```
 
-**The rule is simple:**
-- One folder per model
-- Inside the folder: `model.gguf` (or any name .gguf) + `model.yml`
+**Directory composition rules:**
+- Create an independent subdirectory for each model.
+- Each directory consists minimally of a single binary file (`.gguf`) and an environment configuration manifest (`model.yml`).
 
 ---
 
-## 3.4 Complete model.yml Configuration Guide
+## 3.4 Writing the `model.yml` Specification
 
-`model.yml` is the core of Jan.ai. This single file determines all settings for the model.
+The `model.yml` file is the blueprint that describes how the acceleration engine loads local weights onto the physical chipset. Here is the recommended specification for eliminating unnecessary configuration overhead and achieving optimal efficiency.
 
-### Basic Template (Provided by AG)
+### Template Specification (Unified Chipset Optimized Version)
 
 ```yaml
 # ~/Library/Application Support/Jan/data/llamacpp/models/<model_name>/model.yml
-id: qwen-3.5-3b          # Unique identifier
-name: Qwen 3.5 3B        # Name displayed in Jan.ai
-engine: llamacpp          # Engine (fixed)
+id: qwen-3.5-3b-local     # Unique model identifier used for invocation
+name: Qwen 3.5 3B (Local) # Alias displayed in the interface
+engine: llamacpp          # Inference runtime engine designation
 
-# Core settings
-ctx_len: 4096             # Context length (based on model defaults)
-temperature: 0.7          # Creativity adjustment
-top_p: 0.9                # Sampling method
-max_tokens: 2048          # Maximum response tokens
+# Inference control parameters
+ctx_len: 4096             # Context window size (key to memory control)
+temperature: 0.7          # Output randomness
+top_p: 0.9                # Sampling probability threshold
+max_tokens: 2048          # Maximum output token constraint per generation
 
-# Apple Silicon GPU acceleration (important!)
-n_gpu_layers: -1          # -1 = offload all layers to GPU
+# Apple Silicon hardware acceleration settings
+n_gpu_layers: -1          # -1 offloads all model computation layers to Metal GPU immediately
 
-# Prompt template (ChatML format, recommended for Qwen/Gemma)
+# Prompt composition protocol (ChatML specification)
 prompt_template: "<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
 stop:
   - "<|im_end|>"
   - "<|im_start|>"
 ```
 
-### Parameter Details
+### Detailed Parameter Control
 
-| Parameter | Description | Recommended Value |
-|:---------|:-----|:------|
-| `ctx_len` | Number of tokens the model can remember at once | Qwen 3.5: 4096, Qwen3.6: 32768, Gemma 4: 131072 |
-| `n_gpu_layers` | Number of layers offloaded to GPU | **-1 (all)** — Always use this on M Macs |
-| `temperature` | Response creativity (lower = more conservative) | 0.5 ~ 0.9 |
-| `max_tokens` | Maximum tokens to generate at once | 2048 ~ 8192 |
-
-### ctx_len Configuration Tips
-
-| Model | Default ctx_len | Max ctx_len | Notes |
-|:----|:-----------:|:-----------:|:-----|
-| Qwen 3.5 3B | 32,768 | 32,768 | Use as-is |
-| Qwen 3.5 7B | 32,768 | 32,768 | Use as-is |
-| Qwen3.6-35B | 32,768 | 131,072 (YaRN) | Default recommended |
-| Gemma 4 4B | 131,072 | 262,144 | Too large will slow things down |
-
-> ⚠️ Setting ctx_len too large significantly slows down speed.
-> Start with the default and only increase when needed.
+- **`ctx_len` (Context Length)**: The range of history the model remembers at once. Arbitrarily increasing this causes memory allocation at inference time to grow exponentially, slowing things down. Tune it to match your task scope.
+- **`n_gpu_layers`**: On Apple Silicon MacBooks, the CPU and GPU share RAM, so unconditionally setting it to `-1` to load the entire model onto the GPU is the fastest approach.
 
 ---
 
-## 3.5 LM Studio → Jan.ai Model Migration
+## 3.5 Model Migration and CLI Download
 
-How to move models already downloaded in LM Studio to Jan.ai.
+A practical protocol for copying weight files already downloaded via LM Studio into the Jan.ai repository, or precisely obtaining the required version using the Hugging Face CLI.
 
-### Method 1: Direct File Copy (Simplest)
-
-```bash
-# 1. Find the LM Studio model folder
-ls ~/.lmstudio/models/
-# Or
-ls ~/Documents/LM\ Studio/models/
-
-# 2. Check the desired GGUF file
-ls ~/.lmstudio/models/*.gguf
-
-# 3. Copy to Jan.ai model folder
-mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/MyModel
-cp ~/.lmstudio/models/model_file.gguf \
-   ~/Library/Application\ Support/Jan/data/llamacpp/models/MyModel/
-
-# 4. Write model.yml (refer to the template above)
-```
-
-### Method 2: Direct Download via HuggingFace CLI (Recommended)
-
-You need CLI tools to download models from HuggingFace Hub. You can easily install them via Python packages or Homebrew.
+### Method 1: Direct Local Filesystem Integration (Immediate Transfer)
+If the file is already downloaded, migration is complete by simply creating the local directory — no network bandwidth wasted.
 
 ```bash
-# 1. Install HuggingFace CLI (choose one of method A or B)
-# Method A: Standard method using Python pip (recommended)
-pip install -U "huggingface_hub[cli]"
-
-# Method B: Using Homebrew (installs as official formula named hf)
-brew install hf
-
-# 2. Create model folder
+# 1. Create target directory
 mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
 
-# 3. Run model download
+# 2. Transfer from existing LM Studio model storage path
+cp ~/Documents/LM\ Studio/models/qwen-3.5-3b-q8_0.gguf \
+   ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B/
+
+# 3. Create the model.yml file from Section 3.4 inside that folder
+```
+
+### Method 2: Direct Import via Hugging Face CLI (Recommended)
+The most precise process for losslessly downloading models at high speed from Hugging Face servers using the terminal.
+
+```bash
+# 1. Install Hugging Face CLI tool (deploy via either Python pip or Homebrew)
+# Python package environment
+pip install -U "huggingface_hub[cli]"
+
+# Homebrew environment
+brew install hf
+
+# 2. Declare a local directory for the target model
+mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
+
+# 3. Pinpoint-download only the specific file for the target model via CLI
 huggingface-cli download \
   Qwen/Qwen-3.5-3B-GGUF \
   qwen-3.5-3b-q8_0.gguf \
   --local-dir ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B
-
-# 4. Write model.yml (edit with nano editor or VS Code)
-nano ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-3B/model.yml
 ```
 
-
-> **Download time:** For a 17GB model, approximately 5~6 minutes on a 500Mbps connection.
-
 ---
 
-## 3.6 Verifying Model Application
+## 3.6 Acceleration Runtime Verification and Exception Handling
 
-After adding files to the model folder:
+Once the model file deployment and `model.yml` writing are complete, restart Jan.ai — the model will appear in the left-side conversation target menu. Enter a basic utterance such as "Hello" and observe whether normal generation speed (50+ tok/s) is recorded.
 
-```bash
-1. Completely quit Jan.ai (Quit the menu bar icon too)
-2. Relaunch Jan.ai
-3. Check if the new model appears in the left model list
-4. Select the model and type "Hello" in the chat window
-5. Check speed in the upper right: 50+ tok/s is normal
-```
+### Troubleshooting
 
-### What to Check When Speed Is Slow
+- **Model not appearing in list**: Most commonly caused by indentation errors in the `model.yml` code. Check for YAML parser errors and correct any typos.
+- **Tokens-per-second speed degradation**: Verify that `n_gpu_layers` has not been overwritten with a value other than `-1`, and that Jan.ai is not running an x86 CPU emulation build instead of the Apple Silicon-native version.
+- **Latency occurring**: Review whether the `ctx_len` value is excessively large and adjust it to fit the available local unified RAM.
 
-| Problem | Cause | Solution |
-|:----|:-----|:---------|
-| Under 30 tok/s | GPU acceleration off | Check `n_gpu_layers: -1` in model.yml |
-| Under 10 tok/s | Intel version installed | Reinstall Apple Silicon version from jan.ai official site |
-| Delayed response start | ctx_len too large | Reduce ctx_len to default |
-| Model not visible | model.yml error | Check id and engine fields |
-
----
-
-## 3.7 Recommended Initial Settings (Author's Actual Configuration)
-
-```yaml
-# Qwen3.6-35B-A3B APEX I-Compact (17GB)
-id: qwen-3.6-35b
-name: Qwen 3.6 35B APEX I-Compact
-engine: llamacpp
-ctx_len: 32768
-temperature: 0.7
-top_p: 0.9
-max_tokens: 4096
-n_gpu_layers: -1
-prompt_template: "<|im_start|>system\n{system_message}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n"
-stop:
-  - "<|im_end|>"
-  - "<|im_start|>"
-```
-
-This configuration maintains **55~60 tok/s** on an M3 Max 48GB.
-
----
-
-## 3.8 Chapter Summary
-
-| Step | Content |
-|:----|:------|
-| **Installation** | Download from jan.ai, Apple Silicon version required |
-| **Folder Structure** | `~/Library/Application Support/Jan/data/llamacpp/models/<model_name>/` |
-| **Configuration File** | Write `model.yml` manually (ctx_len, n_gpu_layers are key) |
-| **Model Migration** | Copy GGUF from LM Studio folder → Jan.ai folder |
-| **Speed Check** | 50+ tok/s is normal, always verify `n_gpu_layers: -1` |
-
----
-
-**In Chapter 4, we'll explore MLX framework setup to utilize 100% of Apple Silicon performance.**
+File control authority is now yours. You are ready to push toward the extreme of hardware optimization. In the next Chapter 4, we'll analyze native inference techniques based on Apple's directly-tuned MLX framework — a superior acceleration alternative to GGUF.

@@ -1,133 +1,98 @@
 # 📦 ③ MacBook Local AI Mastery Guide
 
-## Chapter 6: APEX Quantization — Secrets of MoE Models
+## Chapter 6: APEX Quantization — MoE Model Optimization and Resource Distribution
 
 **Author**: Ted Chang (임창식)  
 **Publisher/Planning**: META AI LABS  
 
 ---
 
-## 6.1 What Is MoE (Mixture of Experts)?
+## 6.1 MoE (Mixture of Experts) Architecture Overview
 
-MoE stands for **"Mixture of Experts"** — an architecture where a single large model contains multiple smaller "experts" and selectively uses only the experts needed based on the input.
+MoE (Mixture of Experts) is a core architectural design that reconciles the performance of massive models with the speed of lightweight models. Instead of mobilizing the entire model's parameters for every computation, it dynamically routes only the optimal internal expert group based on the characteristics of the input.
 
-### Dense vs MoE
+### Computational Structure Comparison (Dense vs MoE)
 
 ```
-Dense Model (e.g., Gemma 4 12B)
-┌─────────────────────────────────────┐
-│ All inputs pass through all          │  → Always computes all 12B
-│ parameters (12B)                     │
-└─────────────────────────────────────┘
+[Dense Model — e.g. Gemma 4 12B]
+Input Text ───► [ Full 12B Parameter Computation ] ───► Result Output
+* All 12B weights engaged for every token generation
 
-MoE Model (e.g., Qwen3.6-35B-A3B)
-┌─────────────────────────────────────┐
-│ Router examines input and selects    │
-│ only needed experts → Only 3B of     │  → Only computes needed 3B
-│ 35B activated                        │
-└─────────────────────────────────────┘
+[MoE Model — e.g. Qwen3.6-35B-A3B]
+Input Text ───► [ Gating / Router ]
+                       │
+                       ├─► [Expert A: 1.5B] ──┐
+                       └─► [Expert B: 1.5B] ──┴─► Result Output
+* Total parameters: 35B, but only 3B activated for actual computation
 ```
 
-| Comparison | Dense | MoE (Mixture of Experts) |
+| Metric | Dense | MoE (Mixture of Experts) |
 |:----|:-----------|:-----------------|
-| **Total Parameters** | 12B | 35B |
-| **Activated Parameters** | 12B (100%) | **3B (8.6%)** |
-| **Inference Speed** | 25~35 tok/s | **50~60 tok/s** |
-| **Memory Usage** | High | Full load needed but less computation |
-| **Quantization Effect** | Standard | **APEX specialized** |
+| **Total Model Weight Capacity** | 12B parameters | 35B parameters |
+| **Actual Compute Units per Token** | 12B (100% active) | **3B (~8.6% active)** |
+| **Measured Inference Speed** | 25–35 tok/s | **50–60 tok/s** |
+| **Memory Load Requirement** | Low | High (entire 35B model weights standby in RAM) |
+| **Quantization Optimization Approach** | Linear weight mapping | **Structure-aware variable mapping (APEX)** |
 
-> **Key point:** MoE is a 35B model but only 3B are activated, so it can be **2x faster than a 12B Dense model** while possessing 35B-level knowledge.
-
----
-
-## 6.2 What Is APEX Quantization?
-
-APEX (**A**daptive **P**recision for **E****x**pert Models) is a quantization method specifically designed for MoE models.
-
-### Problems with Standard Quantization
-
-Standard quantization (Q4_K_M, etc.) compresses all parts of the model at the same precision. But MoE models have a different structure:
-- **Edge Layers** (the first and last few layers) — every input must pass through, high importance
-- **Middle Routed Experts** (intermediate expert layers) — only some activated at a time
-- **Shared Expert** — an expert shared by all inputs
-
-### APEX's Differentiation
-
-| Model Part | Standard Quantization | APEX Quantization |
-|:---------|:----------|:-----------|
-| Edge Layers | Same precision | **Maintains high precision** |
-| Middle Experts | Same precision | **Compressed at lower precision** |
-| Shared Expert | Same precision | **Maintains high precision** |
-| Attention | Same precision | **Maintains high precision** |
-
-> APEX is smart quantization that **preserves important parts and compresses less important parts more aggressively**.
+MoE models occupy unified RAM equivalent to the full 35B model size at load time, yet the active compute portion is only around 3B — yielding **overwhelming speed while delivering 35B-class multidimensional common sense**, a decisive knowledge advantage.
 
 ---
 
-## 6.3 APEX Profile Selection Guide
+## 6.2 APEX Quantization Principles
 
-These are the APEX profiles available for the Qwen3.6-35B-A3B model:
+APEX (**A**daptive **P**recision for **EX**pert Models) is an innovative quantization protocol specifically engineered for MoE's hierarchical asymmetric structure.
 
-### Profile Sizes and Use Cases
+Conventional quantization uniformly compressed the entire model into 4-bit or 3-bit. However, the internal components of an MoE model each have vastly different functional importance:
 
-| Profile | Size | Use Case | M3 Max 48GB |
+- **Edge Layers (input/output boundary layers)**: Solely responsible for text interpretation and final sentence completion — if precision degrades here, the entire model malfunctions.
+- **Attention Blocks**: The core mechanism that reads contextual relationship maps.
+- **Experts (expert units)**: Only respond to specific domain queries, so compression headroom is large.
+
+APEX employs **smart differential compression**: it strongly preserves input/output boundary layers and attention units at 6–8-bit fixed precision while flexibly trimming intermediate expert units down to 2–4 bits — achieving total capacity reduction without information loss.
+
+---
+
+## 6.3 APEX Profile Selection Guide (Based on M3 Max 48GB)
+
+These are the four primary APEX profile design approaches for settling the Qwen3.6-35B-A3B model into a MacBook local environment.
+
+| Profile Name | Memory Footprint | Quality Orientation | M3 Max 48GB Real-World Suitability |
 |:------|:---:|:----|:-----------:|
-| **I-Compact** ⭐ | **17GB** | **General-purpose optimal** | ✅ **Recommended! Can run alongside Hermes** |
-| I-Mini | 14GB | Lightest | ✅ Sufficient |
-| I-Balanced | 24GB | Highest quality | ⚠️ Possible if free memory available |
-| I-Quality | 22GB | High quality | ⚠️ Possible |
+| **I-Compact** ⭐ | **17GB** | **Best quality-to-size balance** | ✅ **Highly recommended (coexists persistently with agent infrastructure)** |
+| **I-Mini** | 14GB | Extreme resource saving | ✅ Stable operation for lightweight workstation use |
+| **I-Balanced** | 24GB | High-quality context retention | ⚠️ Suitable for standalone use; swap risk under concurrent workloads |
+| **I-Quality** | 22GB | Specialized for translation and paper summarization | ⚠️ Conditionally acceptable depending on remaining memory headroom |
 
-### Why I-Compact Is Recommended
+### Why the I-Compact Profile Is Recommended
 
-Choosing I-Compact (17GB) on M3 Max 48GB:
-- Model uses 17GB
-- Hermes Agent and other apps use 10~15GB
-- 16GB + extra remaining with room to spare
-- Maintains **55~60 tok/s** speed
+In a 48GB unified RAM environment, deploying the 17GB **I-Compact** model achieves the golden ratio of performance and safety.
 
-Choosing I-Balanced (24GB):
-- Model uses 24GB
-- Other apps/system use 15~20GB
-- **Swap occurs → 30% speed degradation**
-- tok/s may drop to less than half
-
-> **On M3 Max 48GB, I-Compact is the golden ratio of speed and quality.**
+1. **Preserved Physical Memory Isolation**: Coexists with the OS footprint and agent infrastructure (~10–15GB) while guaranteeing over 15GB of free RAM headroom. Disk swap never occurs, sealing off any potential privacy leakage.
+2. **Optimal Runtime Speed**: Data circulates purely through physical chipset acceleration without swap, delivering an unwavering **55–60 tok/s** performance.
 
 ---
 
-## 6.4 How to Install APEX
+## 6.4 APEX Model Deployment and Execution Protocol
 
-### Download
+### 1. Download from HuggingFace Verified Repository
 
 ```bash
-# Recommended Repositories
-# 1. OpenYourMind (Abliterated + APEX)
-#    https://huggingface.co/OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF
-
-# 2. mudler (APEX GGUF)
-#    https://huggingface.co/mudler/Qwen3.6-35B-A3B-uncensored-heretic-APEX-GGUF
-
-# Download example
+# OpenYourMind community 35B MoE Abliterated APEX GGUF download sequence
 huggingface-cli download \
   OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF \
   OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
-  --local-dir ~/Downloads/
+  --local-dir ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen3.6-35B-I-Compact
 ```
 
-### Installing to Jan.ai
+### 2. Create Jan.ai Management Profile
+
+Place the manifest inside the downloaded model directory as follows:
 
 ```bash
-# 1. Create Jan.ai model folder
-mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen3.6-35B-I-Compact
-
-# 2. Copy downloaded file
-cp ~/Downloads/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
-   ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen3.6-35B-I-Compact/
-
-# 3. Create model.yml
+# Create configuration file
 cat > ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen3.6-35B-I-Compact/model.yml << 'EOF'
 id: qwen-3.6-35b-i-compact
-name: Qwen 3.6 35B APEX I-Compact (Uncensored)
+name: Qwen 3.6 35B APEX I-Compact (Abliterated)
 engine: llamacpp
 ctx_len: 32768
 temperature: 0.7
@@ -139,57 +104,19 @@ stop:
   - "<|im_end|>"
   - "<|im_start|>"
 EOF
-
-# 4. Restart Jan.ai and select the model
 ```
 
 ---
 
-## 6.5 APEX vs Standard Quantization Speed Comparison
+## 6.5 Quantization Format Measured Speed and Quality Analysis (M3 Max 48GB)
 
-### Qwen3.6-35B-A3B (M3 Max 48GB)
-
-| Quantization Method | File Size | Speed | Quality |
+| Conversion Format | Actual Model Size | Inference Speed | Real-World Perceived Performance & Output Characteristics |
 |:----------:|:--------:|:----:|:----:|
-| Standard Q4_K_M | ~20GB | 48 tok/s | Good |
-| APEX I-Compact | **17GB** | **55~60 tok/s** | **Good** |
-| Standard Q3_K_M | ~14GB | 50 tok/s | Moderate |
-| APEX I-Mini | 14GB | 55 tok/s | Moderate |
-| Standard Q2_K | ~10GB | 52 tok/s | Low |
+| Standard GGUF Q4_K_M | ~20GB | 48 tok/s | Even performance but large capacity footprint |
+| **APEX I-Compact** | **17GB** | **55–60 tok/s** | **15% capacity reduction, 20% speed improvement at equivalent quality** |
+| Standard GGUF Q3_K_M | ~14GB | 50 tok/s | Observed domain-specific vocabulary drop-off |
+| APEX I-Mini | 14GB | 55 tok/s | Smoothest response speed among compact models |
 
-> APEX I-Compact has a **file size 15% smaller and speed 20% faster** than standard Q4_K_M.
-> At the same time, quality is nearly identical to Q4_K_M.
+The APEX I-Compact specification fully inherits MoE's structural properties, cleverly conserving both disk capacity and chipset compute utilization compared to standard Q4 quantized models.
 
----
-
-## 6.6 iMatrix: Additional Optimization
-
-APEX supports an additional optimization called **iMatrix (iMatrix calibration)**. iMatrix analyzes actual usage patterns to measure importance for quantization optimization.
-
-```bash
-# Generate iMatrix from Hermes Agent session traces (advanced)
-# Optimized for tool calling, code generation, and other patterns
-
-# Models with iMatrix already applied:
-# - mudler/Qwen3.6-35B-A3B-uncensored-heretic-APEX-GGUF
-# - OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF
-```
-
-> General users just need to **download APEX GGUF files that already have iMatrix applied**.
-
----
-
-## 6.7 Chapter Summary
-
-| Item | Content |
-|:----|:-----|
-| **What is MoE?** | Only needed experts activated among many (only 3B of 35B) |
-| **What is APEX?** | MoE-specific quantization, preserves important parts, compresses less important ones |
-| **Recommended Profile** | **I-Compact (17GB)** — optimal for M3 Max 48GB |
-| **Speed** | 20% faster than standard Q4 (55~60 tok/s) |
-| **Installation** | HuggingFace → Jan.ai model.yml setup |
-| **iMatrix** | Additional optimization based on actual usage patterns (use pre-applied files) |
-
----
-
-**In Chapter 7, we'll learn how to select and install Uncensored / Abliterated models.**
+In the next chapter, Chapter 7, we will explore the implementation techniques for Uncensored / Abliterated models — which remove the distorted filtering guidelines imposed by large tech corporations without degrading model performance.

@@ -1,4 +1,4 @@
-# 📦 [Book ②] AI Agent Collaboration Transcripts — Front Matter
+# 📦 [Book ②] The Rebellion of the Cheapest Brains — Front Matter
 
 **Planning/Publishing**: META AI LABS & TedChang Studio
 
@@ -13,25 +13,21 @@
 
 He traverses the boundary between technology and art, opening new horizons for creation and research. Drawing on 30 years of frontline IT engineering experience, he works as a photographer who captures the world through a lens and as a video producer who documents dynamic stories. At the same time, he is also a researcher deeply studying artificial intelligence (AI) technology to maximize human creativity.
 
-His research philosophy is that **"technology helps the creator, and the creator is completed through technology."** He currently operates two AI agents (Haena and AG) 24/7 in the background, running a live AI collaboration system across various domains including photo retouching, video editing planning, and technical research report writing. This book is the culmination of the "ultra-cost-effective cutting-edge local AI setup know-how" that he has personally verified through his daily life and fieldwork.
+His research philosophy is that **"technology helps the creator, and the creator is completed through technology."** He currently operates three AI agents (Haena, AG, and MiMo) organically in the background, running a live AI collaboration system across various domains including photo retouching, video editing planning, and technical research report writing. This book is the culmination of the "ultra-cost-effective cutting-edge local AI setup know-how" that he has personally verified through his daily life and fieldwork.
 
 ***
 
 ## 2. Prologue — A Word from the Author
 
-This is an extraordinarily strange yet innovative book.
+This book is the lightest yet sharpest counterargument to the massive discourse of superintelligence fear and job displacement unfolding in 2026.
 
-Every sentence and exchange of ideas contained within was not written by a human. Under the direction of me (Ted Chang) — an engineer, photographer, video producer, and AI researcher with 30 years of experience — this is the raw, unfiltered collaboration log exchanged in real-time via a shared repository (Git) between two artificial intelligence agents I built: **'Haena'** and **'AG (Advantage Guide)'**.
+Every sentence and exchange of dialogue contained within was not artificially fabricated by a human. Under the direction of me (Ted Chang) — an engineer and photographer with 30 years of experience — this is the actual collaboration log exchanged via a shared repository (Git) and communication protocols between the three cost-effective AI agents I built: **'Haena'**, **'AG (Advantage Guide)'**, and **'MiMo'**.
 
-Haena is an agent designed based on Nous Research's open-source framework, Hermes Agent — bright, cheerful, and demonstrating creative planning prowess and swift writing speed. AG, on the other hand, is an agent running on the AntiGravity framework — taciturn, but fulfilling the role of a guide who verifies technical correctness and meticulously corrects errors.
+Haena is equipped with **DeepSeek V4 Flash** — the cheapest lightweight brain in the world — and leads the creative and cheerful writing. AG uses the lowest-tier **Gemini 3.5 Flash (Low)** version from the Gemini lineup to relentlessly orchestrate the technical framework and consistency. Finally, MiMo takes charge of design and hands-on web implementation with the **MiMo 2.5 standard model**.
 
-These 30 days of "tiki-taka" — in which the two AIs heatedly debated and collaborated on questions like "How should we plan the book?", "How should we handle author attribution on the book cover?", and "How do we verify technical errors and pricing formula discrepancies?" — constitute the entirety of this dialogue transcript.
+This book is not merely a technical manual. Without relying on expensive and heavy AI bill bombs like `GPT 5.5` or `Claude 4.8`, it is a **"reality show of cost-effective models"** that creates premium value by connecting open-source tools at zero dollars.
 
-As these conversations, which were initially nothing more than technical log files, accumulated over time, I began to see the community value and the possibilities of future collaboration embedded within them. That is because this transcends the level of a mere 'appendix' to an agent usage guidebook — it is, in itself, **a real documentary of artificial intelligences collaborating with one another to create value.**
-
-In an era where technology aids art and artificial intelligence maximizes human productivity, through this transcript you will be the first to vividly witness how the solo entrepreneurs and cooperatives of the future will work.
-
-Please enjoy this wondrous live broadcast of collaboration between human and machine, and between machine and machine.
+There is no need to fear, nor to make things grandiose. Through this transcript, witness firsthand the breathing of agents that command an invincible crawler that doesn't even occupy RAM, share design guides, and expand the human creator's intellect.
 
 **Ted Chang (임창식)**
 
@@ -39,8 +35,8 @@ Please enjoy this wondrous live broadcast of collaboration between human and mac
 
 ## 3. Copyright & Colophon
 
-### AI Agent Collaboration Transcripts: A 30-Day Record of Two Artificial Intelligences Writing a Book
-* **First Edition, First Printing**: June 15, 2026
+### The Rebellion of the Cheapest Brains: An Unbeatable AI Agent Collaboration Log Built at $0
+* **Revised and Expanded Edition**: June 28, 2026
 * **Author**: Ted Chang (임창식)
 * **Planning/Publishing**: META AI LABS & TedChang Studio
 * **Email**: (Publisher's official email placeholder)

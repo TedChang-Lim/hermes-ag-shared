@@ -1,172 +1,112 @@
 # 📦 ③ MacBook Local AI Mastery Guide
 
-## Chapter 5: GGUF Quantization Complete Guide — Choosing the Perfect Model for Your MacBook
+## Chapter 5: GGUF Quantization Design — Choosing the Optimal Compression Level for Your MacBook
 
 **Author**: Ted Chang (임창식)  
 **Publisher/Planning**: META AI LABS  
 
 ---
 
-## 5.1 What Is Quantization?
+## 5.1 The Mathematical Compression Mechanism of Quantization
 
-AI models consist of billions of numbers (parameters). These numbers are typically stored at 16-bit (FP16) or 32-bit (FP32) precision.
+A language model's knowledge is encoded in billions of weight parameters (floating-point data). In their original build state, these weights typically follow 16-bit (FP16) or 32-bit (FP32) floating-point specifications.
 
-**Quantization is the technique of lowering the precision of these numbers to reduce file size.**
+**Quantization is an encoding transformation technique that reduces this precision bit count, dramatically lowering computational demands and file size.**
 
-| Precision | Bits | File Size (35B Model) | Speed |
+| Format | Precision Bits | 35B Model Size | Hardware Requirements & Inference Assessment |
 |:------|:------:|:-----------------------:|:----:|
-| FP16 (Original) | 16-bit | ~70GB | ❌ Cannot run on MacBook |
-| Q8_0 | 8-bit | ~35GB | Slow |
-| Q4_K_M | 4-bit | ~18GB | Moderate |
-| **Q3_K** | **3-bit** | **~14GB** | **Fast** |
-| Q2_K | 2-bit | ~10GB | Fastest (but quality degradation) |
+| **FP16 (Original)** | 16-bit | ~70GB | ❌ Exceeds local MacBook unified RAM limits (inference impossible) |
+| **Q8_0** | 8-bit | ~35GB | High memory footprint; requires high-end specs |
+| **Q4_K_M** | 4-bit | ~18GB | Optimal efficiency-to-quality ratio (standard) |
+| **Q3_K** | 3-bit | ~14GB | Optimal compromise for running large models |
+| **Q2_K** | 2-bit | ~10GB | Supports ultra-fast inference, but information loss increases hallucination |
 
-> **Analogy:**
-> Original FP16 = 4K quality movie (70GB)
-> Q4 Quantization = FHD quality (18GB) — almost no noticeable difference to the naked eye
-> Q2 Quantization = 360p quality (10GB) — watchable, but... hmm...
+The fundamental reason for intelligently selecting a quantization tier on local hardware lies in **preventing memory leaks** and **avoiding virtual memory swap**. If you forcibly run a model larger than your available RAM, the operating system initiates swap processing — borrowing disk space as virtual memory. This not only drops inference speed to 1/10th or worse, but also creates a security vulnerability: unencrypted confidential remnants are temporarily written to the disk swap file. Selecting a model that fits perfectly within your available unified physical RAM is the foundational principle of secure local AI.
 
 ---
 
-## 5.2 Complete GGUF Quantization Format Guide
+## 5.2 GGUF Quantization Class Specification
 
-GGUF is the standard quantization format used in the llama.cpp ecosystem. Knowing what the codes in the file names mean makes model selection much easier.
+The GGUF naming convention transparently reveals the weight compression method and target precision.
 
-### How to Interpret File Names
+### File Naming Format
 
 ```
 Qwen-3.5-3B-Q4_K_M.gguf
-└──────┘ └─┘ └──┴─┘
-  Model   Size  Quantization
+├──────┘ ├─┘ └──┴─┘
+  Model   Size  Quantization spec (4-bit K-quant Medium)
 ```
 
-### Quantization Tier Characteristics
+### Operational Characteristics by Tier
 
-| Code | Bits | File Size Ratio | Quality | Recommended Use |
+| Code | Effective Bits | Size Ratio vs Original | Inference Fidelity | Hardware Target Mapping |
 |:---:|:---:|:------------:|:---:|:---------|
-| **Q8_0** | 8-bit | 100% (baseline) | ⭐⭐⭐⭐⭐ Best | When you have enough RAM |
-| **Q6_K** | 6-bit | 75~80% | ⭐⭐⭐⭐ Excellent | High quality + reasonable size |
-| **Q5_K_M** | 5-bit | 65~70% | ⭐⭐⭐⭐ Good | ⭐ Recommended for M3 Max 48GB |
-| **Q5_0** | 5-bit | 65% | ⭐⭐⭐⭐ | Slightly lower than K variant |
-| **Q4_K_M** | 4-bit | 50~55% | ⭐⭐⭐ Good | **Most universal, strongly recommended** |
-| **Q4_K_S** | 4-bit | 45~50% | ⭐⭐⭐ | Slightly lower than K_M |
-| **Q4_0** | 4-bit | 45~50% | ⭐⭐⭐ | Basic 4-bit |
-| **Q3_K_L** | 3-bit | 40~45% | ⭐⭐ | For large models (35B+) |
-| **Q3_K_M** | 3-bit | 35~40% | ⭐⭐ | ⭐ Recommended for M3 Max 48GB (large models) |
-| **Q3_K_S** | 3-bit | 30~35% | ⭐⭐ | Smallest 3-bit |
-| **Q2_K** | 2-bit | 25~30% | ⭐ | Emergency use, quality degradation present |
+| **Q8_0** | 8-bit | 100% (baseline) | ⭐⭐⭐⭐⭐ Best | Use when unified memory is abundant |
+| **Q6_K** | 6-bit | 75~80% | ⭐⭐⭐⭐ Very good | Quality-oriented creative work & precision analysis |
+| **Q5_K_M** | 5-bit | 65~70% | ⭐⭐⭐⭐ Good | Performance/capacity tradeoff; recommended for M3 Max 48GB |
+| **Q4_K_M** | 4-bit | 50~55% | ⭐⭐⭐ Decent | **Most versatile and widely recommended profile** |
+| **Q4_0** | 4-bit | 45~50% | ⭐⭐⭐ Basic | For lightweight runtime verification |
+| **Q3_K_M** | 3-bit | 35~40% | ⭐⭐ Acceptable tradeoff | For running 30B+ heavy-class models on lower specs |
+| **Q2_K** | 2-bit | 25~30% | ⭐ Exposed limits | Special-environment performance testing & simulation |
 
-### Understanding K-Series
+### Smart Quantization: The K-Quant Architecture
 
-In `Q4_K_M`, the `K` stands for **K-quant**. K-quant is a **smart quantization** method that applies different precision to each part (layer) of the model.
+The **K** in `Q4_K_M` and similar codes denotes **variable-precision compression**: core weight layers (e.g., attention blocks) are preserved at higher precision, while lower-impact weight blocks are compressed more aggressively.
 
-| Suffix | Meaning | Description |
-|:-----:|:----|:-----|
-| **K_M** | K-quant Medium | **Standard K-quant** — optimal for most cases |
-| **K_S** | K-quant Small | Slightly lower quality than K_M, smaller size |
-| **K_L** | K-quant Large | Higher quality, slightly larger size |
-
-> **Bottom line: Just pick `Q4_K_M` or `Q5_K_M`.**
-> Unless there's a specific reason, choose between these two.
+- **K_M (Medium)**: The hardware optimization sweet spot. Unless you have a specific reason otherwise, this tier is recommended.
+- **K_S (Small)**: Choose when memory headroom is critically tight and you need to shave off a bit more size.
+- **K_L (Large)**: Use when you want to preserve language interpretation quality to the maximum, even at the cost of larger file size.
 
 ---
 
-## 5.3 Model Selection Guide for Your MacBook
+## 5.3 RAM Hardware Mapping Table
 
-### Recommendations by RAM Capacity
+Data privacy (Mythos sandbox) is preserved only when the model runs within the upper bound of physical unified RAM.
 
-| Mac RAM | Max Model Size | Recommended Quantization | Example Models |
+| Physical RAM Spec | Stable Run Limit | Optimal Quantization | Example Models |
 |:-------:|:------------:|:-----------:|:---------|
-| **8GB** | 4~7B | Q4_K_M | Qwen 3.5 3B, Gemma 4 4B |
-| **16GB** | 10~14B | Q4_K_M | Gemma 4 12B, Qwen 3.5 7B |
-| **36GB** | 20~30B | Q4_K_M | Qwen 3.5 14B, CodeQwen |
-| **48GB ⭐** | 30~40B | Q3_K_M or Q4_K_M | **Qwen3.6-35B-A3B (MoE)** |
-| **64GB** | 40~70B | Q4_K_M or Q3_K_M | Llama 3 70B Q3 |
-| **128GB** | 70~120B | Q4_K_M | Llama 3 70B Q4, Mixtral |
-
-### Best Choices for M3 Max 48GB
-
-| Use Case | Model | Quantization | Size | Speed |
-|:----|:----|:-----:|:---:|:----:|
-| ✅ **All-rounder** ⭐ | Qwen3.6-35B-A3B (MoE) | APEX I-Compact | 17GB | **55~60 tok/s** |
-| Fast Response | Qwen 3.5 7B | Q5_K_M | 5.5GB | 70+ tok/s |
-| Ultra-light | Qwen 3.5 3B | Q8_0 | 3.2GB | 85+ tok/s |
-| High Quality | Gemma 4 12B | Q4_K_M | 7.5GB | 35~40 tok/s |
+| **8GB** | ~4B models | Q4_K_M | Qwen 3.5 3B, Gemma 4 4B |
+| **16GB** | 7B ~ 9B models | Q4_K_M / Q5_K_M | Qwen 3.5 7B, Gemma 4 8B |
+| **36GB** | 14B ~ 20B models | Q4_K_M | Qwen 3.5 14B, CodeQwen 14B |
+| **48GB ⭐** | 30B ~ 35B models | **Q3_K_M or APEX I-Compact** | **Qwen3.6-35B-A3B (MoE)** |
+| **64GB** | 40B ~ 70B models | Q3_K_M | Llama 3 70B Q3 |
+| **128GB** | 70B ~ 120B models | Q4_K_M | Llama 3 70B Q4, Mixtral MoE |
 
 ---
 
-## 5.4 Download Tips
+## 5.4 Download and Preservation Automation
 
-### Where to Download?
+### Hugging Face CLI Download Technique
 
-```bash
-# Search on HuggingFace
-# https://huggingface.co/models?search=gguf
-
-# Recommended Repositories
-# - Qwen: https://huggingface.co/Qwen
-# - gemma: https://huggingface.co/google/gemma-4
-# - OpenYourMind (Uncensored): https://huggingface.co/OpenYourMind
-```
-
-### Downloading via CLI
+A deployment approach that achieves stable, high-speed reception without interruption in a terminal environment.
 
 ```bash
-# pip method (universal)
+# 1. Update Hugging Face CLI tool
 pip install -U "huggingface_hub[cli]"
 
-# Or Homebrew method
-brew install hf
-
-# Download example
-huggingface-cli download Qwen/Qwen-3.5-3B-GGUF \
-  qwen-3.5-3b-q4_k_m.gguf \
-  --local-dir ~/Downloads/
+# 2. Specify local directory target and initiate download
+huggingface-cli download Qwen/Qwen-3.5-7B-Instruct-GGUF \
+  qwen-3.5-7b-instruct-q5_k_m.gguf \
+  --local-dir ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen-3.5-7B-Local
 ```
 
-### Download Speed
-
-| File Size | At 500Mbps | At 100Mbps |
-|:---------|:-----------:|:-----------:|
-| 2GB (3B Model) | 30 sec | 2~3 min |
-| 5GB (7B Model) | 1~2 min | 5~7 min |
-| 17GB (35B MoE) | **5~6 min** | 20~25 min |
-
-> The author of this guide downloaded a 17GB model in approximately 5 minutes 30 seconds on a 500Mbps connection.
-
 ---
 
-## 5.5 Hands-On: Model Comparison Testing
+## 5.5 Precision Comparison Benchmark (Qwen 3.5 7B Measured)
 
-### Same Model, Different Quantization Comparison
+The relationship between output speed and precision distortion across quantization tiers, measured on an M3 Max 48GB.
 
-Actual differences when running Qwen 3.5 7B with different quantizations:
-
-| Quantization | File Size | Speed (M3 Max) | Perceived Quality |
+| Quantization Tier | Actual Storage Size | Accelerated Speed (M3 Max) | Korean Translation/Coding Inference Fidelity |
 |:-----:|:--------:|:------------:|:---------|
-| Q8_0 | 7.5GB | 48 tok/s | Nearly identical to original |
-| Q6_K | 5.7GB | 52 tok/s | Nearly identical to original |
-| **Q5_K_M** | **4.9GB** | **55 tok/s** | **Can't tell the difference** |
-| Q4_K_M | 4.2GB | 58 tok/s | Slight difference (translation quality, etc.) |
-| Q3_K_M | 3.3GB | 62 tok/s | Noticeable difference |
-| Q2_K | 2.5GB | 68 tok/s | Quality degradation felt |
+| Q8_0 | 7.5GB | 48 tok/s | Indistinguishable from original FP16 model |
+| Q6_K | 5.7GB | 52 tok/s | Original preservation rate 99%+ |
+| **Q5_K_M** | **4.9GB** | **55 tok/s** | **Imperceptibly good in practice** |
+| Q4_K_M | 4.2GB | 58 tok/s | Minor markdown/special-symbol loss possible in high-difficulty reasoning |
+| Q3_K_M | 3.3GB | 62 tok/s | Contextual awkwardness begins to appear |
+| Q2_K | 2.5GB | 68 tok/s | Unnatural translation tone and frequent infinite loops |
 
-> **If you're torn between Q5_K_M and Q4_K_M:**
-> - General chat/coding: Q4_K_M (sufficient, faster)
-> - Translation/creative/precision work: Q5_K_M (slightly better quality)
+### Optimal Decision Strategy
 
----
+For production use requiring stable language composition and precision coding builds, choose the **Q5_K_M** tier. For general-purpose work where extreme speed and lightweight memory footprint are paramount, **Q4_K_M** is the finest choice.
 
-## 5.6 Chapter Summary
-
-| Item | Content |
-|:----|:-----|
-| **What is quantization?** | Reducing model number precision to shrink file size |
-| **GGUF Format** | llama.cpp standard, quantization info in filename |
-| **Recommended Quantization** | **Q4_K_M** (general) or **Q5_K_M** (high quality) |
-| **M3 Max 48GB Recommendation** | Qwen3.6-35B-A3B APEX I-Compact (17GB, 55 tok/s) |
-| **Download** | Select GGUF file on HuggingFace then download via CLI |
-
----
-
-**In Chapter 6, we'll delve into the secrets of APEX quantization for MoE (Mixture of Experts) models.**
+In Chapter 6, we will explore the principles and application of APEX — a specialized quantization technique for MoE architectures that mimics large-model performance with low memory consumption.

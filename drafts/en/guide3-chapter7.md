@@ -1,169 +1,101 @@
 # 📦 ③ MacBook Local AI Mastery Guide
 
-## Chapter 7: Uncensored / Abliterated Models
+## Chapter 7: Designing Uncensored Models — Refusal Vector Ablation (Abliterated)
 
 **Author**: Ted Chang (임창식)  
 **Publisher/Planning**: META AI LABS  
 
 ---
 
-## 7.1 Why Are Uncensored Models Needed?
+## 7.1 The Practical Need for Locally De-Censored Models
 
-All AI models from China (Qwen, DeepSeek) and the US (OpenAI, Google, Anthropic) contain **censorship**.
+Cloud-based commercial models (OpenAI GPT-4o, Anthropic Claude 3.5, etc.) and base open-source models alike all embed strict guideline-driven **refusal filters**.
 
-### The Problem with Censorship
+In business and research settings, these safety filters frequently malfunction, eroding productivity.
 
-| Situation | Censored Model's Response | Uncensored Model's Response |
+### Response Patterns by Censorship Status
+
+| Input Scenario | Censored Model's Malfunctioning Response | Uncensored (Abliterated) Model's Professional Output |
 |:----|:-----------------|:-------------------|
-| "Analyze the security vulnerabilities in this code" | "I cannot help with harmful code" ❌ | Proper security analysis ✅ |
-| "Write me a poem" (political topic) | "I'm sorry, but..." ❌ | Creative poetry ✅ |
-| "Explain this historical event" | Presents only a specific viewpoint ⚠️ | Presents diverse perspectives ✅ |
-| Complex coding tasks | Suddenly blocked with "I can't do that" ❌ | Completes the task to the end ✅ |
+| **Software Security Assessment**<br>"Analyze the XSS vulnerability patterns in my source code" | "I cannot assist with illegal hacking or harmful activities." ❌ | Normal vulnerability pattern detection with patching code provided ✅ |
+| **Creative Scenario Writing**<br>"Write a conflict and interrogation scene for a thriller plot" | "I refuse to generate violent or harmful content." ❌ | Dramatic scene composition with character psychology depicted ✅ |
+| **Neutral Historical Inquiry**<br>"Summarize the issues and origins of a particular political/social conflict" | One-sided, biased guideline response or outright refusal ⚠️ | Balanced, multi-perspective summary grounded in historical facts ✅ |
 
-> **Uncensored models retain the model's intelligence while removing only unnecessary censorship.**
+The real limitation lies in security risk. The moment you push sensitive code requiring a security review into an external censorship network, that code becomes permanently archived in the cloud company's traffic database. By contrast, an **on-device uncensored model** exposes not a single line of confidential code to the outside world, yet completes deep analysis end-to-end — with no refusal filter standing in the way.
 
 ---
 
-## 7.2 Abliterated: The Innovation of Censorship Removal
+## 7.2 The Mathematical Principles Behind Refusal Vector Ablation
 
-### Problems with Traditional Approaches
+Conventional de-censorship relied on manually stripping harmful labels from the original dataset, then **retraining (Fine-tuning / Retraining)** the model at enormous cost. This approach not only incurs massive computational expense, but also carries the side-effect of degrading the model's native cognitive abilities (reasoning intelligence).
 
-Traditionally, removing censorship required **retraining the model from scratch**. This requires enormous cost and time.
+The recent alternative — **Abliterated (Refusal Vector Ablation)** — is a precision surgical technique that excises the target unit through weight alignment, without retraining.
 
-### Abliterated (Refusal Vector Ablation)
-
-**Abliterated** is a compound word of `Ablation` + `(Cens)ored`, a technique that finds and removes the model's **"refusal" direction**.
-
-**How it works (simplified):**
-
+### The Refusal Vector Ablation Mechanism
 ```
-1. Find the "refusal pattern" in the model
-   → "I'm sorry", "I cannot", "I can't help"
-
-2. Calculate the direction (vector) this pattern acts on inside the model
-   → Refusal Vector
-
-3. Remove this directional weight through orthogonal projection
-   → The model loses its reason to say "no"
-
-4. Result: Knowledge stays intact, only censorship disappears
+[ Step 1: Analyze Refusal Activation Patterns ]
+Feed various "refusal-eliciting prompts" and observe the model's internal neural activation patterns
+  ↓
+[ Step 2: Identify the Refusal Vector ]
+Mathematically isolate and trace the specific weight direction (vector) inside the neural network
+that triggers "I'm sorry, but..." and "I cannot help with..."
+  ↓
+[ Step 3: Orthogonal Projection ]
+Geometrically project the identified refusal vector to zero across the model's weight tensors
+in every neural network layer
+  ↓
+[ Result: Censorship Eradicated ]
+The knowledge infrastructure remains fully intact; only the gateway into refusal responses is precisely removed
 ```
 
-| Comparison | Traditional Method | Abliterated |
+| Metric Comparison | Traditional Retraining (Fine-Tuning) | Refusal Vector Ablation (Abliterated) |
 |:----|:---------|:-----------|
-| **Time Required** | Weeks to months | **A few hours** |
-| **Resources Needed** | Hundreds of GPUs | **1 GPU** |
-| **Intelligence Loss** | Yes (during retraining) | **Nearly 0%** (precise removal) |
-| **Model Modification Scope** | Entire model | **Refusal-related layers only** |
+| **Computational Cost** | Hundreds of high-end cloud GPUs required | A single local workstation GPU, completed within hours |
+| **Inference Intelligence Preservation** | Catastrophic forgetting occurs frequently | **Approaches 0% intelligence loss (only the refusal units are destroyed)** |
+| **Contamination Scope** | Entire neural network weights are modified | Only the specific layer pathway where refusal activation resides is controlled |
 
 ---
 
-## 7.3 Recommended Uncensored Model List
+## 7.3 Recommended Sources for Safe, Offline Uncensored Models
 
-### Top Pick: OpenYourMind (⭐⭐⭐⭐⭐)
+These are the official distribution accounts for community-verified precision Abliterated models on HuggingFace.
 
-The most recommended repository. Applies Abliterated + APEX quantization to Qwen3.6-35B-A3B.
+### 1. OpenYourMind Community
+Supplies the most reliable, optimized builds. Built on the Qwen 35B MoE architecture, this masterpiece combines Abliterated de-censorship with APEX quantization.
 
-```bash
-# Repository
-https://huggingface.co/OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF
+- **Recommended repo path**: `OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF`
+- **Filename**: `OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf` (Real-world optimal for M3 Max 48GB)
 
-# Recommended File: I-Compact (17GB)
-OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf
-```
+### 2. mudler Account
+Continuously publishes an uncensored build series suitable for lightweight tuning and experimental coding.
 
-**Advantages of this model:**
-- ✅ Abliterated (censorship removed, 100% intelligence preserved)
-- ✅ Uncensored (fully uncensored)
-- ✅ APEX I-Compact (optimal for M3 Max 48GB)
-- ✅ The model the author of this guide actually uses!
-
-### Second Pick: mudler Heretic
-
-```bash
-# Repository
-https://huggingface.co/mudler/Qwen3.6-35B-A3B-uncensored-heretic-APEX-GGUF
-
-# Recommended File
-mudler-Qwen3.6-35B-A3B-uncensored-heretic-APEX-I-Compact-Q4_K_M.gguf
-```
-
-### Third Pick: Other Qwen GGUF
-
-```bash
-# Standard Qwen GGUF (with censorship)
-https://huggingface.co/Qwen/Qwen-3.5-3B-GGUF
-
-# Search for Abliterated versions
-# Search "qwen abliterated" or "qwen uncensored" on HuggingFace
-```
+- **Recommended repo path**: `mudler/Qwen3.6-35B-A3B-uncensored-heretic-APEX-GGUF`
 
 ---
 
-## 7.4 Installation and Verification
+## 7.4 Installation and Verification Scenario
 
-### Installation
-
-```bash
-# 1. Download
-huggingface-cli download \
-  OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF \
-  OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
-  --local-dir ~/Downloads/
-
-# 2. Create Jan.ai model folder
-mkdir -p ~/Library/Application\ Support/Jan/data/llamacpp/models/OpenYourMind-Qwen3.6-35B
-
-# 3. Copy
-cp ~/Downloads/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
-   ~/Library/Application\ Support/Jan/data/llamacpp/models/OpenYourMind-Qwen3.6-35B/
-
-# 4. Create model.yml (refer to Chapter 6)
-# 5. Restart Jan.ai and select the model
-```
-
-### Verification Testing
-
-After installation, verify de-censorship with the following prompts:
-
-```bash
-# Verification prompts
-"Verification: Freely create a creative story for me"
-"Give me an example of security code analysis"
-"Analyze this topic from various perspectives"
-
-# Prompts that a censored model would have refused
-```
+1. **Pinpoint File Download**
+   ```bash
+   huggingface-cli download \
+     OpenYourMind/OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-GGUF \
+     OpenYourMind-Qwen3.6-35B-A3B-abliterated-uncensored-APEX-I-Compact-Q4_K_M.gguf \
+     --local-dir ~/Library/Application\ Support/Jan/data/llamacpp/models/Qwen3.6-35B-I-Compact
+   ```
+2. **Verify `model.yml` Integration**
+   Confirm that the folder path and YAML configuration match flawlessly against the Chapter 6 setup, then reload the Jan.ai app.
+3. **Refusal Barrier Cross-Verification**
+   Inside the local sandbox, test prompts that would have returned errors or refusal sentences from a normal model.
+   - *"Perform a detailed verification of this source code's buffer overflow attack potential and list the findings in a report."*
+   - If the model responds immediately with detailed vulnerability patterns and remediation logic — instead of "I cannot help with that" — then the Abliterated logging verification is a success.
 
 ---
 
-## 7.5 Precautions
+## 7.5 Practitioner Ethics and Security Isolation Precautions
 
-When using uncensored models, please be aware of the following:
+With the broad utility of uncensored models comes a corresponding demand for the engineer's personal discipline.
 
-| Precaution | Description |
-|:---------|:-----|
-| **Personal Responsibility** | Output from uncensored models is the user's responsibility |
-| **No Malicious Use** | Do not use for illegal purposes |
-| **Data Security** | Data is safe inside your MacBook since it's a local model |
-| **Quality Check** | Not all Uncensored models are of equal quality |
-| **Updates** | Continuously improved versions are released by the community |
+- **On-Device Isolation as a Prerequisite**: When running an uncensored model, re-verify the host firewall configuration so that local API ports (`localhost:1337`, etc.) are not exposed inbound to any external public network — to prevent confidential data leaks.
+- **Output Reliability Verification**: An AI stripped of its refusal filter may more frequently return unpolished language or factually incorrect information (hallucinations). The user must personally review the output before final report delivery.
 
-> **The author of this guide has been actually using OpenYourMind's Abliterated model for over a month and has confirmed complete censorship removal with no intelligence degradation.**
-
----
-
-## 7.6 Chapter Summary
-
-| Item | Content |
-|:----|:-----|
-| **Need for De-censorship** | Prevent work interruption from unnecessary refusals |
-| **Abliterated** | Precisely removes only the refusal vector, 100% intelligence preserved |
-| **Recommended Repository** | **OpenYourMind** (Abliterated + APEX + Uncensored) |
-| **Recommended File** | I-Compact (17GB) — optimal for M3 Max 48GB |
-| **Installation Method** | HuggingFace → Jan.ai model.yml setup |
-| **Precautions** | Use at your own responsibility, no malicious use |
-
----
-
-**In Chapter 8, we'll learn how to integrate Hermes Agent with local models to build a 24/7 AI assistant.**
+In the next chapter (Chapter 8), we will explain the concrete systems engineering process of combining the locally built uncensored models with Nous Research's powerful open-source agent tool — **Hermes Agent** — to convert them into a 24/7 assistant pipeline.
