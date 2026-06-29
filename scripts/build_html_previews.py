@@ -190,7 +190,7 @@ if __name__ == "__main__":
         output_filename="drafts/guide1-book.html"
     )
     
-    # Guide 3
+    # Guide 3 (Korean)
     compile_book(
         title="맥북 로컬 AI 완전 정복 가이드",
         inputs=[
@@ -207,4 +207,37 @@ if __name__ == "__main__":
             "drafts/guide3-chapter9.md"
         ],
         output_filename="drafts/guide3-book.html"
+    )
+    
+    # Guide 1 (English)
+    compile_book(
+        title="Ultra-Low-Cost AI Agent Setup Guide",
+        inputs=[
+            "drafts/en/guide1-front-matter.md",
+            "drafts/en/chapter1.md",
+            "drafts/en/chapter2.md",
+            "drafts/en/chapter3.md",
+            "drafts/en/chapter4.md",
+            "drafts/en/chapter5.md"
+        ],
+        output_filename="drafts/en/guide1-book-en.html"
+    )
+    
+    # Guide 3 (English)
+    compile_book(
+        title="MacBook Local AI Mastery Guide",
+        inputs=[
+            "drafts/en/guide3-front-matter.md",
+            "drafts/en/guide3-toc.md",
+            "drafts/en/guide3-chapter1.md",
+            "drafts/en/guide3-chapter2.md",
+            "drafts/en/guide3-chapter3.md",
+            "drafts/en/guide3-chapter4.md",
+            "drafts/en/guide3-chapter5.md",
+            "drafts/en/guide3-chapter6.md",
+            "drafts/en/guide3-chapter7.md",
+            "drafts/en/guide3-chapter8.md",
+            "drafts/en/guide3-chapter9.md"
+        ],
+        output_filename="drafts/en/guide3-book-en.html"
     )
