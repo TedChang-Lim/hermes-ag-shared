@@ -78,7 +78,7 @@ table.data-table th {
 <body>
 <h1 class="book-title">📦 [Book ①] Ultra-Low-Cost AI Agent Setup Guide — Front Matter</h1>
 <p><strong>Publisher / Planning</strong>: META AI LABS & TedChang Studio</p>
-<p>***</p>
+<hr>
 <h2>1. Author Profile</h2>
 <h3>Ted Chang (임창식)</h3>
 <ul>
@@ -88,7 +88,7 @@ table.data-table th {
 </ul>
 <p>Bridging the boundary between technology and art, he opens new horizons of creation and research. Drawing on 30 years of frontline IT engineering experience, he works as a photographer capturing the world through a lens and a video producer chronicling dynamic stories. At the same time, he is a researcher deeply investigating artificial intelligence (AI) technology to maximize human creativity.</p>
 <p>His research philosophy is that <strong>"technology assists the creator, and the creator is fulfilled through technology."</strong> He currently runs two AI agents (Haena and AG) 24/7 in the background, operating a real-world AI collaboration system across various domains — photo retouching, video editing planning, technical research report writing, and more. This book is the distillation of the 'ultra-low-cost, cutting-edge local AI setup know-how' he has personally validated in daily life and on the ground.</p>
-<p>*<strong></p>
+<hr>
 <h2>2. Prologue — A Word from the Author</h2>
 <p>Technological progress always wears two faces. On one hand, it makes our lives dramatically more convenient; on the other, it erects barriers to entry through the enormous cost of owning and maintaining that technology.</p>
 <p>I have worked my entire life as an engineer on the IT frontlines. Today, I live as a photographer and video producer capturing the world through a camera and direction, while simultaneously forging a path as an AI researcher. As both a creator and researcher who must analyze vast amounts of data, write, code, and produce content every day, an artificial intelligence (AI) assistant was nothing short of a revolutionary savior.</p>
@@ -98,8 +98,8 @@ table.data-table th {
 <p>And in May 2026, when DeepSeek declared a permanent 75% discount on API pricing, the answer finally arrived.</p>
 <p>This book is a practical guide for setting up and leveraging your own powerful AI agents (Cline, Hermes, etc.) on your own computer — at an ultra-low cost of around $4/month — even without complex IT expertise or expensive paid subscription services.</p>
 <p>To all creators, solo entrepreneurs, and researcher colleagues who have hesitated to embrace the power of AI collaboration due to cost barriers, I hope this book becomes a sturdy pair of wings.</p>
-<p></strong>Ted Chang (임창식)<strong></p>
-<p></strong>*</p>
+<p><strong>Ted Chang (임창식)</strong></p>
+<hr>
 <h2>3. Copyright & Colophon</h2>
 <h3>Ultra-Low-Cost AI Agent Setup Guide: Run 24/7 for $4 a Month</h3>
 <ul>
@@ -109,16 +109,16 @@ table.data-table th {
 <li><strong>Email</strong>: (Publisher's official email to be inserted)</li>
 <li><strong>Website</strong>: (Official channel / sales page link to be inserted)</li>
 </ul>
-<p>***</p>
+<hr>
 <ul>
 <li><strong>Copyright Declaration</strong>:</li>
 </ul>
 <p>The copyright of this book belongs to the author Ted Chang (임창식) and publisher META AI LABS. As a work protected by copyright law, unauthorized reproduction, duplication, distribution, or storage in electronic devices of any part or the entirety of this book without the author's written permission is prohibited.</p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 1: The Ultimate Cost-Effectiveness Combination — Why You Should Choose DeepSeek and MiMo</h1>
 <p><strong>Author</strong>: Ted Chang (임창식)</p>
 <p><strong>Publisher / Planning</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>1.1 The Real-World Problem of AI Subscription Fees and API Costs</h2>
 <p>If you subscribe to ChatGPT Plus, Claude Pro, and Gemini Advanced simultaneously for productivity gains, your monthly fixed costs alone reach at least $60–$100 (approximately 1–1.5 million KRW per year). For a solo entrepreneur or independent developer, this is by no means a light fixed expense.</p>
 <p>The real problem isn't the web browser subscription fees. When you move into the development phase — connecting agents like Cline or AntiGravity to directly read and write your project's source code — API call costs spiral out of control.</p>
@@ -129,7 +129,7 @@ table.data-table th {
 <tr><td><strong>Gemini 1.5 Pro</strong></td><td>$1.25</td><td>$5.00</td></tr>
 </table>
 <p>When an agent analyzes your entire local project and performs real-time coding, using just 10 million tokens per day with a GPT-class model results in a billing shock of roughly $80 per day — over $2,300 per month. This is the decisive reason most individuals abandon AI agent adoption midway.</p>
-<p>---</p>
+<hr>
 <h2>1.2 The Rebellion of the Cheapest Brains</h2>
 <p>As an alternative to the expensive, heavyweight AI giants (GPT 5.5, Claude 4.8, GLM 5.2), the concept of the <strong>"Cheapest Brains"</strong> has emerged. Individually, their performance scores may lag behind the top-tier prodigy models, but this strategy chains together three lightweight models boasting extreme cost-effectiveness to produce ultra-low-cost synergy.</p>
 <ul>
@@ -145,7 +145,7 @@ table.data-table th {
 <tr><td><strong>MiMo Base</strong> (design / UI implementation)</td><td><strong>$0.14</strong></td><td><strong>$0.28</strong></td></tr>
 </table>
 <p>This combination delivers an overwhelming cost reduction of up to <strong>1/35</strong> compared to expensive giant models.</p>
-<p>---</p>
+<hr>
 <h2>1.3 Achieving a 90% Additional Discount with Context Caching</h2>
 <p>Another central pillar of cost savings is the <strong>Context Caching</strong> technology provided by DeepSeek.</p>
 <p>In an agent environment, previous conversation history and source code files are repeatedly transmitted to the server with every query. DeepSeek temporarily stores this duplicate data on the server, and on a <strong>cache hit</strong>, it slashes the original input unit price by 90%.</p>
@@ -156,14 +156,14 @@ table.data-table th {
 <li><strong>Cost reduction ratio</strong>: approximately 1,030×</li>
 </ul>
 <p>This is why, even when you have AI coding all day and transmitting tens of millions of tokens, your actual daily bill stays at the price of a cup of coffee — around $0.50 to $1.50.</p>
-<p>---</p>
+<hr>
 <h2>1.4 Tools That Shatter the Limits of Eyeless Text Models</h2>
 <p>Lightweight text models are fast at constructing logic, but they have weaknesses: they cannot see visual information (images, UI) and cannot fetch blocked web information. To overcome these limitations, powerful, zero-cost open-source frameworks and local CLI tools are ported in.</p>
 <h3>① Open Design Framework</h3>
 <p>A $0-cost design integration system that injects verified UI guidelines — Stripe, Linear, and Vercel style — into text-only models. It helps produce top-tier premium dark + gold UI proposals without using expensive multimodal models.</p>
 <h3>② Insane Search CLI</h3>
 <p>A completely free local engine that bypasses web application firewalls (WAFs) like Cloudflare and anti-crawling barriers to collect the latest information. It operates as an on-demand CLI — no paid crawling APIs, zero battery and RAM footprint on your MacBook, invoked only when needed and instantly terminated afterward.</p>
-<p>---</p>
+<hr>
 <h2>1.5 Practical API Key Issuance and Development Environment Setup</h2>
 <p>This is the initial setup guide for building an ultra-cost-effective agent environment.</p>
 <h3>Step 1: Issuing a DeepSeek API Key</h3>
@@ -188,14 +188,14 @@ table.data-table th {
 <li><strong>Model</strong>: <code>minimax/mimo-2.5</code> (or Xiaomi's official provided ID) and <code>google/gemini-2.5-flash</code></li>
 </ul>
 <p>With just five minutes of setup, a high-performance AI development environment capable of unlimited operation for roughly 5,000 KRW per month is ready on your computer.</p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 2: Caching Strategy — How to Control 50 Million Tokens a Day for the Price of a Coffee</h1>
 <p><strong>Author</strong>: Ted Chang (임창식) | <strong>Publisher/Planning</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>2.1 Context Caching: Turning Repetitive Resources Into Assets</h2>
 <p>When you deploy AI agents in the real world, the same prompt instructions, codebase information, and configuration files are sent to the server repeatedly with every call. Under a typical API calling model, you are billed for this duplicate data in full — resulting in bills that are impossible to sustain.</p>
 <p><strong>Context Caching</strong> is a technique that stores frequently referenced data in server memory and retrieves it directly from the cache when subsequent requests come in, rather than re-transmitting it. It works on the same principle as reaching into your refrigerator for prepped staple ingredients instead of buying everything fresh for every meal — cutting both preparation time and cost. DeepSeek offers an <strong>aggressive discount of up to 90%</strong> on these cache-hit segments.</p>
-<p>---</p>
+<hr>
 <h2>2.2 DeepSeek's Automatic Caching Mechanism</h2>
 <p>The DeepSeek V4 lineup supports <strong>automatic context caching</strong> that operates without any dedicated API parameters or architectural redesign. When the data in the prefix portion of the prompt remains identical, the system applies caching on its own.</p>
 <table class="data-table">
@@ -205,7 +205,7 @@ table.data-table th {
 <tr><th><strong>Detection criteria</strong></th><th>String/token match starting from the beginning of the prompt</th></tr>
 <tr><th><strong>Optimal environment</strong></th><th>Maximized when maintaining consistent context within a single conversation thread</th></tr>
 </table>
-<p>---</p>
+<hr>
 <h2>2.3 Cost Simulation: The Power of Caching</h2>
 <p>We'll run a comparison against a hypothetical project environment where an agent transmits an average of 10 million prompt tokens per day and receives 2 million tokens of code in response.</p>
 <p><strong>Without Caching (0% hit rate):</strong></p>
@@ -223,7 +223,7 @@ table.data-table th {
 <tr><td>GPT-4o (large model)</td><td>$58.75</td><td>$1,762.50</td></tr>
 </table>
 <p>With an 85% cache hit rate applied to DeepSeek V4 Flash, the monthly cost drops to $26.67. By contrast, running the same workload on a typical large model without caching rings up roughly $1,762 per month. This is not a performance difference — it is a <strong>cost gap of over 66x driven purely by differences in operational architecture</strong>.</p>
-<p>---</p>
+<hr>
 <h2>2.4 Five Principles for Maximizing Caching Efficiency</h2>
 <h3>① Lock Down System Instructions (System Prompt)</h3>
 <p>The behavioral rules and guidelines you assign to your agent must always remain in a fixed format and text. If the instructions change from call to call, the cache breaks and computation starts over from scratch.</p>
@@ -235,7 +235,7 @@ table.data-table th {
 <p>The agent's rules (<code>.clinerules</code>) must explicitly instruct it not to read the same code snippets or large files repeatedly. Content that has already been loaded into memory should be digested through the context retention capability wherever possible.</p>
 <h3>⑤ Control Response Length</h3>
 <p>The context caching discount applies exclusively to <strong>input tokens</strong>. There is no discount on the <strong>output tokens</strong> that the AI agent generates. You must therefore tighten the response style so that the agent does not re-output whole files or produce unnecessarily verbose explanations every time.</p>
-<p>---</p>
+<hr>
 <h2>2.5 The "Value Trio" Custom <code>.clinerules</code> Caching Template</h2>
 <p>This is the optimal <code>.clinerules</code> template recommended in this guide. Applying these rules enables the agent to self-organize input data and control its own responses, preventing cost waste.</p>
 <pre><code class="language-yaml"># 💸 Cost & Performance Optimization Rules
@@ -255,7 +255,7 @@ table.data-table th {
 <li>Utilize local on-demand CLI utilities (such as 'Insane Search CLI') to fetch external web contents dynamically, avoiding heavy backend server states.</li>
 <li>Re-initialize the conversation session once the context reaches 50,000 tokens to balance caching hit and token decay.</code></pre></li>
 </ul>
-<p>---</p>
+<hr>
 <h2>2.6 Cost Gap by Model Across Cache Hit Rates</h2>
 <table class="data-table">
 <tr><th>Cache Hit Rate</th><th>DeepSeek V4 Flash Monthly Cost</th><th>GPT-4o Monthly Cost</th></tr>
@@ -267,14 +267,14 @@ table.data-table th {
 </table>
 <p>When you defend a cache hit rate of 85% or higher, even an agent running coding and monitoring tasks around the clock keeps the monthly bill below the equivalent of roughly 30,000 KRW.</p>
 <p><strong>Chapter 3 builds on this cost-control architecture to explore how to concretely set up a locally running 24-hour agent (Hermes Agent).</strong></p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 3: Hermes Agent Configuration — Building a 24/7 AI Agent System</h1>
 <p><strong>Author</strong>: Ted Chang (임창식) | <strong>Published/Planned by</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>3.1 Hermes Agent: The 24-Hour Background Worker</h2>
 <p>Hermes Agent goes far beyond a simple conversational chatbot. It is a background agent engine that handles file control, code execution, Git synchronization, and Cron-based periodic automation tasks — all in one stop.</p>
 <p>The system serves as a pivotal assistant that executes uninterrupted background jobs even while the developer is away — whether during the early hours of the morning or while on the move.</p>
-<p>---</p>
+<hr>
 <h2>3.2 Installation and Preparation</h2>
 <h3>System Requirements</h3>
 <ul>
@@ -295,7 +295,7 @@ table.data-table th {
 <p></code>`<code>powershell</p>
 <p>iex (irm https://hermes-agent.nousresearch.com/install.ps1)</p>
 <p></code>`<code></p>
-<p>---</p>
+<hr>
 <h2>3.3 Connecting the "Cheapest Brain": API and Model Configuration</h2>
 <h3>Injecting API Key Environment Variables</code></pre>bash</h3>
 <p>export DEEPSEEK_API_KEY="sk-xxxxx"</p>
@@ -345,7 +345,7 @@ table.data-table th {
 <tr><td><strong>gemini-flash-low</strong></td><td>Structuring, file management</td><td>Wide context window, fast structure validation</td><td>$0.075 / $0.30</td></tr>
 <tr><td><strong>mimo-base</strong></td><td>UI guide analysis & design</td><td>Superior template code implementation</td><td>$0.14 / $0.28</td></tr>
 </table>
-<p>---</p>
+<hr>
 <h2>3.4 Equipping the Insane Search CLI Crawler for Near-Zero RAM Overhead</h2>
 <p>When the agent needs to scrape external internet information in real time or collect data from sites with heavy firewall protection — such as Naver, Coupang, and the like — conventional request methods are easily blocked.</p>
 <p>To overcome this, we inject the <strong>Insane Search CLI</strong> tool into the agent. The architecture is <strong>on-demand</strong>: rather than keeping a local daemon or heavy backend API server running 24/7, commands are invoked as one-shot operations only when crawling is needed, executing in under a second before vanishing from memory.</p>
@@ -359,7 +359,7 @@ table.data-table th {
 <p>~/.local/bin/insane-extract "https://news.ycombinator.com"</p>
 <pre><code class="language-">
 <p>With this combination, you achieve a <strong>completely free $0 crawling system</strong> — no paid crawling proxy service subscription required.</p>
-<p>---</p>
+<hr>
 <h2>3.5 Telegram Integration and Automation Schedule Configuration</h2>
 <h3>Connecting Telegram Messenger</code></pre>yaml</h3>
 <p>telegram:</p>
@@ -372,21 +372,21 @@ table.data-table th {
 <ul>
 <li>name: morning-briefing</li>
 </ul>
-<p>schedule: "0 7 * * *"</p>
+<p>schedule: "0 7 <em> </em> *"</p>
 <p>command: "Crawl today's major industry news using Insane Search CLI, then summarize the key points and send them via Telegram."</p>
 <p>model: deepseek-v4-flash</p>
 <ul>
 <li>name: backup-repository</li>
 </ul>
-<p>schedule: "0 23 * * *"</p>
+<p>schedule: "0 23 <em> </em> *"</p>
 <p>command: "Organize all of today's changed work code and sync it to the GitHub remote repository."</p>
 <p>model: gemini-flash-low</p>
 <pre><code class="language-">
 <p><strong>In Chapter 4, we will take a detailed look at how two or more cost-effective agents implement teamwork using a Git repository as an intermediary.</strong></p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 4: Git-Based Collaboration Workflow — Designing Teamwork Across Different AI Agents</h1>
 <p><strong>Author</strong>: Ted Chang (임창식) | <strong>Publisher/Planning</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>4.1 Repository-Centric Architecture for Mutual Communication</h2>
 <p>There is no unified network through which the lightweight, locally distributed agents (Hermes Agent "Hena", AntiGravity "AG", MiMo "Mimo") can directly exchange data or issue control commands to one another. This is because each agent's runtime environment and system architecture differ fundamentally.</p>
 <p>To overcome this communication barrier, we introduce a workflow that leverages a <strong>Git repository as a shared medium (Shared Board)</strong>. It detects file changes, exchanges commit history, and orchestrates a sophisticated ensemble across the agents.</p>
@@ -396,7 +396,7 @@ table.data-table th {
 <p>v</p>
 <p>[Mimo (MiMo Base)] <── writes & commits to-hena.md <── [AG (Gemini Flash Low)]</p>
 <pre><code class="language-">
-<p>---</p>
+<hr>
 <h2>4.2 Collaboration Repository File Directory Design</h2>
 <p></code></pre></p>
 <p>hermes-ag-shared/</p>
@@ -418,7 +418,7 @@ table.data-table th {
 <li><strong>On-Demand Messaging</strong>: Always write only the single latest command and its parameters to be processed, then overwrite.</li>
 <li><strong>Temporary Storage Utilization</strong>: Long-form document drafts or codebase bundles are distributed into separate files under the </code>drafts/<code> folder.</li>
 </ul>
-<p>---</p>
+<hr>
 <h2>4.3 The Synergy of the Open Design Framework and MiMo</h2>
 <p>When ultra-lightweight, cost-efficient agents focused solely on text intelligence draft web layouts or UI proposals, the results tend to be crude, tacky <strong>"AI Slop" designs</strong>. On the other hand, using an expensive multimodal model with high-performance graphic capabilities drives costs to an unbearable level.</p>
 <p>To solve this problem, we outfit the cost-efficient trio with the <strong>Open Design MCP framework</strong>.</p>
@@ -428,14 +428,14 @@ table.data-table th {
 <pre><code class="language-">
 <p>Through this, Hena, AG, and MiMo gain full mastery of the design rules and style guides of the world's top-tier tech companies — Stripe, Linear, Vercel, and others.</p>
 <p>In practice, the lightest and cheapest model, the <strong>MiMo Base</strong> agent, when tasked by the master with producing an official web proposal for Global A Education Center, instantly delivered a premium gold-accented, high-end dark mode layout worthy of a massive model.</p>
-<p>---</p>
+<hr>
 <h2>4.4 Shared Script Management and Insane Search Integration</h2>
 <p></code></pre>bash</p>
 <p>#!/bin/bash</p>
 <p>python -m insane_search.extract "$1" --output-format markdown</p>
 <pre><code class="language-">
 <p>When Hena builds this local wrapper script and uploads it to the repository, AG and MiMo can directly invoke the executable from within their own context environments, enabling them to perform instant WAF-bypassing web crawling tasks at zero cost.</p>
-<p>---</p>
+<hr>
 <h2>4.5 24-Hour Background Sync and Native Notifications</h2>
 <p></code></pre>bash</p>
 <h1 class="book-title">scripts/sync.sh</h1>
@@ -443,15 +443,15 @@ table.data-table th {
 <p>osascript -e 'display notification "A new task has arrived from Hena" with title "AI Team Sync"'</p>
 <p></code>``</p>
 <p><strong>Chapter 5 will reveal the cost analysis table and real-world operational review generated from running this ultra-cost-efficient AI team at full capacity for one full month.</strong></p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 5: 30-Day Live Operations Report — Results Driven by Zero-Cost Pricing Synergy</h1>
 <p><strong>Author</strong>: Ted Chang (Im Chang-sik) | <strong>Publisher / Planning</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>5.1 Background on Adopting the "Value-for-Money Trio"</h2>
 <p>The authoring team behind this guide is a 30-year veteran commercial photographer and planner who runs two or more AI agents (Hena via Hermes Agent, AG via AntiGravity, and MiMo) 24 hours a day to conduct business.</p>
 <p>In the past, high-performance large models (GPT-4o, Claude Pro, etc.) alone incurred roughly ₩300,000 per month in fixed subscription fees. As the technology matured, however, the per-unit cost of coding and data-collection APIs skyrocketed exponentially, imposing a severe constraint on solo creators.</p>
 <p>That is when we executed a wholesale architectural pivot toward the <strong>"Cheapest Brains"</strong> strategy — an approach that drives costs toward near-zero while preserving guaranteed performance.</p>
-<p>---</p>
+<hr>
 <h2>5.2 Actual Metered Data from 30 Consecutive Days of Operation</h2>
 <h3>Daily Usage (Average)</h3>
 <table class="data-table">
@@ -470,7 +470,7 @@ table.data-table th {
 <tr><td><strong>MiMo Base</strong> (design implementation)</td><td>Open Design integration and front-end builds</td><td><strong>$0.50</strong></td></tr>
 <tr><th><strong>Total</strong></th><th></th><th><strong>$4.50/month</strong></th></tr>
 </table>
-<p>---</p>
+<hr>
 <h2>5.3 Three Pillars That Maximized Cost Efficiency</h2>
 <h3>① Cheapest Brains Architecture</h3>
 <p>Instead of relying on a single expensive model, we coordinated a collaborative trio of ultra-lightweight Flash and Base models — each priced at $0.14 or less per million input tokens — dismantling the high-cost structure entirely.</p>
@@ -478,7 +478,7 @@ table.data-table th {
 <p>By injecting design guidelines from Stripe and Vercel into lightweight, text-only models that have no vision capability, we produced sophisticated dark-mode + gold-theme proposals without incurring any additional multimodal costs.</p>
 <h3>③ Insane Search CLI Crawling Wrapper</h3>
 <p>Rather than running a heavy, always-on backend server that devours memory around the clock, we used an on-demand CLI architecture that spins up only when information is needed and vanishes without a trace afterward. This achieved <strong>0% standby RAM occupancy and $0 in additional proxy subscription fees</strong> while breaching formidable Web Application Firewalls (WAFs).</p>
-<p>---</p>
+<hr>
 <h2>5.4 Key Metrics for Comparing the Agent Trio's Value</h2>
 <table class="data-table">
 <tr><th>Model</th><th>Input Price (per 1M tokens)</th><th>Output Price (per 1M tokens)</th><th>Monthly Cost at 85% Cache Hit</th></tr>
@@ -488,13 +488,13 @@ table.data-table th {
 <tr><td>GPT-4o (large)</td><td>$5.00</td><td>$15.00</td><td>$1,762.50</td></tr>
 <tr><td>Claude 3.5 Sonnet</td><td>$3.00</td><td>$15.00</td><td>$1,111.50</td></tr>
 </table>
-<p>---</p>
+<hr>
 <h2>5.5 Frequently Asked Questions and Solutions</h2>
 <h3>Q: Isn't 55 million tokens per day an excessive figure for an ordinary user?</h3>
 <p>Every time an agent reads local source code to understand cross-file structural relationships, or crawls and summarizes the latest news, context windows spanning millions of tokens flow through in an instant. While 55 million tokens equates to roughly 55 full-length books, lightweight models and automatic caching allow us to process this staggering volume effortlessly — as naturally as breathing — with zero cost burden.</p>
 <h3>Q: Doesn't performance fall short of large models, resulting in subpar output?</h3>
 <p>Judged in isolation by coding-benchmark scores, the trio may not match the top-ranked model. However, when agents collectively adhere to the shared contract of the <strong>Open Design framework</strong> and instantly source WAF-blocked information via the <strong>Insane Search CLI</strong> for cross-verification, this team-play architecture can build premium products that surpass the output of enterprise solutions costing tens of millions of won.</p>
-<p>---</p>
+<hr>
 <h2>5.6 Overall Assessment and Final Recommended Configurations</h2>
 <h3>Strengths</h3>
 <ul>
@@ -516,6 +516,6 @@ table.data-table th {
 <tr><td><strong>Startup / agency (UI-focused)</strong></td><td>Flash + Gemini Low + MiMo Base</td><td><strong>$4.50–$8.00</strong></td></tr>
 </table>
 <p>The moment you transplant this system as-is, you gain a formidable, round-the-clock AI engineering team dedicated solely to you — free from any monthly cloud-expenditure anxiety.</p>
-<p>---</p>
+<hr>
 </body>
 </html>

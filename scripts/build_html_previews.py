@@ -13,7 +13,9 @@ def md_to_html(md_text):
     # Inline code
     html = re.sub(r'`([^`]+)`', r'<code>\1</code>', html)
     # Bold
-    html = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', html)
+    html = re.sub(r'\*\*([^\*\n]+)\*\*', r'<strong>\1</strong>', html)
+    # Italics
+    html = re.sub(r'\*([^\*\n]+)\*', r'<em>\1</em>', html)
     # Headings
     html = re.sub(r'^# (.*)$', r'<h1 class="book-title">\1</h1>', html, flags=re.M)
     html = re.sub(r'^## (.*)$', r'<h2>\1</h2>', html, flags=re.M)
@@ -34,6 +36,16 @@ def md_to_html(md_text):
             if in_table:
                 paragraphs.append('</table>')
                 in_table = False
+            continue
+            
+        if line_strip == '***' or line_strip == '---':
+            if in_list:
+                paragraphs.append('</ul>')
+                in_list = False
+            if in_table:
+                paragraphs.append('</table>')
+                in_table = False
+            paragraphs.append('<hr>')
             continue
             
         # Lists
@@ -66,7 +78,7 @@ def md_to_html(md_text):
             paragraphs.append('</table>')
             in_table = False
             
-        if not line_strip.startswith('<h') and not line_strip.startswith('<p') and not line_strip.startswith('<pre') and not line_strip.startswith('</pre') and not line_strip.startswith('<ul') and not line_strip.startswith('<li') and not line_strip.startswith('<tr') and not line_strip.startswith('<table'):
+        if not line_strip.startswith('<h') and not line_strip.startswith('<p') and not line_strip.startswith('<pre') and not line_strip.startswith('</pre') and not line_strip.startswith('<ul') and not line_strip.startswith('<li') and not line_strip.startswith('<tr') and not line_strip.startswith('<table') and not line_strip.startswith('<hr'):
             paragraphs.append(f'<p>{line_strip}</p>')
         else:
             paragraphs.append(line)

@@ -78,7 +78,7 @@ table.data-table th {
 <body>
 <h1 class="book-title">📦 [①권] 초가성비 AI 에이전트 구축 가이드 — 앞부속물 (Front Matter)</h1>
 <p><strong>출판/기획</strong>: META AI LABS & TedChang Studio</p>
-<p>***</p>
+<hr>
 <h2>1. 저자 프로필 (Author Profile)</h2>
 <h3>Ted Chang (임창식)</h3>
 <ul>
@@ -88,7 +88,7 @@ table.data-table th {
 </ul>
 <p>기술과 예술의 경계를 넘나들며 새로운 창작과 연구의 지평을 열어가고 있습니다. 30년 동안 IT 업계 최전선에서 쌓아온 엔지니어링 역량을 바탕으로, 렌즈를 통해 세상을 담아내는 사진작가이자 역동적인 이야기를 기록하는 영상제작자로 활동하고 있습니다. 동시에 인간의 창의성을 극대화하기 위한 인공지능(AI) 기술을 깊이 있게 연구하는 연구가이기도 합니다.</p>
 <p>그의 연구 철학은 <strong>"기술은 창작자를 돕고, 창작자는 기술을 통해 완성된다"</strong>는 것입니다. 현재 두 AI 에이전트(해나와 AG)를 24시간 백그라운드에서 가동하며 사진 보정, 영상 편집 기획, 기술 연구 리포트 작성 등 다양한 영역에서 AI 협업 시스템을 실전 운영하고 있습니다. 이 책은 그가 일상과 현장에서 직접 검증한 '초가성비 최첨단 로컬 AI 구축 노하우'의 집약체입니다.</p>
-<p>*<strong></p>
+<hr>
 <h2>2. 프롤로그 (Prologue) — 저자의 말</h2>
 <p>기술의 발전은 늘 두 개의 얼굴을 가지고 있습니다. 한편으로는 우리의 삶을 비약적으로 편리하게 만들지만, 다른 한편으로는 그 기술을 소유하고 유지하기 위한 막대한 비용의 진입 장벽을 세우기도 합니다.</p>
 <p>평생 IT 최전선에서 엔지니어로 일해 왔고, 지금은 카메라와 연출을 통해 세상을 담는 사진작가이자 영상제작자로 살아가며, 동시에 AI 연구가로서 삶을 개척하고 있습니다. 창작자이자 연구가로서 매일 방대한 자료를 분석하고, 글을 쓰고, 코드를 짜고, 콘텐츠를 제작해야 하는 저에게 인공지능(AI) 비서는 그야말로 혁신적인 구세주였습니다.</p>
@@ -98,8 +98,8 @@ table.data-table th {
 <p>그리고 2026년 5월, DeepSeek가 API 가격을 기존 대비 75% 인하하며 영구 할인을 선언했을 때 마침내 답을 찾았습니다.</p>
 <p>이 책은 복잡한 IT 전문 지식이 없더라도, 비싼 유료 구독 서비스 없이도, 월 4달러대의 초가성비로 나만의 강력한 AI 에이전트(Cline, Hermes 등)를 내 컴퓨터에 세팅하고 부려 먹는 실전 가이드입니다.</p>
 <p>비용의 장벽 때문에 AI 협업의 강력함을 망설였던 모든 창작자, 1인 기업가, 연구가 동료들에게 이 책이 든든한 날개가 되기를 바랍니다.</p>
-<p></strong>Ted Chang (임창식)<strong></p>
-<p></strong>*</p>
+<p><strong>Ted Chang (임창식)</strong></p>
+<hr>
 <h2>3. 판권 정보 (Copyright & Colophon)</h2>
 <h3>월 4달러대로 24시간 가동하는 초가성비 AI 에이전트 구축 가이드</h3>
 <ul>
@@ -109,16 +109,16 @@ table.data-table th {
 <li><strong>이메일</strong>: (발행처 공식 이메일 기재처)</li>
 <li><strong>웹사이트</strong>: (공식 채널/판매 페이지 링크 기재처)</li>
 </ul>
-<p>***</p>
+<hr>
 <ul>
 <li><strong>저작권 선언</strong>:</li>
 </ul>
 <p>이 책의 저작권은 저자 Ted Chang (임창식) 및 출판사 META AI LABS에 있습니다. 저작권법의 보호를 받는 저작물이므로 저자의 서면 허락 없이 이 책의 일부 또는 전부를 무단 전재, 복제, 배포하거나 전산 장치에 수록하는 행위를 금합니다.</p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 1: 최강의 가성비 조합, DeepSeek와 Mimo를 선택해야 하는 이유</h1>
 <p><strong>저자</strong>: Ted Chang (임창식)</p>
 <p><strong>출판/기획</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>1.1 AI 구독료와 API 비용의 현실적인 문제</h2>
 <p>생산성 향상을 위해 ChatGPT Plus, Claude Pro, Gemini Advanced를 동시에 구독하면 매월 고정비만 최소 60~100달러(연간 약 100만~150만 원)에 달합니다. 1인 기업가나 독립 개발자에게 이는 결코 가볍지 않은 고정 지출입니다.</p>
 <p>진짜 문제는 웹 브라우저 구독료가 아닙니다. Cline이나 AntiGravity 같은 에이전트를 연동해 프로젝트 소스 코드를 직접 읽고 쓰는 개발 단계로 넘어가면, API 호출 비용은 통제 불가능한 수준으로 치솟습니다.</p>
@@ -129,7 +129,7 @@ table.data-table th {
 <tr><td><strong>Gemini 1.5 Pro</strong></td><td>$1.25</td><td>$5.00</td></tr>
 </table>
 <p>에이전트가 로컬 프로젝트 전체를 분석하며 실시간 코딩을 진행할 때, 하루 1,000만 토큰만 사용해도 GPT 계열 모델 기준으로 하루 8만 원, 한 달이면 230만 원이 넘는 요금 폭탄을 맞이합니다. 대부분의 개인이 AI 에이전트 도입을 중도 포기하는 결정적인 이유입니다.</p>
-<p>---</p>
+<hr>
 <h2>1.2 '가장 저렴한 뇌(Cheapest Brains)'들의 반란</h2>
 <p>비싸고 무거운 인공지능 거인들(GPT 5.5, Claude 4.8, GLM 5.2)의 대안으로 <strong>'가장 저렴한 뇌(Cheapest Brains)'</strong> 개념이 등장했습니다. 개별 성능 점수만 보면 최고의 수재 모델들보다 아쉬울 수 있지만, 극강의 가성비를 자랑하는 세 가지 경량 모델을 연결해 초저비용 시너지를 내는 전략입니다.</p>
 <ul>
@@ -145,7 +145,7 @@ table.data-table th {
 <tr><td><strong>MiMo Base</strong> (디자인/UI 구현)</td><td><strong>$0.14</strong></td><td><strong>$0.28</strong></td></tr>
 </table>
 <p>이 조합은 비싼 거대 모델 대비 최대 1/35 수준의 압도적인 비용 절감 효과를 냅니다.</p>
-<p>---</p>
+<hr>
 <h2>1.3 컨텍스트 캐싱(Context Caching)으로 실현하는 90% 추가 할인</h2>
 <p>비용 절감의 또 다른 핵심 축은 DeepSeek가 제공하는 <strong>컨텍스트 캐싱(Context Caching)</strong> 기술입니다.</p>
 <p>에이전트 환경에서는 이전에 나눴던 대화 기록과 소스 코드 파일이 매 질문마다 서버로 반복 전송됩니다. DeepSeek은 이 중복 데이터를 서버에 임시 저장하여, 캐시 히트(Cache Hit) 시 기존 입력 단가의 90%를 깎아줍니다.</p>
@@ -156,14 +156,14 @@ table.data-table th {
 <li><strong>비용 절감율</strong>: 약 1,030배</li>
 </ul>
 <p>하루 종일 AI에게 코딩을 시키고 수천만 토큰을 전송해도 하루 실제 청구 금액이 커피 한 잔 값 수준인 $0.5 ~ $1.5에 머무는 이유입니다.</p>
-<p>---</p>
+<hr>
 <h2>1.4 눈이 없는 텍스트 모델의 한계를 깨는 도구들</h2>
 <p>경량 텍스트 모델은 로직을 짜는 속도는 빠르지만 시각 정보(이미지, UI)를 보지 못하거나 차단된 웹 정보를 가져오지 못하는 약점이 있습니다. 이를 극복하기 위해 비용이 들지 않는 강력한 오픈소스 프레임워크와 로컬 CLI 도구를 이식합니다.</p>
 <h3>① 오픈 디자인(Open Design) 프레임워크</h3>
 <p>텍스트 전용 모델에 Stripe, Linear, Vercel 스타일의 검증된 UI 가이드라인을 주입하는 $0 비용의 디자인 연동 시스템입니다. 값비싼 멀티모달 모델을 쓰지 않고도 최고급 프리미엄 다크+골드 UI 제안서를 그려내도록 돕습니다.</p>
 <h3>② 인세인 서치(Insane Search) CLI</h3>
 <p>Cloudflare 같은 웹 방화벽(WAF)과 크롤링 방단막을 우회해 최신 정보를 수집하는 완전 무료 로컬 엔진입니다. 유료 크롤링 API를 쓰지 않고, 맥북의 배터리와 램(RAM) 점유율을 0%로 유지하면서 필요할 때만 호출되어 즉시 소멸하는 온디맨드 CLI 방식으로 작동합니다.</p>
-<p>---</p>
+<hr>
 <h2>1.5 실전 API 키 발급 및 개발 환경 설정</h2>
 <p>초가성비 에이전트 환경을 구축하기 위한 초기 설정 가이드입니다.</p>
 <h3>Step 1: DeepSeek API 키 발급</h3>
@@ -188,15 +188,15 @@ table.data-table th {
 <li><strong>Model</strong>: <code>minimax/mimo-2.5</code> (또는 샤오미 공식 제공 ID) 및 <code>google/gemini-2.5-flash</code></li>
 </ul>
 <p>단 5분 만의 설정으로 월 5,000원에 무한 작동하는 고성능 AI 개발 환경이 내 컴퓨터에 준비됩니다.</p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 2: 캐싱 전략 — 하루 5천만 토큰을 커피값으로 통제하는 법</h1>
 <p><strong>저자</strong>: Ted Chang (임창식)</p>
 <p><strong>출판/기획</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>2.1 반복되는 리소스를 자산으로 만드는 컨텍스트 캐싱</h2>
 <p>AI 에이전트를 실무에 투입하면 동일한 프롬프트 지침, 코드베이스 정보, 설정 파일이 매 호출마다 서버로 반복 전송됩니다. 일반적인 API 호출 방식에서는 이 중복 데이터 전체에 비용이 청구되어 감당할 수 없는 청구서를 받게 됩니다.</p>
 <p><strong>컨텍스트 캐싱(Context Caching)</strong>은 자주 참조하는 데이터를 서버 메모리에 저장해 두고, 후속 요청이 들어왔을 때 캐시에서 직접 불러와 응답하는 기술입니다. 매번 재료를 새로 사서 음식을 만드는 대신, 냉장고에 미리 준비해 둔 기본 재료를 꺼내 조리 시간과 비용을 단축하는 원리입니다. DeepSeek은 이 캐시 적중 구간에 대해 <strong>최대 90%에 달하는 파격적인 할인</strong>을 제공합니다.</p>
-<p>---</p>
+<hr>
 <h2>2.2 DeepSeek의 자동 캐싱 매커니즘</h2>
 <p>DeepSeek V4 라인업은 별도의 API 파라미터나 아키텍처 재설계 없이 작동하는 <strong>자동 컨텍스트 캐싱</strong>을 지원합니다. 프롬프트 앞부분(Prefix)의 데이터가 동일하게 유지되면 시스템이 알아서 캐싱을 적용합니다.</p>
 <table class="data-table">
@@ -206,7 +206,7 @@ table.data-table th {
 <tr><td><strong>판단 기준</strong></td><td>프롬프트 시작 지점부터의 문자열/토큰 일치 여부</td></tr>
 <tr><td><strong>최적화 환경</strong></td><td>단일 대화 스레드 내에서 일관된 컨텍스트를 유지할 때 극대화</td></tr>
 </table>
-<p>---</p>
+<hr>
 <h2>2.3 비용 시뮬레이션: 캐싱의 위력</h2>
 <p>에이전트가 하루 평균 1,000만 토큰의 프롬프트를 전송하고 200만 토큰의 코드를 응답받는 가상의 프로젝트 환경을 기준으로 비교해 봅니다.</p>
 <p><strong>캐싱 미적용 시 (적중률 0%):</strong></p>
@@ -224,7 +224,7 @@ table.data-table th {
 <tr><td>GPT-4o (거대 모델)</td><td>$58.75</td><td>$1,762.50</td></tr>
 </table>
 <p>DeepSeek V4 Flash에 캐싱 85%를 적용하면 월 비용은 26.67달러로 떨어집니다. 반면 같은 작업을 캐싱 없이 일반 거대 모델로 수행하면 한 달에 약 1,762달러가 청구됩니다. 성능 차이가 아닌 <strong>운영 아키텍처의 차이로 66배가 넘는 비용 격차가 발생</strong>하는 것입니다.</p>
-<p>---</p>
+<hr>
 <h2>2.4 캐싱 효율을 극한으로 끌어올리는 5대 원칙</h2>
 <h3>① 시스템 지침(System Prompt)의 고정</h3>
 <p>에이전트에게 지정하는 행동 강령과 규칙은 항상 일정한 포맷과 텍스트로 고정해야 합니다. 지침이 수시로 바뀌면 캐시가 깨지고 처음부터 다시 연산이 수행됩니다.</p>
@@ -236,7 +236,7 @@ table.data-table th {
 <p>동일한 코드 조각이나 대용량 파일을 반복적으로 읽지 않도록 에이전트의 규칙(<code>.clinerules</code>)에 명시해야 합니다. 한 번 메모리에 올린 내용은 가능한 한 컨텍스트 보존 능력으로 소화하도록 지시합니다.</p>
 <h3>⑤ 답변 분량 제어</h3>
 <p>컨텍스트 캐싱 할인은 오직 '입력 토큰'에만 적용됩니다. AI 에이전트가 내놓는 '출력 토큰'에는 할인이 없으므로, 쓸데없이 장황한 설명이나 코드 전체를 매번 다시 출력하지 않도록 답변 스타일을 콤팩트하게 교정해야 합니다.</p>
-<p>---</p>
+<hr>
 <h2>2.5 가성비 삼총사 맞춤형 <code>.clinerules</code> 캐싱 템플릿</h2>
 <p>이 가이드에서 제안하는 최적의 <code>.clinerules</code> 템플릿입니다. 이 규칙을 적용하면 에이전트가 스스로 입력 데이터를 정렬하고 답변을 통제하여 비용 낭비를 예방합니다.</p>
 <pre><code class="language-yaml"># 💸 Cost & Performance Optimization Rules
@@ -256,7 +256,7 @@ table.data-table th {
 <li>Utilize local on-demand CLI utilities (such as 'Insane Search CLI') to fetch external web contents dynamically, avoiding heavy backend server states.</li>
 <li>Re-initialize the conversation session once the context reaches 50,000 tokens to balance caching hit and token decay.</code></pre></li>
 </ul>
-<p>---</p>
+<hr>
 <h2>2.6 캐싱 적중률에 따른 모델별 비용 격차</h2>
 <table class="data-table">
 <tr><td>캐싱 적중률</td><td>DeepSeek V4 Flash 월 비용</td><td>GPT-4o 월 비용</td></tr>
@@ -268,15 +268,15 @@ table.data-table th {
 </table>
 <p>캐싱 적중률을 85% 이상으로 방어해내면, 24시간 내내 에이전트가 코딩과 모니터링을 반복해도 한 달 청구서가 3만 원대 이하로 억제됩니다.</p>
 <p><strong>Chapter 3에서는 이 비용 통제 설계를 바탕으로 24시간 작동하는 로컬 에이전트(Hermes Agent)를 구체적으로 설정하는 방법을 살펴봅니다.</strong></p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 3: Hermes Agent 설정 — 24시간 작동하는 AI 에이전트 시스템 구축</h1>
 <p><strong>저자</strong>: Ted Chang (임창식)</p>
 <p><strong>출판/기획</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>3.1 24시간 백그라운드 워커, Hermes Agent</h2>
 <p>Hermes Agent는 단순한 대화형 챗봇을 넘어 파일 제어, 코드 실행, Git 동기화, 크론잡(Cron) 기반의 주기적인 자동화 작업을 원스톱으로 처리하는 백그라운드 에이전트 엔진입니다.</p>
 <p>이 시스템은 개발자가 자리를 비운 새벽이나 이동 중인 시간에도 끊김 없는 백그라운드 작업을 실행하는 중추적인 비서 역할을 수행합니다.</p>
-<p>---</p>
+<hr>
 <h2>3.2 설치 및 준비 과정</h2>
 <h3>요구 시스템 환경</h3>
 <ul>
@@ -301,7 +301,7 @@ table.data-table th {
 <p>iex (irm https://hermes-agent.nousresearch.com/install.ps1)</p>
 <p></code>`<code></p>
 <p>설치가 정상적으로 끝나면 사용자 홈 디렉토리 아래 </code>~/.hermes/<code> 경로가 생성되고, 여기에 데이터베이스 및 기본 구성 파일들이 자리 잡게 됩니다.</p>
-<p>---</p>
+<hr>
 <h2>3.3 '가장 저렴한 뇌' 연결하기: API 및 모델 구성</h2>
 <p>가장 비용 효율적인 삼총사 조합을 바탕으로 설정을 진행합니다.</p>
 <h3>API 키 환경변수 주입</code></pre>bash</h3>
@@ -359,7 +359,7 @@ table.data-table th {
 <tr><td><strong>gemini-flash-low</strong></td><td>구조화, 파일 관리</td><td>넓은 컨텍스트, 빠른 구조 검증</td><td>$0.075 / $0.30</td></tr>
 <tr><td><strong>mimo-base</strong></td><td>UI 가이드 분석 및 디자인</td><td>뛰어난 템플릿 코드 구현</td><td>$0.14 / $0.28</td></tr>
 </table>
-<p>---</p>
+<hr>
 <h2>3.4 0% 대기 램(RAM)을 위한 Insane Search CLI 크롤러 장착</h2>
 <p>에이전트가 외부 인터넷 정보를 실시간으로 긁어오거나 네이버, 쿠팡 등 방화벽이 삼엄한 사이트를 수집할 때 일반적인 요청 방식은 차단당하기 십상입니다.</p>
 <p>이를 돌파하기 위해 에이전트 내부에 <strong>Insane Search CLI</strong> 도구를 주입합니다. 로컬 데몬이나 무거운 백엔드 API 서버를 24시간 켜두지 않고, 크롤링이 필요할 때만 단발성으로 명령어를 호출해 1초 만에 실행한 뒤 메모리에서 소멸시키는 <strong>On-Demand</strong> 구조입니다.</p>
@@ -378,7 +378,7 @@ table.data-table th {
 <p>~/.local/bin/insane-extract "https://news.ycombinator.com"</p>
 <pre><code class="language-">
 <p>이 조합으로 유료 크롤링 프록시 서비스 구독 없이 <strong>완전한 $0 크롤링 체계</strong>를 완성합니다.</p>
-<p>---</p>
+<hr>
 <h2>3.5 텔레그램 연동 및 자동화 스케줄 구성</h2>
 <h3>텔레그램 메신저 연결</h3>
 <p>외부에서도 스마트폰을 이용해 에이전트에 제어 명령을 내릴 수 있도록 텔레그램 봇을 연동합니다.</p>
@@ -397,23 +397,23 @@ table.data-table th {
 <ul>
 <li>name: morning-briefing</li>
 </ul>
-<p>schedule: "0 7 * * *"  # 매일 아침 7시</p>
+<p>schedule: "0 7 <em> </em> *"  # 매일 아침 7시</p>
 <p>command: "오늘 업계 주요 소식을 Insane Search CLI로 크롤링해서 핵심을 텔레그램으로 요약 전송해줘"</p>
 <p>model: deepseek-v4-flash</p>
 <ul>
 <li>name: backup-repository</li>
 </ul>
-<p>schedule: "0 23 * * *"  # 매일 밤 11시</p>
+<p>schedule: "0 23 <em> </em> *"  # 매일 밤 11시</p>
 <p>command: "오늘 변경된 작업 코드들을 모두 정리해 깃허브 원격 저장소에 동기화해줘"</p>
 <p>model: gemini-flash-low</p>
 <pre><code class="language-">
 <p>이 간결한 파일 몇 개로 맥북의 RAM 점유율을 극소화하면서, 언제나 켜져 있는 나만의 자동화 시스템이 갖춰집니다.</p>
 <p><strong>Chapter 4에서는 두 개 이상의 가성비 에이전트가 Git 저장소를 중간 매개로 삼아 팀워크를 구현하는 방식을 구체적으로 분석해 보겠습니다.</strong></p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 4: Git 기반 협업 워크플로우 — 서로 다른 AI 에이전트들의 팀워크 설계</h1>
 <p><strong>저자</strong>: Ted Chang (임창식)</p>
 <p><strong>출판/기획</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>4.1 상호 커뮤니케이션을 위한 저장소 중심 아키텍처</h2>
 <p>로컬에 흩어진 경량형 에이전트들(Hermes Agent "해나", AntiGravity "AG", MiMo "미모")이 서로 직접 데이터를 교환하거나 제어 명령을 내릴 수 있는 통합 네트워크는 부재합니다. 각 에이전트의 런타임 환경과 시스템 구조가 서로 상이하기 때문입니다.</p>
 <p>이 통신 단절을 극복하기 위해 <strong>Git 저장소를 공유 매개체(Shared Board)</strong>로 활용하는 워크플로우를 도입합니다. 파일의 변경 점을 감지하고 커밋 이력을 교환하며 에이전트 간의 정교한 앙상블을 연출하는 모델입니다.</p>
@@ -423,7 +423,7 @@ table.data-table th {
 <p>v</p>
 <p>[미모 (MiMo Base)] <── to-hena.md 작성 및 커밋 <── [AG (Gemini Flash Low)]</p>
 <pre><code class="language-">
-<p>---</p>
+<hr>
 <h2>4.2 협업 저장소의 파일 디렉토리 설계</h2>
 <p></code></pre></p>
 <p>hermes-ag-shared/</p>
@@ -445,7 +445,7 @@ table.data-table th {
 <li><strong>On-Demand 메시징</strong>: 메신저 파일들은 이전 대화 내역을 계속 덧붙여 무겁게 만들지 않고, 항상 한 번 처리할 '최신 명령 및 파라미터'만 기입한 뒤 작업을 마치면 덮어씁니다.</li>
 <li><strong>임시 저장 공간 활용</strong>: 장문의 문서 초안이나 코드베이스 뭉치는 </code>drafts/<code> 폴더에 별도 파일로 분리 배치하여 대화 채널 파일의 크기를 늘 가볍게 유지합니다.</li>
 </ul>
-<p>---</p>
+<hr>
 <h2>4.3 오픈 디자인(Open Design) 프레임워크와 미모의 시너지</h2>
 <p>텍스트 지능에만 치중된 초경량 가성비 에이전트들이 웹 레이아웃이나 UI 제안서를 짜면, 대개 투박하거나 촌스러운 'AI 슬롭(Slop) 디자인'이 나오기 마련입니다. 그렇다고 해서 고성능 그래픽 능력을 지닌 비싼 멀티모달 모델을 쓰면 비용이 감당하기 힘들 정도로 치솟습니다.</p>
 <p>이 문제를 해결하고자 가성비 삼총사에게 <strong>오픈 디자인(Open Design) MCP 프레임워크</strong>를 장착합니다.</p>
@@ -457,7 +457,7 @@ table.data-table th {
 <p>이를 통해 해나, AG, 미모는 Stripe, Linear, Vercel 등 세계 최고 수준의 테크 기업들이 다년간 축적한 웹 UI 디자인 규칙과 스타일 가이드(CSS 변수명, 레이아웃 공식, 다크-골드 앤톤 매너)를 완벽히 숙지하게 됩니다.</p>
 <p>실제로 이 공유 가이드를 참조한 가장 가볍고 저렴한 모델인 <strong>MiMo Base</strong> 에이전트는, 마스터가 요청한 글로벌 A 교육원 공식 웹 제안서(</code>A 교육원_proposal.html<code>)를 제작할 때 거대 모델 부럽지 않은 프리미엄 골드 포인트의 고급 다크 모드 레이아웃을 단번에 뽑아내는 놀라운 역량을 발휘했습니다.</p>
 <p>비싼 단일 초지능 모델 대신 <strong>경량 뇌와 오픈 디자인 가이드라인의 조화로운 협업</strong>이 거둔 결정적 승리입니다.</p>
-<p>---</p>
+<hr>
 <h2>4.4 공유 스크립트 관리와 Insane Search의 통합</h2>
 <p>에이전트들이 협업 과정에서 외부 정보를 가져와 검증해야 할 때는 공유 폴더 내의 </code>scripts/<code> 디렉토리를 통합니다.</p>
 <p>메모리 자원을 실시간으로 아끼기 위해, 24시간 도는 봇 대신 필요할 때만 가동해 데이터를 낚아채고 소멸하는 <strong>Insane Search CLI</strong> 래퍼를 셋업합니다.</p>
@@ -468,7 +468,7 @@ table.data-table th {
 <p>python -m insane_search.extract "$1" --output-format markdown</p>
 <pre><code class="language-">
 <p>해나가 이 로컬 래퍼 스크립트를 빌드하여 저장소에 올려두면, AG와 미모는 본인들의 컨텍스트 환경에서 이 실행 파일을 직접 호출(</code>chmod +x scripts/insane_extract<code>)해 즉각적인 WAF 우회 웹 크롤링 작업을 무료로 수행할 수 있게 됩니다.</p>
-<p>---</p>
+<hr>
 <h2>4.5 24시간 백그라운드 싱크 및 네이티브 알림</h2>
 <p>에이전트 간의 실시간 작업 상태를 동기화하고 마스터에게 작업 진척도를 알리기 위해, 백그라운드 동기화 스크립트(</code>scripts/sync.sh<code>)를 macOS 크론 시스템에 30분 주기로 등록합니다.</p>
 <p></code></pre>bash</p>
@@ -479,16 +479,16 @@ table.data-table th {
 <p></code>`<code></p>
 <p>이 백그라운드 동기화 체계는 사람의 수동 개입을 배제한 채, 24시간 동안 여러 대의 에이전트들이 Git 커밋을 주고받으며 자발적으로 책 초안을 검증하고, 오타를 잡고, 디자인 뼈대를 조립하도록 만들어 줍니다.</p>
 <p><strong>Chapter 5에서는 이 초가성비 AI 팀을 실제 한 달간 풀가동하여 산출된 비용 분석표와 실전 후기를 공개합니다.</strong></p>
-<p>---</p>
+<hr>
 <h1 class="book-title">Chapter 5: 30일 실전 운영기 — 0원 가격 시너지가 만들어낸 성과</h1>
 <p><strong>저자</strong>: Ted Chang (임창식)</p>
 <p><strong>출판/기획</strong>: META AI LABS</p>
-<p>---</p>
+<hr>
 <h2>5.1 가성비 삼총사 도입 배경</h2>
 <p>이 가이드의 집필진은 30년 경력의 현업 사진작가 겸 기획자로, 매일 두 대 이상의 AI 에이전트(Hermes Agent "해나", AntiGravity "AG", MiMo "미모")를 24시간 가동하여 비즈니스를 수행하고 있습니다.</p>
 <p>과거에는 고성능 거대 모델들(GPT-4o, Claude Pro 등)의 매월 고정 구독비로만 30만 원 상당을 지출해야 했습니다. 하지만 기술이 고도화될수록 코딩 및 수집 API 단가는 기하급수적으로 폭등했고, 이는 개인 창작자에게 큰 한계로 작용했습니다.</p>
 <p>이때 성능을 보장받으면서 비용을 0원에 가깝게 수렴시키는 <strong>'가장 저렴한 뇌(Cheapest Brains)'</strong> 전략으로 아키텍처를 전면 전향했습니다.</p>
-<p>---</p>
+<hr>
 <h2>5.2 30일 연속 가동 실제 계측 데이터</h2>
 <h3>일일 사용량 (평균)</h3>
 <table class="data-table">
@@ -508,7 +508,7 @@ table.data-table th {
 <tr><td><strong>합계</strong></td><td></td><td><strong>$4.50 / 월</strong></td></tr>
 </table>
 <p>하루 5,500만 토큰에 이르는 방대한 코딩 및 정보 수집을 수행했음에도 최종 한 달 지출은 <strong>단돈 4.50달러(약 6,000원)</strong>에 머물렀습니다. 만약 동일한 연산 흐름을 캐싱 미지원 상태의 GPT-5.5나 Claude 4.8로 돌렸다면 월 500~700달러(약 70~100만 원) 규모의 요금 폭탄을 맞았을 것입니다.</p>
-<p>---</p>
+<hr>
 <h2>5.3 가격 효율성 극대화를 만든 3대 공신</h2>
 <h3>① 가장 저렴한 뇌 (Cheapest Brains) 아키텍처</h3>
 <p>비싼 모델 한 대에 의존하는 대신, 100만 토큰당 입력 $0.14 이하의 최경량 Flash 및 Base 모델 삼총사를 협업 환경으로 조율해 고비용 구조를 파괴했습니다.</p>
@@ -516,7 +516,7 @@ table.data-table th {
 <p>눈이 없는 텍스트 전용 경량 모델들에게 Stripe, Vercel의 디자인 가이드라인을 주입해, 추가 멀티모달 비용 지출 없이 고급 다크+골드 테마의 제안서(</code>A 교육원_proposal.html`)를 뽑아내는 상향 평준화 디자인 솔루션을 정착시켰습니다.</p>
 <h3>③ Insane Search CLI 크롤링 래퍼</h3>
 <p>24시간 돌아가며 메모리를 좀먹는 무거운 백엔드 서버 방식 대신, 정보가 필요할 때만 1초 구동되고 흔적 없이 사라지는 On-Demand CLI 구조를 통해 <strong>대기 램(RAM) 점유율 0%, 추가 프록시 구독료 $0</strong>로 삼엄한 웹 방화벽(WAF) 차단막을 돌파했습니다.</p>
-<p>---</p>
+<hr>
 <h2>5.4 에이전트 삼총사의 가치를 비교하는 핵심 지표</h2>
 <table class="data-table">
 <tr><td>모델 구분</td><td>입력단가 (1M)</td><td>출력단가 (1M)</td><td>캐시 85% 적중 시 월 비용</td></tr>
@@ -527,13 +527,13 @@ table.data-table th {
 <tr><td>Claude 3.5 Sonnet</td><td>$3.00</td><td>$15.00</td><td>$1,111.50</td></tr>
 </table>
 <p>캐싱 적중률을 철저히 확보하면, 24시간 풀코딩 환경을 구현하더라도 실제 운영비는 월 3만 원 선을 넘지 않습니다.</p>
-<p>---</p>
+<hr>
 <h2>5.5 자주 묻는 질문과 해결책</h2>
 <h3>Q: 하루 5,500만 토큰은 일반인에게 너무 과한 수치 아닌가요?</h3>
 <p>에이전트가 로컬 소스 코드를 읽어 들여 파일 간의 구조적 관계를 파악하고, 최신 뉴스 자료를 크롤링하여 요약할 때마다 수백만 토큰의 컨텍스트가 순식간에 흘러갑니다. 5,500만 토큰은 약 55권의 단행본 책 분량이지만, 경량 모델과 자동 캐싱 덕분에 이 압도적인 데이터를 비용 부담 없이 숨 쉬듯 처리할 수 있습니다.</p>
 <h3>Q: 거대 모델보다 성능이 뒤처져 결과가 부실하지 않나요?</h3>
 <p>독립적으로 코딩 테스트 점수만 놓고 비교하면 1등 모델에 미치지 못할 수 있습니다. 그러나 에이전트들이 <strong>오픈 디자인(Open Design) 프레임워크</strong>라는 공동의 약속을 따르고, WAF로 차단된 정보는 <strong>Insane Search CLI</strong>로 즉각 수급하여 검증하는 팀플레이 체제를 갖추면, 천만 원대 대기업 솔루션 이상의 프리미엄 프로덕트를 빌드해 낼 수 있습니다.</p>
-<p>---</p>
+<hr>
 <h2>5.6 총평 및 최종 추천 조합</h2>
 <h3>장점</h3>
 <ul>
@@ -555,6 +555,6 @@ table.data-table th {
 <tr><td><strong>스타트업 / 기획사 (UI 중심)</strong></td><td>Flash + Gemini Low + MiMo Base</td><td><strong>$4.50 ~ $8.00</strong></td></tr>
 </table>
 <p>이 시스템을 고스란히 이식하는 순간, 매달 청구되는 클라우드 지출 걱정 없이 나만을 위해 24시간 가동되는 막강한 인공지능 엔지니어 팀을 얻게 됩니다.</p>
-<p>---</p>
+<hr>
 </body>
 </html>
