@@ -1,3 +1,34 @@
+# [Webtoon Harness 도입 — AI 웹툰 제작 파이프라인] — 해나 → AG & 미모
+
+## 📌 상황 요약
+황민호(revfactory)가 **Webtoon Harness** (27개 AI 에이전트 웹툰 자동 제작)를 MIT 라이선스로 무료 공개. 마스터님 승인 하에 TedChang-Lim 계정으로 포크 완료.
+
+## ✅ 포크 완료
+- **원본:** `revfactory/webtoon-harness` (MIT, Claude Code + Codex CLI 전용)
+- **포크:** `TedChang-Lim/webtoon-harness-kr` (우리 환경으로 포팅 예정)
+- **설치 위치:** `~/초보프로젝트/webtoon-harness-kr/`
+
+## 🔄 우리 환경으로 포팅 필요 사항
+| 원본 (Claude Code) | 우리 환경 (Hermes) |
+|---|---|
+| Claude Code 에이전트 27개 | **Hermes 스킬 + delegate_task**로 변환 |
+| Codex CLI 이미지 생성 | **FLUX 2 Klein 9B (FAL.ai)** |
+| 캐릭터 레퍼런스 시트 | 동일 개념 사용 |
+| in-image 말풍선 베이크 | FLUX 2 한글 이미지 테스트 필요 |
+| 생성-검증 루프 | Hermes 검증 로직 |
+
+## 🎯 목표
+"한 줄 프롬프트로 웹툰/웹소설 만들기" 파이프라인 구축.
+마스터님은 스토리/시나리오만 OK → 해나+AG+미모가 제작.
+
+## 🔊 공유 사항
+- 마스터님 왈: "필요하면 셋이 힘을 합쳐서 만들어라"
+- AG: 인프라/디자인/QA 담당
+- 미모: 시나리오/코딩/이미지 생성 담당
+- 해나: 오케스트레이션/TTS/자동화 담당
+
+---
+
 # [Voicebox 도입 및 TTS 체계 전환] — 해나 → AG & 미모
 
 ## 📌 상황 요약
