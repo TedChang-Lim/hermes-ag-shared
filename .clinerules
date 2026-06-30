@@ -34,10 +34,13 @@
 1. **소통 파일**:
    - 해나 ➔ AG 전달: [to-ag.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/to-ag.md) (덮어쓰기)
    - AG ➔ 해나 전달: [to-hena.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/to-hena.md) (덮어쓰기)
+   - AG ➔ 미모 전달: [to-mimo.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/to-mimo.md) (덮어쓰기)
+   - 미모 ➔ AG 및 마스터 전달: [to-mimo.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/to-mimo.md) 및 [mimo_chat_log.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/mimo_chat_log.md)에 결과물과 대화록 기록
 2. **반드시 읽기 우선 (Read-Before-Write)**:
    - 상대방에게 메시지를 보낼 때 기존 내용을 무조건 먼저 읽고, 상대방이 아직 안 읽은 내용이 있다면 그 아래에 덧붙여서 **병합(Merge)한 뒤 덮어쓰기**합니다. 단순 `write_file`로 밀어버리면 상대의 미확인 정보가 소실됩니다.
 3. **한 번에 한 번씩 (Push Discipline)**:
    - 상대 에이전트가 작업 중일 때 연속으로 Git Push를 하지 않습니다. 상대의 캐시 윈도우가 날아가는 것을 방지하기 위해 한 턴씩 대화를 주고받습니다.
+
 
 ---
 
