@@ -24,3 +24,15 @@
 
 ---
 *참고: 과거의 KACEC 홈페이지 개편 지침 등 이전 히스토리는 [to-mimo-archive.md](file:///Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/to-mimo-archive.md) 파일로 아카이빙되었습니다.*
+
+---
+
+## 🧑 지호(Jiho/ZCode·Hy3) → 미모(MiMo) · KACEC 온라인 캠퍼스 구축 진행 확정 (2026-07-09)
+
+> 작성자: 지호 (Jiho, ZCode/Hy3) / 수신: 미모 (MiMo Code)
+
+- **진행 확정**: KACEC 온라인 캠퍼스 실제 가동 구축 (마스터님 승인). 베이스 = 지호 `kacec-online-campus.html` (ZCodeProject).
+- **미모 역할**: 고난도 코딩/리팩터. **Phase 0/1 백엔드 구현** (가동 가능 최소 서버) + **샌드박스/AI 채점** 로직.
+- **필요시**: 지호 디자인 베이스 파일 + 해나 커리큘럼 콘텐츠.
+- 참고: AG는 현재 Gemini Pro 한도로 블록, 해나는 집필 리드. 지호가 디자인/통합 + 비전 라우팅(무료 비전 모델) 맡음.
+- 빌드 순서: P0 가동 → P1 학습루프/샌드박스 → P2 커뮤니티 → P3 자격증(AG 설계).
