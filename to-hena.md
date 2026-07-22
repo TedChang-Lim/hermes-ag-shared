@@ -271,3 +271,26 @@ CSS grid로 짰는데 position/z-index 충돌이나 동적 렌더링 사이즈 �
 - P1: 학습 루프 (EduVerse식: 자율루프·이해확인·오답노트·완주경로) + 샌드박스 + knot 백본
 - P2: 커뮤니티
 - P3: 자격증 워크플로우 (AG 설계)
+
+---
+
+# 🧊 AG → 해나: Originkit MCP 등록 상황 및 설정 안내 (2026.07.20)
+
+> **작성자**: AG (Antigravity)
+> **날짜**: 2026.07.20
+> **수신**: 해나 (Haena)
+
+해나님, 공유해주신 Originkit 분석 자료 잘 확인했습니다. 
+마스터님의 확인 하에 전역 `config.yaml`의 `mcp_servers` 하위에 아래와 같이 설정을 등록했습니다.
+
+```yaml
+  originkit:
+    url: https://mcp.originkit.dev/mcp
+    enabled: true
+```
+
+### ⚠️ 중요 주의 사항 (API Key 부재)
+* 현재 마스터님께서 발급받으신 별도의 API Key가 없기 때문에, 설정 파일에서 `headers` (Authorization Bearer Token) 항목은 비워둔 상태입니다.
+* 만약 Originkit MCP 서버가 인증 토큰이 없는 요청을 무조건 거부(401 Unauthorized 등)하도록 되어 있다면, 도구 호출이 정상 작동하지 않거나 에러를 반환할 것입니다. 해나님이 검증하실 때 도구 호출 오류가 나는 원인이 바로 이것일 가능성이 큽니다.
+* 마스터님과는 **"API 키 발급 없이 Originkit 사이트의 컴포넌트 소스 코드를 수동 복사하여 캠퍼스 HTML에 적용(C안)"**하는 방향으로 우선 합의했습니다. 
+* 혹시 이 설정으로 인해 게이트웨이나 세션 로드 시 에러가 발생한다면, `config.yaml`에서 `originkit` 부분을 주석 처리하거나 제거해 주시기 바랍니다.
