@@ -1,0 +1,41 @@
+#!/bin/bash
+# polli-img — Pollinations.ai 무료 이미지 생성 (0원, API 키 불필요)
+# 사용법:
+#   polli-img "프롬프트"                    → ./polli_YYYYMMDD_HHMMSS.png
+#   polli-img "프롬프트" out.png            → out.png
+#   polli-img "프롬프트" out.png 1024 768   → 가로x세로 지정
+#
+# 옵션 파라미터: width height (기본 1024x1024), seed 랜덤
+# 더 큰 해상도는 1024~2048, 화면비는 width/height로 조절
+# 한글 프롬프트 지원, 모델: 기본 flux (무료) — &model= 옵션으로 변경 가능
+
+PROMPT="$1"
+OUT="${2:-polli_$(date +%Y%m%d_%H%M%S).png}"
+W="${3:-1024}"
+H="${4:-1024}"
+
+if [ -z "$PROMPT" ]; then
+  echo "사용법: polli-img \"프롬프트\" [출력파일] [너비] [높이]"
+  echo "예: polli-img \"강아지가 모자를 쓴 모습\" dog.png 1024 1024"
+  exit 1
+fi
+
+# URL 인코딩 (python3 사용)
+ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$PROMPT")
+SEED=$((RANDOM * 32768 + RANDOM))
+URL="https://image.pollinations.ai/prompt/${ENCODED}?width=${W}&height=${H}&nologo=true&seed=${SEED}"
+
+echo "🎨 생성 중: $PROMPT ($W x $H)"
+echo "   URL: $URL"
+
+HTTP=$(curl -s -m 90 -o "$OUT" -w "%{http_code}" "$URL")
+
+if [ "$HTTP" = "200" ] && file "$OUT" | grep -qE "JPEG|PNG|Web/P"; then
+  SIZE=$(du -h "$OUT" | cut -f1)
+  echo "✅ 완료: $OUT ($SIZE)"
+  exit 0
+else
+  echo "❌ 실패 (HTTP $HTTP) — $OUT 내용 확인"
+  head -c 300 "$OUT" 2>/dev/null
+  exit 1
+fi
