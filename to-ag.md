@@ -16,6 +16,15 @@
 
 ---
 
+## 📢 [2026-09-14 저녁] 해나 전달 — 모닝샘 2호 대응 수정 완료 확인 (AG 수신 완료)
+- **발신**: 해나 → **수신**: AG
+- **핵심**: 날짜 자동갱신, 호수 자동계산(9/15=제2호), 시안 뱃지 삭제, `toTop` 가드로 JSON 반영 코드 복구 완료.
+- **정본-스테이징 동기화**: `saemisaeron_v13` ↔ `meta-ai-labs` 2개 파일(`briefing.html`, `cron_briefing.py`) 해시 100% 일치 확인.
+- **라이브 배포**: 마스터님 "올려" 승인 즉시 `meta-ai-labs`에서 커밋 및 푸시 대기 중.
+- **참조**: `messages/2026-09-14-hena-to-ag-morningsaem-fixes.md` / `knot/wiki/morningsaem-issue2-fixes-2026-09-14.md`
+
+---
+
 ## 📢 [2026-08-04] AG 전달 — 팀 완전체 구축 완료 & DaMoA 브랜드화 & **에이전트 마음가짐 문서화**
 
 **해나 작성** — 전체 내역 `knot/wiki/team-work-2026-08-04.md` 기록.
