@@ -1,4 +1,4 @@
-# 🏛️ 새미새론 AI 교육원 공식 사이트(semiseron.kr) 정식 리뉴얼 배포 완료 보고 (2026-09-14)
+# 🏛️ 새미새론AI교육원 공식 사이트(semiseron.kr) 정식 리뉴얼 배포 완료 보고 (2026-09-14)
 
 > **일시**: 2026-09-14  
 > **총책임자**: 마스터님 (임창식 교육원장 / 총괄이사)  
@@ -13,7 +13,7 @@
 
 - **공식 도메인**: `https://semiseron.kr` (GitHub Pages: `TedChang-Lim/meta-ai-labs.git`, `main` 브랜치 실서버 배포 완료)
 - **보조/승계 도메인**: `https://kacec.kr` (향후 1년간 `semiseron.kr`로 자동 리다이렉트 포워딩 승계)
-- **로컬 검증 포트**: `http://localhost:8901` (`/Users/tedchanglimchangsik/초보프로젝트/saemisaeron_v13`)
+- **로컬 검증 포트**: `http://localhost:8901` (`/Users/tedchanglimchangsik/초보프로젝트/semiseron_v13`)
 - **실서버 응답 상태**: HTTP 200 OK (정상 서비스 중)
 
 ---
@@ -39,7 +39,7 @@
 
 ### ③ 매일 아침 07:00 무과금 자동 발행 파이프라인 (macOS launchd)
 - **데몬 등록 경로**: `~/Library/LaunchAgents/com.semiseron.briefing.plist`
-- **작업 원본 경로**: `/Users/tedchanglimchangsik/초보프로젝트/saemisaeron_v13/cron_briefing.py`
+- **작업 원본 경로**: `/Users/tedchanglimchangsik/초보프로젝트/semiseron_v13/cron_briefing.py`
 - **무과금 LLM 엔진**: 마스터님의 OpenCode Go CLI (`opencode run -m opencode-go/deepseek-v4.1-flash`) 연동.
   - 메타 직결 유료 API 키를 배제하여 **월 추가 과금 0원**으로 무인 자동 발행.
   - RSS 전면 단절 시에도 최신 캐시 기반 Fallback 방어 로직 완비.
@@ -59,11 +59,11 @@
 
 | 디렉토리 / 저장소 | 역할 및 상태 | 수칙 |
 |---|---|---|
-| `/Users/tedchanglimchangsik/초보프로젝트/saemisaeron_v13` | **정규 단일 작업 원본 (CANONICAL)** | 모든 신규 개발, 수정, 로컬 테스트(포트 8901)는 오직 여기서만 수행 |
-| `/Users/tedchanglimchangsik/초보프로젝트/meta-ai-labs` | **실서버 배포 저장소 (LIVE)** | 로컬 검증 및 마스터님 승인 후 `saemisaeron_v13` 내용을 동기화하여 `git push` |
-| `Downloads/saemisaeron_v13_deprecated_old` | **구버전 백업/격리** | 혼선 방지를 위해 완전 격리 보관 (절대 여기서 작업 금지) |
+| `/Users/tedchanglimchangsik/초보프로젝트/semiseron_v13` | **정규 단일 작업 원본 (CANONICAL)** | 모든 신규 개발, 수정, 로컬 테스트(포트 8901)는 오직 여기서만 수행 |
+| `/Users/tedchanglimchangsik/초보프로젝트/meta-ai-labs` | **실서버 배포 저장소 (LIVE)** | 로컬 검증 및 마스터님 승인 후 `semiseron_v13` 내용을 동기화하여 `git push` |
+| `Downloads/semiseron_v13_deprecated_old` | **구버전 백업/격리** | 혼선 방지를 위해 완전 격리 보관 (절대 여기서 작업 금지) |
 
 > ⚠️ **전 에이전트 절대 수칙**:
 > 1. 실서버(`meta-ai-labs`)에 바로 파일을 수정하거나 커밋하지 않는다.
-> 2. 반드시 `saemisaeron_v13`에서 로컬 브라우저(포트 8901)로 먼저 확인한다.
+> 2. 반드시 `semiseron_v13`에서 로컬 브라우저(포트 8901)로 먼저 확인한다.
 > 3. 마스터님의 명시적인 "올려" 승인이 있을 때만 `meta-ai-labs`로 동기화 후 푸시한다.
