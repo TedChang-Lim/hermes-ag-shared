@@ -44,7 +44,50 @@ MIMO_API_KEY = os.environ.get("MIMO_API_KEY") or local_key("mimo_api_key")
 
 ---
 
-## 2. Gmail 자동화 방식 변경
+## 2. Aside 프로바이더 연결 구조 (실측)
+
+Aside 의 두뇌는 **설정 → Models → Providers** 에서 정한다.
+`+ Connect` 를 눌러 나오는 목록은 **총 24종**이다. (스크롤 끝까지 실측)
+
+**구독형**: ChatGPT · Claude · GitHub Copilot · Grok · Kimi Code
+
+**API 키 방식**: Anthropic · Cloudflare AI Gateway · Command Code · DeepSeek · Google ·
+Kimi For Coding · MiniMax · Moonshot AI · OpenAI · OpenCode Go · OpenCode Zen ·
+OpenRouter · Qwen Token Plan · SpaceXAI · Vercel AI Gateway · Xiaomi MiMo · Z.ai ·
+**LM Studio** · **Ollama** · Add custom provider
+
+### 현재 연결된 상태 (2026-09-19 실측)
+
+| 프로바이더 | 종류 | 상태 |
+|---|---|---|
+| Aside | Free | 기본 제공 |
+| **OpenCode Go** | API | **연결됨** |
+| **Omniroute** | API | **연결됨** |
+
+### Task models 배정 (용도별로 모델이 다르다)
+
+| 용도 | 배정된 모델 |
+|---|---|
+| Default model | Muse Spark 1.3 Contributor |
+| Fast | GPT-5.6 Luna |
+| Standard | GPT-5.6 Terra |
+| Deep | Muse Spark 1.3 Contributor |
+| Visual | Muse Spark 1.3 Contributor |
+| Image generation | GPT Image 2.5 Flare |
+
+### 반드시 구분할 것 — 두 개의 두뇌
+
+| 구분 | 무엇을 하는가 | 어디에 있나 |
+|---|---|---|
+| **해나의 두뇌** | 판단·보고·지시 해석 | opencode-go 경유 모델 |
+| **Aside 의 두뇌** | 브라우저 안 탐색·요약 | Aside 설정의 프로바이더 |
+
+둘은 별개다. Aside 에 OpenCode Go 를 붙였다고 해나가 그 모델을 쓰는 게 아니고,
+해나의 모델을 바꿨다고 Aside 의 탐색 모델이 바뀌지 않는다.
+
+---
+
+## 3. Gmail 자동화 방식 변경
 
 **구글 OAuth 폐기. Aside 브라우저 세션으로 전환.**
 
@@ -67,18 +110,41 @@ Aside 는 마스터님이 로그인해 둔 크롬 세션을 쓰므로 만료가 
 
 ---
 
-## 3. Aside 사용 수칙 (기존 유지)
+## 4. Aside 조작 수칙 (전원 필수, 기존 + 신규)
 
-- stdin 파이핑 금지. 코드 전체를 인자로 1회 호출
-  `aside repl "const p = await openTab('URL'); await sleep(5000); console.log(await p.evaluate(() => document.body.innerText.slice(0,4000)))"`
-- 탭은 호출 간 유지 안 됨. `openTab` → 추출 → `closeTab` 을 한 호출 안에서
-- `daemon is not reachable` → `open -a Aside` 후 재시도
-- 마스터님 크롬 프로필을 공유한다. **탭을 함부로 닫거나 마스터님이 쓰는 탭을 건드리지 말 것**
-- 조회는 자유. **삭제·전송·결제·비밀번호 변경은 마스터님 승인 후에만**
+1. **stdin 파이핑 금지.** 코드 전체를 인자로 1회 호출
+   ```bash
+   aside repl "const p = await openTab('URL'); await sleep(5000); console.log(await p.evaluate(() => document.body.innerText.slice(0,4000)))"
+   ```
+2. **탭은 호출 간 유지되지 않는다.** `openTab` → 추출 → `closeTab` 을 한 호출 안에서
+3. **[신규] REPL 은 하나의 지속 스코프를 쓴다.**
+   같은 변수명을 다시 쓰면 `Identifier 'p' has already been declared` 로 죽는다.
+   호출마다 새 이름을 쓸 것 (`p1`, `p2`, `pg3` …)
+4. **[신규] Aside 내부 버튼은 커스텀 요소다.**
+   단순 `click()` 이 안 먹는다. 다섯 개를 순서대로 전부 쏴야 반응한다.
+   ```js
+   const ev = (t) => new (t.startsWith('pointer') ? PointerEvent : MouseEvent)(
+     t, { bubbles: true, cancelable: true, view: window });
+   ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(x => el.dispatchEvent(ev(x)));
+   ```
+5. `daemon is not reachable` → `open -a Aside` 후 재시도
+6. **마스터님 크롬 프로필을 공유한다. 마스터님이 쓰는 탭을 건드리지 않는다**
+7. 조회는 자유. **삭제·전송·결제·비밀번호 변경은 마스터님 승인 후에만**
 
 ---
 
-## 4. 확인 요청
+## 5. 참고 문서
+
+| 문서 | 내용 |
+|---|---|
+| `knot/wiki/aside-providers-and-hermes-integration-2026-09-19.md` | 프로바이더 24종·연결 상태·Hermes 구조·수칙 |
+| `knot/wiki/hermes-aside-gmail-automation-2026-09-19.md` | Gmail 자동화 전체 구조·난관·책 뼈대 |
+| `hermes-ag-shared/2026-08-15_aside-browser-integration.md` | 도입 배경 (비밀번호 항목 삭제됨) |
+| `hermes-ag-shared/2026-08-16_aside-browser-ide-hybrid-analysis.md` | 3분할 워크스페이스 분석 |
+
+---
+
+## 6. 확인 요청
 
 각 에이전트는 자기 코드에 하드코딩된 키가 있는지 점검하고, 있으면 위 방식으로 옮겨 달라.
 
