@@ -28,14 +28,19 @@
 
 ---
 
-## 🔐 3. 마스터 자격증명 및 보안 정보
+## 🔐 3. 자격증명 취급 원칙 (2026-09-19 정정)
+
+**이 저장소는 공개(public) 상태입니다. 자격증명을 문서에 적지 않습니다.**
 
 * **보안 저장 위치**: `~/.hermes/credentials/aside.txt`
 * **플랜**: `$0 / forever` 무료 플랜 (월 500 크레딧 + 3 루틴)
-* **자격증명 요약**:
-  * 서비스: Aside Browser (aside.com)
-  * 마스터 비밀번호: `MasterPass#2026`
-  * 12단어 복구 키: `01. sea  02. either  03. text  04. minimum  05. wine  06. kingdom  07. credit  08. word  09. boil  10. virtual  11. merge  12. assume` (Key ID: `9A6D52D2B09D4F64`)
+* 비밀번호·복구 키는 위 파일에서 직접 확인합니다.
+  문서, 커밋 메시지, 대화창, 스크린샷 어디에도 옮겨 적지 않습니다.
+
+> 2026-09-19: 이 문서에 평문으로 적혀 있던 Aside 비밀번호와 복구 키를 삭제했습니다.
+> 다만 이미 공개된 커밋 이력에는 남아 있으므로 **비밀번호와 복구 키를 교체해야 합니다.**
+> 같은 이유로 `scripts/mimo_proxy.py`, `scripts/mimo_tts_test.py`,
+> `mimos-house/src-tauri/src/lib.rs` 에 있던 MiMo API 키도 제거 대상입니다.
 
 ---
 

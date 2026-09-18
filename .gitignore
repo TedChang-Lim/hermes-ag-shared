@@ -7,3 +7,9 @@ target/
 node_modules/
 dist/profiles/master_profile.png
 mimo_debug_log.txt
+*.bak-hena
+*.bak
+.env
+credentials/
+*.pem
+*_token.json

@@ -3,7 +3,18 @@ import json
 import base64
 import os
 
-API_KEY = "sk-sho2gjhe0thboan84dnepjy1lx2ueqpbw8yv6tjsmanna56r"
+import os as _os
+
+def _hena_local_key():
+    """공개 저장소에 키를 적지 않기 위해 로컬 자격증명 파일에서 읽는다."""
+    _p = _os.path.expanduser("~/.hermes/credentials/mimo_api_key.txt")
+    try:
+        with open(_p, encoding="utf-8") as _f:
+            return _f.read().strip()
+    except OSError:
+        return ""
+
+API_KEY = _os.environ.get("MIMO_API_KEY") or _hena_local_key()
 BASE_URL = "https://api.xiaomimimo.com/v1"
 OUTPUT_DIR = "/Users/tedchanglimchangsik/초보프로젝트/hermes-ag-shared/tts_output"
 
