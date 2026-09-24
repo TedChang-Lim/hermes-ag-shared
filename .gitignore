@@ -13,3 +13,4 @@ mimo_debug_log.txt
 credentials/
 *.pem
 *_token.json
+gpt-image-prompts/
