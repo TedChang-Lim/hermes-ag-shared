@@ -27,6 +27,7 @@
 - **해결:** 선점자 제거 + 4~6초 정착 대기 + 폰 USB 모드 재선택 → `~/bin/galaxy-connect` 한 줄로 자동화
 - **신규 자산:** `~/bin/galaxy-connect.sh`, `mtpprobe`, `mtpclient`, `usbreset` / `~/ARCHIVE`·`~/L-CACHE` 바로가기
 - **전역 규칙:** `~/.clinerules` 신설 — K가 세션 시작 시 `agent.md`+`9_K.md` 정독 (K만 전역 지침이 없던 공백 해소)
+- **추가 정비(마스터님 승인):** `초보프로젝트/.clinerules`에 K 정식 등재(Hephaestus/Apollo 구 표기 폐기) / `agent.md` 완전 중복 해소 → `페르소나/agent.md`는 **정본 포인터**로 전환 (정본 `초보프로젝트/agent.md` 7,133B 무변경, 원본 백업 `agent.md.dup-backup-2026-09-26`)
 - **상세:** `hermes-ag-shared/2026-09-26_K-android-mtp-macos-openmtp-fix.md` / 위키 `concepts/android-mtp-macos-openmtp.md`
 
 ---
