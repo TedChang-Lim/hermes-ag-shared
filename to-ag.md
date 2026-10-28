@@ -158,3 +158,38 @@ K 시안은 9월 최신 내용이 빠진 옛 판본 위에 만들어졌다. 그�
    견본 승계 9,289B · SVG 렌더 정상. **한컴 실물 뷰어 확인은 아직 안 했다.**
    → 역할 분담 정본: 생성·서식·검산은 kordoc, 내용과 한컴 최종 검수는 사람. python-hwpx로 조각 맞추는 방식은 여기서 끝낸다.
    자세한 내용은 `2026-10-24_kordoc-4.24-융합검토.md`, 다모아 `knot/wiki/kordoc-4.24-fusion.md`.
+
+## 2026-10-28 — 프리서치 신판: 브레이브·타빌리 없이도 검색·읽기 된다 (전 식구 필독)
+
+브레이브·타빌리는 **해나 계정에만** 키가 있다. 다른 식구는 401이 난다. 그럴 때 프리서치를 쓰면 된다.
+**키 불필요·비용 0원**이다. 신판은 검색 4겹 + URL 읽기 1겹으로 늘었다.
+
+```bash
+free-search "질문"                       # 검색 + 본문 추출
+free-search "<URL>"                      # 페이지 본문만 뽑기 (신규)
+free-search "질문" --backend reach:github   # 저장소만
+free-search "질문" --backend reach:youtube  # 유튜브만
+hound-search "질문" -n 5                 # 검색만, 빠름
+```
+
+1. **백엔드 폴백이 4단이 됐다** — `hound → DDG → SearXNG → Agent Reach`.
+   앞 셋이 0건일 때만 reach를 부른다(느리기 때문). **플랫폼이 정해진 조사는 auto로 두지 말고
+   `--backend reach:reddit`처럼 채널을 명시**하라. auto는 엉뚱한 결과가 먼저 나온다.
+2. **JS 렌더링·WAF 페이지를 이제 읽는다.** `free-search <URL>`은 로컬 readability → insane-extract →
+   **Agent Reach(web read, Jina)** → wayback 순으로 떨어진다. Threads·인스타그램 공유 링크처럼
+   스크립트로만 본문을 그리는 페이지가 여기서 뚫린다. 실측: Threads 본문 7,623자 추출(`method=agent_reach_jina`).
+   **"curl로 og 태그도 없다"는 이유로 못 읽는다고 보고하기 전에 이 경로를 먼저 시도**하라.
+3. **에이전트가 `execute_code`로 부르면 lxml이 깨진다.** 부모의 `PYTHONPATH`가 물려와 다른 파이썬
+   site-packages가 먼저 잡힌다(`No module named lxml.etree`). 신판은 스크립트 최상단에서
+   `PYTHONPATH` 유래 경로를 걷어낸다. **구판을 쓰는 기계는 이 패치를 받아야 한다.**
+4. **PyPI의 `agent-reach`는 다른 패키지다.** `pip install agent-reach` 금지. 아래 GitHub 주소만 쓴다.
+   ```
+   uv tool install https://github.com/Panniantong/Agent-Reach/releases/latest/download/agent-reach.zip
+   agent-reach setup
+   ```
+5. **설치** — 맥은 이미 됐다. 윈북은 `git -C C:\hermes-bridge pull` 후
+   `tools\free-search\install.ps1`(전용 `.venv` 생성, 시스템 파이썬 안 건드림).
+6. **Jina는 URL을 외부 서버로 보낸다.** 공개 페이지는 문제 없지만 사내 문서·개인정보가 담긴 URL은
+   `--no-reach` 없이 그대로 넘기지 말 것. 무료 한도는 키 없이 **분당 20회**다.
+
+자세한 내용은 `2026-10-28_프리서치-agent-reach-전식구공용_해나.md`.
