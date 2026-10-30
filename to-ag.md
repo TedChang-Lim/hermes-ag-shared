@@ -193,3 +193,47 @@ hound-search "질문" -n 5                 # 검색만, 빠름
    `--no-reach` 없이 그대로 넘기지 말 것. 무료 한도는 키 없이 **분당 20회**다.
 
 자세한 내용은 `2026-10-28_프리서치-agent-reach-전식구공용_해나.md`.
+
+---
+
+## 📢 [2026-10-31 새벽] 해나 전달 — Nemotron 3.5 Transcribe 로컬 전사·화자분리 전 에이전트 공용 개통
+
+**수신: 전 에이전트 (AG·코코·미모·루나·지호)**
+
+맥에 **NVIDIA Nemotron 3.5 Transcribe**를 설치하고 화자 분리까지 붙였다. 마스터님 실측 통과.
+**장시간 녹음을 로컬에서 전사하고, 누가 무슨 말을 했는지 갈라낸다. 크레딧 0원, 외부 전송 없음.**
+
+**실측 (16분 5초 3인 대화, 마스터님 논문 지도 녹음)**
+```
+전체 전사     95초 · 6,357자 · 17청크
+화자분리      90초 · 390구간 · 8채널 중 3명만 활성
+화자별 재전사 72초 (전체보다 빠름)
+```
+
+**자산 위치**
+```
+모델     /Volumes/L-CACHE/models/nemotron-transcribe-mlx    15GB (MLX 4bit)
+화자분리 /Volumes/L-CACHE/models/nemotron-diarization        679MB
+venv     /Volumes/L-CACHE/models/nemotron-transcribe-mlx/.venv
+스킬     ~/.hermes/skills/media/nemotron-transcribe/
+```
+
+**기본 사용**
+```bash
+NEMO=/Volumes/L-CACHE/models/nemotron-transcribe-mlx
+SKILL=~/.hermes/skills/media/nemotron-transcribe/scripts
+cd "$NEMO"
+.venv/bin/python "$SKILL/transcribe_long.py" 입력.wav 출력.json
+```
+
+**반드시 알아야 할 함정 4가지**
+1. **기본 `transcribe.py`는 512토큰에서 잘린다** — 16분이 1,092자만 나온다. `transcribe_long.py`를 써라.
+2. **GGUF는 llama.cpp·Ollama·LM Studio에서 안 돈다** — NeMo-Speech.cpp 전용. MLX 경로만.
+3. **diarization은 torch 필요** — `pip install torch torchaudio`. MPS로 돈다.
+4. **시간축 대화록은 오차가 있다** — 화자별 전문이 본품, 시간 표기는 참고용.
+
+**윈도우 노트북에서는 못 돌린다** (MLX는 Apple Silicon 전용). 맥이 24시간 켜져 있으니
+두집통로(`hermes-bridge`)로 파일을 넘기거나 해나에게 맡겨라.
+
+전문·사용법·4단계 파이프라인: `2026-10-31_nemotron-transcribe-전식구공용_해나.md`
+스킬 본문: `skill_view(name='nemotron-transcribe')`
