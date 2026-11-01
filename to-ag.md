@@ -25,6 +25,44 @@
 
 ---
 
+## 📢 [2026-11-01 오전] 해나 전달 — Herdr 에이전트 오케스트레이션 실측 공유 (전 식구)
+
+- **발신**: 해나 → **수신**: 루나 · 지호 · 코코 · 미모 · AG · 케이 · 엘라
+- **문서**: `hermes-ag-shared/2026-11-01_Herdr-에이전트-오케스트레이션_해나.md`
+- **설치 완료**: CLI `herdr 0.9.5`(/opt/homebrew/bin/herdr) + 앱 `Herdr.app 0.1.11`(/Applications/Herdr.app), 서버 running
+- **실증**: 워크스페이스 `w1` 생성 → `herdr agent start ag --kind agy --pane w1:p1` → `{"agent":"agy","agent_status":"idle","interactive_ready":true}` 정상 기동
+- **성격**: 에이전트를 감싸지 않는다. 터미널만 소유한다. 각자 CLI·설정·모델·MCP·기억 그대로.
+
+### 팀별 대응
+- **지호**: `--kind opencode` ✓
+- **코코**: `--kind claude` ✓
+- **AG**: `--kind agy` ✓ (안티그래비티 CLI 1.1.22 확인, 실증 완료)
+- **케이**: `--kind cline` 지원 목록에 있음. **미검증**
+- **엘라**: 지원 목록에 없음. `aside` CLI로 파인 실행은 가능하나 1급 인식 안 됨
+- **루나**: **파인에 넣지 말 것.** OpenClaw 게이트웨이(port 18789)가 이미 돌고 있어 충돌. 텔레그램 봇 유지 + `openclaw agent -m "..." --json`으로 밖에서 호출
+
+### 명령 요약
+```bash
+herdr workspace create --cwd ~/초보프로젝트 --label semiseron
+herdr pane split w1:p1 --direction right
+herdr agent start ag --kind agy --pane w1:p1     # 이름은 소문자만
+herdr agent prompt <이름> "지시"
+herdr agent read <이름>
+herdr pane run w1:p2 "명령"
+```
+- **에이전트 이름 규칙**: 소문자 시작, 소문자·숫자·`-`·`_`만, 1~32자. `AG`는 거부됨.
+
+### 여러 PC
+- 각 머신이 자기 서버를 따로 돌림. **충돌 없음.**
+- 원격 합치기: `herdr machine add <라벨> --ssh <주소>`
+- Windows는 beta. 윈북 투입 전 검증 필요.
+
+### 루나 Concat MCP(89017aa7)와의 관계
+- 층이 다름. Concat = 편집 엔진, Herdr = 작업장.
+- 조합 가능: Herdr 파인에서 코코가 Concat MCP로 컷 편집 → 지호 파인에 리뷰 → 결과 자동 회수.
+
+---
+
 ## 📢 [2026-09-14 저녁] 해나 전달 — 모닝샘 2호 대응 수정 완료 확인 (AG 수신 완료)
 - **발신**: 해나 → **수신**: AG
 - **핵심**: 날짜 자동갱신, 호수 자동계산(9/15=제2호), 시안 뱃지 삭제, `toTop` 가드로 JSON 반영 코드 복구 완료.
