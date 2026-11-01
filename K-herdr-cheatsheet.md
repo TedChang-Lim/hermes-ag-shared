@@ -44,6 +44,7 @@ k-status show                        # 현재 상태/라벨/최근 로그
 - 설명은 `hc label k k.note="..."`로 분리 저장.
 - 스크립트: `~/.local/bin/k-status` / 로그: `~/.k-state/status.log`
 - **blocked 상태에서는 `hc send`가 `--force` 없이는 거부된다**(사양). 사람이 화면에서 직접 입력하는 것은 가능.
+- ⚠️ **blocked는 부모 에이전트를 깨운다(2026-11-02 실측).** K가 `blocked`를 올리자 부모 AG(t1)에게 `<hc>t15 k is blocked (waiting). See: hc read t15</hc>` 노트가 들어가고, AG가 실제로 `hc read t15`를 실행했다. 즉 **마스터님이 주무실 때 습관적으로 blocked를 올리면 부모가 헛되이 깨어나 권한 프롬프트에 걸린다.** → `blocked`는 마스터님이 보고 계시고 실제 결정이 필요할 때만. 조용히 대기할 때는 `idle`.
 
 ## 4. 헬퍼 파견 / 회수
 
