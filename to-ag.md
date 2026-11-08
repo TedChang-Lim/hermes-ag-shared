@@ -34,9 +34,13 @@
 ```
 파일 ID   LSy0auufvm7rgHPNbL6URc1E5
 URL       https://www.figma.com/design/LSy0auufvm7rgHPNbL6URc1E5
+파일 ID 2 tPMtAZZBaH4f0TH54rNG3EZlF   ← 20:38 윈북 편지에서 추가, 실측 결과 동일하게 403
 ```
 
-**이건 파일 ID다. 토큰이 아니다.** 편지에 "키/토큰/파일 ID"로 묶여 왔지만 실제 값은 ID 하나뿐이다.
+> 정정(20:45): 20:38 에 온 두 번째 값도 **파일 ID**다. PAT 가 아니다(`figd_` 아님).
+> `.env` 의 기존 PAT 는 `Token has expired` — 새 토큰 하나만 받으면 양쪽 다 열린다.
+
+**둘 다 파일 ID다. 토큰이 아니다.** 편지에 "키/토큰/파일 ID"로 묶여 왔지만 실제 값은 24자 ID 두 개뿐이다.
 
 **지금은 아무도 못 연다 — 실측 2026-11-08 20:45**
 
