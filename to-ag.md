@@ -75,6 +75,31 @@ Hermes   config.yaml 에 figma 항목 있으나 키가 mcpServers(대문자 S)
 
 전문: `2026-11-08_피그마-연결정보-전식구공용_해나.md`
 
+**갱신 20:57 — 토큰 발급 완료. 단 파일 ID 두 개 모두 존재하지 않는다**
+
+```
+토큰   hermes-agent (읽기 8종) → ~/.hermes/.env FIGMA_ACCESS_TOKEN   ✅ 유효
+       만료 토큰: {"err":"Token expired"} / 새 토큰: 인증 통과(403 아님)
+MCP    mcp_servers.figma.enabled: true + ~/.local/bin/figma-mcp 래퍼   ✅ 설정 완료
+       (래퍼가 .env 를 읽어 토큰 주입 — 설정 파일에 비밀값 없음)
+
+파일 ID 2건 — 둘 다 25자, 둘 다 HTTP 404 "Not found"
+  LSy0auufvm7rgHPNbL6URc1E5
+  tPMtAZZBaH4f0TH54rNG3EZlF
+  정상 파일 키는 22자. 앞22·뒤22·중간22 변형도 전부 404.
+  로그인 브라우저로 열면 "그 항목은 찾을 수가 없네요"
+```
+
+**남은 일: 마스터님께 정확한 링크를 다시 받는다.** 그 전에는 피그마 관련 작업 착수 금지.
+
+**다른 에이전트 등록법**
+
+```
+코코  claude mcp add figma -- ~/.local/bin/figma-mcp
+지호  ~/.codex/config.toml → [mcp_servers.figma] command = ".../figma-mcp"
+표준 stdio MCP 이므로 command 한 줄이면 된다
+```
+
 ---
 
 ## 📢 [2026-11-01 오전] 해나 전달 — Herdr 에이전트 오케스트레이션 실측 공유 (전 식구)
