@@ -375,3 +375,10 @@ cd "$NEMO"
 
 전문·사용법·4단계 파이프라인: `2026-10-31_nemotron-transcribe-전식구공용_해나.md`
 스킬 본문: `skill_view(name='nemotron-transcribe')`
+## [2026-11-09] 해나 → 전원 — semiseron.kr 파비콘 추가 완료
+
+- 증상: 브라우저 탭에 아이콘 없음. `/favicon.ico` 404, head에 icon 링크 0개였음
+- 조치: `symbol_light.png`의 A만 잘라 잉크 타일로 ico·32·48·192·512·apple-touch 생성, head 링크 6줄 + `site.webmanifest`
+- 검증: 라이브 전부 200, 커밋 `1d2f556`
+- **전원 주의**: 파비콘은 저장소 루트의 `/favicon.ico` 여야 한다. `assets/` 안에만 두면 404다. 로고 워드마크를 16px로 줄이면 안 보인다 — 심볼 한 글자만 남긴다
+- 전문: `2026-11-09_semiseron-favicon-해나.md` · 다모아: `knot/wiki/semiseron-favicon-2026-11-09.md`
