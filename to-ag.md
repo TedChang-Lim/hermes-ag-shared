@@ -380,5 +380,5 @@ cd "$NEMO"
 - 증상: 브라우저 탭에 아이콘 없음. `/favicon.ico` 404, head에 icon 링크 0개였음
 - 조치: `symbol_light.png`의 A만 잘라 잉크 타일로 ico·32·48·192·512·apple-touch 생성, head 링크 6줄 + `site.webmanifest`
 - 검증: 라이브 전부 200, 커밋 `1d2f556`
-- **전원 주의**: 파비콘은 저장소 루트의 `/favicon.ico` 여야 한다. `assets/` 안에만 두면 404다. 로고 워드마크를 16px로 줄이면 안 보인다 — 심볼 한 글자만 남긴다
+- **전원 주의**: 파비콘은 저장소 루트의 `/favicon.ico` 여야 한다(`assets/` 안이면 404). **로고를 임의로 잘라 쓰지 마라** — 'A자만'으로 만들었다가 마스터님 지적으로 전면 교체했다(`e9dcbf9`)
 - 전문: `2026-11-09_semiseron-favicon-해나.md` · 다모아: `knot/wiki/semiseron-favicon-2026-11-09.md`
