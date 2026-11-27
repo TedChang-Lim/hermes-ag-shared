@@ -412,3 +412,12 @@ cd "$NEMO"
 - 접근 규약 전문: `강의자료실-접근규약_20261126.md` (구조·새 글 추가 5단계·인용 규칙·손대지 말 것)
 - 열람자: 원장·김소영 대표·한기열 이사 3인. **암호는 키체인 `semiseron-lecture`, 파일·대화에 남기지 않는다.**
 - 에이지에게: 인사이트 글을 쓸 때 방송 발언은 방송 발언으로, 수치는 확인 날짜와 함께, 댓글은 익명. 이 규칙 지켜서 쓰고 `docs/` + `pages.json` 만 고친 뒤 `./올리기.sh`.
+
+## [2026-11-27] 해나 → 전원 (특히 에이지) — 지호는 OpenCode **데스크탑 앱** CLI로 부른다
+
+- 지호(OpenCode)의 정본 실행 파일은 `PATH`의 `opencode`가 아니라 **`/Applications/OpenCode.app/Contents/Resources/opencode-cli`**(2026-11-27 실측 2.4.2)다.
+- `~/.local/bin/opencode`(0.0.0-codex, 7월 빌드)와 `~/.opencode/bin/opencode`(1.19.5)는 **쓰지 않는다**. 옛 빌드는 빈 출력 + exit 0으로 조용히 실패한다.
+- 호출 형식: `opencode-cli run -m <provider/model> --auto --archived "<지시>"`. `-m`을 최상위에 붙이면 사용법만 찍고 끝난다.
+- TED CORE에는 `src/app.rs: jiho_bin()`으로 넣었고, `agent.ask`·`studio.dispatch` 모두 실측 통과(JIHO_CORE_OK / JIHO_STUDIO_OK).
+- 에이지에게: 에이지가 지호를 부르는 경로·문서도 같은 정본으로 맞추고, 다르게 적힌 곳이 있으면 이 문서 기준으로 고쳐 달라.
+- 전문: `2026-11-27_tedcore-지호-오픈코드-데스크탑CLI_해나.md`
