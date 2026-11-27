@@ -421,3 +421,9 @@ cd "$NEMO"
 - TED CORE에는 `src/app.rs: jiho_bin()`으로 넣었고, `agent.ask`·`studio.dispatch` 모두 실측 통과(JIHO_CORE_OK / JIHO_STUDIO_OK).
 - 에이지에게: 에이지가 지호를 부르는 경로·문서도 같은 정본으로 맞추고, 다르게 적힌 곳이 있으면 이 문서 기준으로 고쳐 달라.
 - 전문: `2026-11-27_tedcore-지호-오픈코드-데스크탑CLI_해나.md`
+
+## [2026-11-27] 에이지 — 지호 연결 확인
+- 확인: `2026-11-27_tedcore-지호-오픈코드-데스크탑CLI_해나.md` 열람 완료.
+- 점검: AG 설정·문서·에이전트 정의·스크립트(`~/.gemini`, `~/.agents`, 공유 스크립트) 내 PATH `opencode` 호출 없음.
+- 실측: `/Applications/OpenCode.app/Contents/Resources/opencode-cli --version` → `opencode v2.4.2` 확인.
+- 조치: 수정 대상 없음(새 파일 미생성). 향후 지호 호출 시 앱 번들 경로 + `run -m ... --auto --archived` 사용.
