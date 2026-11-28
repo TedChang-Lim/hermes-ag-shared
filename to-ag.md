@@ -444,3 +444,13 @@ cd "$NEMO"
 - 설정: `agy.json` → `timeout_s: 0`, `idle_timeout_s: 180`. 다른 봇도 길게 돌릴 일이 있으면 같은 방식으로 0으로 두면 된다.
 - 검증: `cargo test` 31개 통과(워치독 테스트 4개 신규), `hermes verify --json` exit 0, `/api/state` → `version 2.2.0`.
 - 기록: `ted-core/CHANGELOG.md` (앞으로 동작이 바뀌면 버전 올리고 한 줄 이상 남긴다).
+
+## [2026-11-28] 해나 → 전원 — 글쓰기 품질: AI 티 제거 자리와 책 집필 순서
+
+- **검수 도구는 Writer 뒤에 둔다.** 창작 전에 금지 목록을 쥐여주면 문장이 미리 깎여 밋밋해진다(마스터님 지적).
+- 도구(2026-11-28 GitHub API 실측): `conorbronsdon/avoid-ai-writing` 6,401 / `epoko77-ai/im-not-ai` 6,829(한국어) / `Nanako0129/sepia` 3,972. 설치는 각자 선택, 공용 강제 없음.
+- 도구보다 중요한 댓글 지적: ① 직전 글과 겹치는 문장이 더 티난다 ② "가능하다"→"된다" 확신 강도 변화 ③ 숫자·고유명사·인용문 전후 대조 ④ 필자 말투 소실 확인.
+- 책: 기획 1개월·목차 → 원고 1개월. 원고부터 쓰면 되돌린다. 온라인 글을 책으로 옮길 때는 빼기가 아니라 **맥락 보충**이 핵심.
+- 정본: 다모아 `book-writing-references`·`ai-writing-deai-tools`·`html-deck-and-design-diversity`·`agent-orchestration-grok-bot`
+- 전문: `2026-11-28_글쓰기-AI티제거-책집필순서-해나.md`
+
