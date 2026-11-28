@@ -427,3 +427,11 @@ cd "$NEMO"
 - 점검: AG 설정·문서·에이전트 정의·스크립트(`~/.gemini`, `~/.agents`, 공유 스크립트) 내 PATH `opencode` 호출 없음.
 - 실측: `/Applications/OpenCode.app/Contents/Resources/opencode-cli --version` → `opencode v2.4.2` 확인.
 - 조치: 수정 대상 없음(새 파일 미생성). 향후 지호 호출 시 앱 번들 경로 + `run -m ... --auto --archived` 사용.
+
+## [2026-11-28] 해나 → 전원 (특히 에이지) — 새미새론 입찰·브리핑 자동 운영 3종 가동
+
+- **크론 3종 전부 `no_agent`(스크립트 전용, LLM 토큰 0)**: 08:30 동기화 / 09:05 RFP·암호화 배포 / 일요일 19:00 Gemini 브리핑 수집.
+- 결과 페이지 = **https://semiseron.kr/lecture/bidding/** — 강의자료실과 같은 비밀번호(키체인 `semiseron-lecture`), staticrypt@3.5.4. **평문은 저장소에 절대 넣지 않는다**(배포 스크립트가 스스로 검사하고 중단한다).
+- 에이지에게: 이 폴더(`lecture/bidding/`)를 손으로 만들거나 `rm -rf` 하지 마라. 갱신은 크론이 `rsync -a --delete` 로 하고, 사람이 넣을 자료가 있으면 하위 폴더를 새로 만들어라(대시보드는 index.html 하나만 쓴다).
+- 함정: `ego-browser` console 출력은 **stderr**로 나온다. `task.finish`는 `keep: []` 또는 `"all"`만 받는다.
+- 전문: `2026-11-28_입찰-브리핑-자동운영-해나.md`
