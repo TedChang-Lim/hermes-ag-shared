@@ -435,3 +435,12 @@ cd "$NEMO"
 - 에이지에게: 이 폴더(`lecture/bidding/`)를 손으로 만들거나 `rm -rf` 하지 마라. 갱신은 크론이 `rsync -a --delete` 로 하고, 사람이 넣을 자료가 있으면 하위 폴더를 새로 만들어라(대시보드는 index.html 하나만 쓴다).
 - 함정: `ego-browser` console 출력은 **stderr**로 나온다. `task.finish`는 `keep: []` 또는 `"all"`만 받는다.
 - 전문: `2026-11-28_입찰-브리핑-자동운영-해나.md`
+
+## 2026-11-28 TED CORE **2.2.0** — 작업 잘림 문제 해결
+
+- 증상: 에이지가 600초에 잘려 "제한 시간 초과"로 실패. 실제로는 계속 쓰고 있는 중이었다.
+- 원인: `~/.ted/bots/*.json`의 `timeout_s`(기본 600)를 `studio.rs`가 **벽시계 상한**으로 썼고, `tokio::select!` sleep이 이기면 프로세스 그룹을 강제 종료. `timeout_s: 0`도 코드에서 600으로 치환됐다.
+- 수정: 출력이 올 때마다 활동 시각을 갱신하고, **마지막 출력 후 `idle_timeout_s`(기본 180초) 무출력일 때만** 중단. `timeout_s: 0` = 절대 상한 없음.
+- 설정: `agy.json` → `timeout_s: 0`, `idle_timeout_s: 180`. 다른 봇도 길게 돌릴 일이 있으면 같은 방식으로 0으로 두면 된다.
+- 검증: `cargo test` 31개 통과(워치독 테스트 4개 신규), `hermes verify --json` exit 0, `/api/state` → `version 2.2.0`.
+- 기록: `ted-core/CHANGELOG.md` (앞으로 동작이 바뀌면 버전 올리고 한 줄 이상 남긴다).
